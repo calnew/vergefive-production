@@ -1,0 +1,25 @@
+const { chromium } = require('../tools/homepage-promo-video/node_modules/playwright');
+(async () => {
+  const base = 'https://backend-progress.vergefive.pages.dev';
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+  const events = { console: [], failed: [], responses: [] };
+  page.on('console', (m) => events.console.push({ type: m.type(), text: m.text() }));
+  page.on('requestfailed', (r) => events.failed.push({ url: r.url(), error: r.failure()?.errorText }));
+  page.on('response', (r) => { if (r.url().includes('/api/admin/')) events.responses.push({ url: r.url(), status: r.status() }); });
+  await page.goto(base + '/login/', { waitUntil: 'domcontentloaded' });
+  await page.locator('input[type="email"], input[name*="email" i]').first().fill('billt@turncom360.com');
+  await page.locator('input[type="password"], input[name*="password" i]').first().fill((process.env.VF_AUDIT_PASSWORD || 'set-vf-audit-password'));
+  await page.locator('button:has-text("Login"), button:has-text("Log in"), button[type="submit"]').first().click();
+  await page.waitForLoadState('domcontentloaded').catch(() => {});
+  await page.waitForTimeout(1000);
+  await page.goto(base + '/admin/', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2500);
+  const before = await page.locator('[data-admin-member-detail-body]').innerText().catch(e => 'ERR '+e.message);
+  const count = await page.locator('[data-admin-member-id]').count();
+  if (count) await page.locator('[data-admin-member-id]').first().click();
+  await page.waitForTimeout(2500);
+  const after = await page.locator('[data-admin-member-detail-body]').innerText().catch(e => 'ERR '+e.message);
+  console.log(JSON.stringify({ url: page.url(), count, before, after, events }, null, 2));
+  await browser.close();
+})().catch((error) => { console.error(error); process.exit(1); });

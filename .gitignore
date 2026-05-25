@@ -1,0 +1,36 @@
+# Dependencies and caches
+node_modules/
+.wrangler/
+.cache/
+dist/
+build/
+
+# Local environment and secrets
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+wrangler-pages-dev*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated QA screenshots and temporary captures
+qa-*.png
+tmp-*.png
+qa/**/*.png
+qa/**/*.webm
+qa/**/*.mp4
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/qa/**/*.html
+qa/**/*.txt
+qa/**/*.json
+
+# Local reference archives kept off GitHub
+_reference/

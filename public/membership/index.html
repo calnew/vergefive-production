@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Checkout | Verge Five</title>
+  <meta name="description" content="Activate Verge Five membership access.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32"><link rel="icon" type="image/png" sizes="32x32" href="/Resources/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/Resources/images/favicon-16x16.png"><link rel="apple-touch-icon" href="/Resources/images/vergefive-icon-180.png"><link rel="stylesheet" href="/Style/vf-redesign.css">
+</head>
+<body class="vf-static-page auth-page checkout-page">
+  <header class='site-header'><div class='nav'><a class='brand' href='/'><span class='brand-logo-shell mark'><img src='/Resources/images/verge5-logo-mark.png' alt='Verge Five logo'></span><span>Verge Five</span></a><nav class='nav-links'><a href='/'>Home</a><a href='/whats-inside/'>What's Inside</a><a href='/business-credit-answers/'>Answers</a><a href='/membership/'>Price</a><a href='/blog/'>Blog</a></nav><div class='nav-actions'><a class='btn ghost' href='/login/'>Login</a><a class='btn' href='/signup/?trial=start'>Test Drive</a></div><button class='mobile-toggle' data-menu-toggle aria-label='Open menu'>Menu</button></div><div class='mobile-panel'><a href='/'>Home</a><a href='/whats-inside/'>What's Inside</a><a href='/business-credit-answers/'>Answers</a><a href='/membership/'>Price</a><a href='/blog/'>Blog</a><a href='/login/'>Login</a><a href='/signup/?trial=start'>Test Drive</a></div></header>
+  <main class="checkout-shell">
+    <section class="checkout-hero">
+      <p class="kicker">Secure checkout</p>
+      <h1>Your Verge Five access, one click away.</h1>
+      <p>Review your selection, add your details, apply a coupon if you have one, and continue to Stripe.</p>
+    </section>
+    <section class="checkout-layout">
+      <div class="checkout-form-card">
+        <a class="checkout-back-link" href="/#pricing">Back to pricing</a>
+        <div class="checkout-step-card">
+          <p class="checkout-step-label">Choose your access</p>
+          <div class="checkout-plan-row">
+            <article class="checkout-mini-plan" data-plan-card="monthly">
+              <span>Monthly</span>
+              <strong>$49</strong>
+              <small>Month to month</small>
+              <button class="btn ghost small" type="button" data-select-plan data-plan="monthly">Select</button>
+            </article>
+            <article class="checkout-mini-plan" data-plan-card="annual">
+              <span>Annual</span>
+              <strong>$497</strong>
+              <small>Best value</small>
+              <button class="btn ghost small" type="button" data-select-plan data-plan="annual">Select</button>
+            </article>
+          </div>
+        </div>
+        <div class="checkout-selected-box">
+          <span>You selected</span>
+          <strong data-checkout-selected-title>Monthly access</strong>
+          <small data-checkout-selected-copy>Month-to-month access to the Verge Five buildout.</small>
+        </div>
+        <div class="checkout-section-title"><span>1.</span><h2>Your details</h2></div>
+        <div class="checkout-field-grid">
+          <label>Name<input class="input" name="name" data-checkout-name autocomplete="name"></label>
+          <label>Email<input class="input" name="email" type="email" data-checkout-email autocomplete="email"></label>
+        </div>
+        <label class="checkout-full-field">How did you hear about us?
+          <select class="input" name="source" data-checkout-source>
+            <option value="">Choose one</option>
+            <option>Google or search</option>
+            <option>Social media</option>
+            <option>Referral</option>
+            <option>Existing client</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <div class="checkout-code-row">
+          <label>Coupon code<input class="input" name="couponCode" data-coupon-code-input placeholder="Example: VPI4545"></label>
+          <button class="btn secondary" type="button" data-apply-coupon>Apply</button>
+        </div>
+        <p class="affiliate-code-note coupon-code-note" data-coupon-code-note hidden></p>
+        <details class="checkout-referral-fold">
+          <summary>Optional referral code</summary>
+          <label>Referral code<input class="input" name="affiliateCode" data-affiliate-code-input placeholder="Referral code"></label>
+          <p class="affiliate-code-note" data-affiliate-code-note hidden></p>
+        </details>
+        <div class="checkout-section-title"><span>2.</span><h2>Payment</h2></div>
+        <p class="checkout-pay-copy">You will complete payment securely on Stripe. After payment, Verge Five creates or unlocks your member account and emails your access link.</p><label class="checkout-legal-consent"><input type="checkbox" data-legal-consent> <span>I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms &amp; Conditions</a> and <a href="/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a>, authorize recurring billing for the selected plan, and understand Verge Five is a readiness guide, not a guarantee of credit, funding, vendor approval, or business results.</span></label>
+        <button class="btn checkout-primary" type="button" data-start-checkout><span data-checkout-plan-label>Continue to monthly checkout</span></button>
+        <div class="auth-message" data-auth-message></div>
+      </div>
+      <aside class="checkout-summary-card">
+        <p class="checkout-step-label">Your order</p>
+        <div class="checkout-current-box">
+          <span>Current selection</span>
+          <strong data-checkout-summary-title>Monthly access</strong>
+        </div>
+        <div class="checkout-order-line">
+          <span class="checkout-order-icon">V</span>
+          <div><strong data-checkout-order-name>Verge Five Monthly</strong><small data-checkout-order-copy>Guided buildout, readiness tools, matchers, reports, and saved progress.</small></div>
+          <b data-checkout-order-price>$49.00</b>
+        </div>
+        <div class="checkout-total-row"><span>Total today</span><strong data-checkout-total>$49.00</strong></div>
+        <div class="checkout-includes-box">
+          <span>Complete member access</span>
+          <span>Saved progress and reports</span>
+          <span>Secure Stripe checkout</span>
+          <span>Cancel or manage billing through Stripe</span>
+        </div>
+        <a class="checkout-testdrive-link" href="/signup/?trial=start">Start with the 30-day test drive instead</a>
+      </aside>
+    </section>
+  </main>
+  <script src="/Scripts/vf-redesign.js" defer></script>
+</body>
+</html>

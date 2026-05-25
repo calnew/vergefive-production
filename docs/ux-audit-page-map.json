@@ -1,0 +1,2135 @@
+[
+  {
+    "path": "public/about-net-30/index.html",
+    "title": "Starter vendor credit readiness | Verge Five",
+    "h1": [
+      "Starter vendor credit readiness"
+    ],
+    "h2": [
+      "Starter Vendor Credit",
+      "Starter tradelines are useful only when the business profile is ready to be reviewed.",
+      "Match your business profile to vendor prerequisites.",
+      "Net 30 accounts should be used to build reporting history, not just to buy supplies.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Starter vendor credit readiness",
+      "Next module",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next module",
+      "Confirm readiness checklist is complete Mark complete when finished.",
+      "Choose starter vendor accounts Mark complete when finished.",
+      "Apply with matching business records Mark complete when finished.",
+      "Track reporting and payment dates Mark complete when finished.",
+      "Continue to Starter vendor directory"
+    ]
+  },
+  {
+    "path": "public/account/index.html",
+    "title": "Account | Verge Five",
+    "h1": [
+      "Your Verge Five access."
+    ],
+    "h2": [
+      "Account actions"
+    ],
+    "h3": [],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Manage billing",
+      "Open dashboard",
+      "Logout"
+    ]
+  },
+  {
+    "path": "public/admin/index.html",
+    "title": "Admin | Verge Five",
+    "h1": [
+      "Member access and progress"
+    ],
+    "h2": [
+      "Affiliate links and commissions"
+    ],
+    "h3": [
+      "Commission queue"
+    ],
+    "buttons": [
+      "Account",
+      "Create affiliate"
+    ]
+  },
+  {
+    "path": "public/affiliate-signup/index.html",
+    "title": "Affiliate Signup | Verge Five",
+    "h1": [
+      "Apply to become a Verge Five affiliate."
+    ],
+    "h2": [
+      "Affiliate application"
+    ],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Submit application"
+    ]
+  },
+  {
+    "path": "public/ai-visibility-audit/index.html",
+    "title": "AI Business Visibility Audit | Verge Five",
+    "h1": [
+      "AI business visibility audit"
+    ],
+    "h2": [
+      "Scan the company profile, save the result, then compare the cleanup.",
+      "What to fix before applications",
+      "Visibility is not just having identifiers. It is having the right type of identifiers."
+    ],
+    "h3": [
+      "No before scan saved yet.",
+      "No after scan saved yet.",
+      "Use twice",
+      "Next"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Run before scan",
+      "Run after scan",
+      "Refresh saved scans"
+    ]
+  },
+  {
+    "path": "public/bank-account/index.html",
+    "title": "Business bank account | Verge Five",
+    "h1": [
+      "Business bank account"
+    ],
+    "h2": [
+      "Banking Foundation",
+      "Banking history shows stability, cash flow, and whether the business can handle credit.",
+      "Start with a local or community bank when possible.",
+      "The bank account is not just for deposits. It becomes a relationship and stability signal.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business bank account",
+      "Next section",
+      "Choose your state to build a bank shortlist.",
+      "Best first choice",
+      "Use big banks carefully",
+      "Ask before opening",
+      "Choose your state to build a bank shortlist."
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Open FDIC BankFind",
+      "Search community banks",
+      "Search SBA lenders",
+      "Open the account in the legal business name Mark complete when finished.",
+      "Fund the account appropriately Mark complete when finished.",
+      "Avoid overdrafts and returned items Mark complete when finished.",
+      "Save statements or proof of account Mark complete when finished.",
+      "Continue to Business bank rating"
+    ]
+  },
+  {
+    "path": "public/bank-rating/index.html",
+    "title": "Business bank rating | Verge Five",
+    "h1": [
+      "Business bank rating"
+    ],
+    "h2": [
+      "Banking Foundation",
+      "A Low 5 rating or better can support stronger business credit applications.",
+      "A stronger bank rating can change how the business looks before a lender reviews it.",
+      "Track the banking foundation here instead of guessing.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business bank rating",
+      "Next section",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Review current average balance Mark complete when finished.",
+      "Set a target balance and next review date Track this on the bank rating section above.",
+      "Avoid NSF activity Mark complete when finished.",
+      "Save statements and wait until banking history supports applications Use the tracker before moving into stronger credit requests.",
+      "Continue to Business plan"
+    ]
+  },
+  {
+    "path": "public/blog/business-address-rules-for-business-credit/index.html",
+    "title": "Business Address Rules That Can Affect Business Credit | Verge Five",
+    "h1": [
+      "Business Address Rules That Can Affect Business Credit"
+    ],
+    "h2": [
+      "Why address quality matters",
+      "What to look for",
+      "The practical test",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-bank-account-requirements/index.html",
+    "title": "What Do You Need to Open a Business Bank Account? | Verge Five",
+    "h1": [
+      "What Do You Need to Open a Business Bank Account?"
+    ],
+    "h2": [
+      "EIN-only is usually misunderstood",
+      "What to prepare",
+      "Why banking comes before vendor credit",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-credit-bureaus-explained/index.html",
+    "title": "Business Credit Bureaus Explained | Verge Five",
+    "h1": [
+      "Business Credit Bureaus Explained"
+    ],
+    "h2": [
+      "The major players",
+      "Why files can be thin",
+      "What owners should do",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-credit-checklist-before-vendors/index.html",
+    "title": "Business Credit Checklist Before Applying for Vendors | Verge Five",
+    "h1": [
+      "Business Credit Checklist Before Applying for Vendors"
+    ],
+    "h2": [
+      "The pre-application check",
+      "Why the checklist matters",
+      "Save proof as you go",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-credit-scams-to-avoid/index.html",
+    "title": "Business Credit Scams and Shortcuts to Avoid | Verge Five",
+    "h1": [
+      "Business Credit Scams and Shortcuts to Avoid"
+    ],
+    "h2": [
+      "Red flags",
+      "Government services should be verified",
+      "Use education, not hype",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-credit-with-bad-personal-credit/index.html",
+    "title": "Can You Build Business Credit With Bad Personal Credit? | Verge Five",
+    "h1": [
+      "Can You Build Business Credit With Bad Personal Credit?"
+    ],
+    "h2": [
+      "Be careful with the promise",
+      "What you can control",
+      "Build both when possible",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-email-vs-gmail-for-applications/index.html",
+    "title": "Business Email vs Gmail: What Should You Use on Applications? | Verge Five",
+    "h1": [
+      "Business Email vs Gmail: What Should You Use on Applications?"
+    ],
+    "h2": [
+      "Why email matters",
+      "What to use",
+      "Keep access secure",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-licenses-and-permits-before-credit/index.html",
+    "title": "Do Licenses and Permits Matter for Business Credit? | Verge Five",
+    "h1": [
+      "Do Licenses and Permits Matter for Business Credit?"
+    ],
+    "h2": [
+      "Why compliance matters",
+      "What to check",
+      "Save proof",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-phone-number-vs-mobile-number/index.html",
+    "title": "Business Phone Number vs Mobile Number: What Lenders May See | Verge Five",
+    "h1": [
+      "Business Phone Number vs Mobile Number: What Lenders May See"
+    ],
+    "h2": [
+      "Why the number type matters",
+      "Use a reputable provider",
+      "Do the 411 step",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/business-plan-for-funding/index.html",
+    "title": "Why a Business Plan Still Matters for Funding | Verge Five",
+    "h1": [
+      "Why a Business Plan Still Matters for Funding"
+    ],
+    "h2": [
+      "It is not just a school assignment",
+      "What to include",
+      "Match the rest of the profile",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/comparable-credit-for-business-approvals/index.html",
+    "title": "What Is Comparable Credit for Business Approvals? | Verge Five",
+    "h1": [
+      "What Is Comparable Credit for Business Approvals?"
+    ],
+    "h2": [
+      "The idea",
+      "Why it matters",
+      "How to build it",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/do-you-need-a-website-for-business-credit/index.html",
+    "title": "Do You Need a Website to Build Business Credit? | Verge Five",
+    "h1": [
+      "Do You Need a Website to Build Business Credit?"
+    ],
+    "h2": [
+      "Why the website matters",
+      "What a basic credible site needs",
+      "DIY or done for you",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/duns-number-vs-ein/index.html",
+    "title": "DUNS Number vs EIN: What Is the Difference? | Verge Five",
+    "h1": [
+      "DUNS Number vs EIN: What Is the Difference?"
+    ],
+    "h2": [
+      "They are not the same",
+      "Which comes first",
+      "Why it matters",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/ein-only-business-credit-myths/index.html",
+    "title": "EIN-Only Business Credit Myths New Owners Should Avoid | Verge Five",
+    "h1": [
+      "EIN-Only Business Credit Myths New Owners Should Avoid"
+    ],
+    "h2": [
+      "What people usually mean",
+      "The danger",
+      "A better approach",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/how-long-does-it-take-to-build-business-credit/index.html",
+    "title": "How Long Does It Take to Build Business Credit? | Verge Five",
+    "h1": [
+      "How Long Does It Take to Build Business Credit?"
+    ],
+    "h2": [
+      "Start versus strength",
+      "What affects timing",
+      "Think in stages",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/how-to-build-business-credit-in-the-right-order/index.html",
+    "title": "How to Build Business Credit in the Right Order | Verge Five",
+    "h1": [
+      "How to Build Business Credit in the Right Order"
+    ],
+    "h2": [
+      "The mistake most new owners make",
+      "The clean sequence",
+      "What to do before applying",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/how-to-choose-net-30-vendors/index.html",
+    "title": "How to Choose Net 30 Vendors That Actually Help | Verge Five",
+    "h1": [
+      "How to Choose Net 30 Vendors That Actually Help"
+    ],
+    "h2": [
+      "Confirm reporting first",
+      "Buy what makes sense",
+      "Use the account correctly",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/how-verge-five-organizes-business-credit/index.html",
+    "title": "How Verge Five Organizes the Business Credit Buildout | Verge Five",
+    "h1": [
+      "How Verge Five Organizes the Business Credit Buildout"
+    ],
+    "h2": [
+      "Why the platform is modular",
+      "What members get from the structure",
+      "The outcome",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/index.html",
+    "title": "Business Credit Blog | Verge Five",
+    "h1": [
+      "Business startup and business credit guidance."
+    ],
+    "h2": [
+      "How to Build Business Credit in the Right Order",
+      "Want the step-by-step buildout, not just articles?"
+    ],
+    "h3": [
+      "How to Build Business Credit in the Right Order",
+      "LLC vs Corporation: What Matters for Business Credit?",
+      "When Should You Get an EIN for a New Business?",
+      "Business Address Rules That Can Affect Business Credit",
+      "Business Phone Number vs Mobile Number: What Lenders May See",
+      "Do You Need a Website to Build Business Credit?",
+      "What Do You Need to Open a Business Bank Account?",
+      "What Is a Business Bank Rating?"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Read the guide",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/llc-vs-corporation-for-business-credit/index.html",
+    "title": "LLC vs Corporation: What Matters for Business Credit? | Verge Five",
+    "h1": [
+      "LLC vs Corporation: What Matters for Business Credit?"
+    ],
+    "h2": [
+      "The simple answer",
+      "Where the structure does matter",
+      "The Verge Five rule",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/what-are-net-30-accounts/index.html",
+    "title": "What Are Net 30 Accounts for Business Credit? | Verge Five",
+    "h1": [
+      "What Are Net 30 Accounts for Business Credit?"
+    ],
+    "h2": [
+      "What Net 30 means",
+      "Not all vendors report",
+      "Pay early when possible",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/what-is-a-business-bank-rating/index.html",
+    "title": "What Is a Business Bank Rating? | Verge Five",
+    "h1": [
+      "What Is a Business Bank Rating?"
+    ],
+    "h2": [
+      "The concept",
+      "What hurts the profile",
+      "What to track",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/what-is-paydex-and-why-it-matters/index.html",
+    "title": "What Is PAYDEX and Why Does It Matter? | Verge Five",
+    "h1": [
+      "What Is PAYDEX and Why Does It Matter?"
+    ],
+    "h2": [
+      "The basic idea",
+      "You need reported data",
+      "Do not obsess over one score",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/what-records-should-match-before-applying/index.html",
+    "title": "What Business Records Should Match Before You Apply? | Verge Five",
+    "h1": [
+      "What Business Records Should Match Before You Apply?"
+    ],
+    "h2": [
+      "The consistency audit",
+      "Small differences can matter",
+      "Make a master profile sheet",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/when-to-get-an-ein-for-a-new-business/index.html",
+    "title": "When Should You Get an EIN for a New Business? | Verge Five",
+    "h1": [
+      "When Should You Get an EIN for a New Business?"
+    ],
+    "h2": [
+      "Get the order right",
+      "Why the EIN matters",
+      "Avoid paid EIN traps",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/blog/why-business-credit-applications-get-denied/index.html",
+    "title": "Why Business Credit Applications Get Denied | Verge Five",
+    "h1": [
+      "Why Business Credit Applications Get Denied"
+    ],
+    "h2": [
+      "The silent problems",
+      "Check the foundation",
+      "Apply after readiness",
+      "Quick readiness check",
+      "Turn this guidance into a step-by-step business credit buildout."
+    ],
+    "h3": [
+      "Verge Five topic",
+      "Related reading",
+      "Research sources"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/building-and-industrial/index.html",
+    "title": "Building and Industrial Vendors | Verge Five",
+    "h1": [
+      "Building and Industrial Vendors"
+    ],
+    "h2": [
+      "Industrial vendors should match the business activity.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Grainger",
+      "Home Depot Pro",
+      "Lowe's Pro",
+      "United Rentals"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/business-address/index.html",
+    "title": "Business address | Verge Five",
+    "h1": [
+      "Business address"
+    ],
+    "h2": [
+      "Business Identity",
+      "A real business address keeps your profile from looking personal or inconsistent.",
+      "Do not use an address that is only a mailbox.",
+      "Recommended address options",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business address",
+      "Next section",
+      "Regus",
+      "Davinci",
+      "Alliance Virtual Offices",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next section",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Choose an address that passes a Google Maps commercial-building check Mark complete when finished.",
+      "Update the address in company records Mark complete when finished.",
+      "Use the same address for directories and banking Mark complete when finished.",
+      "Save proof of the address setup and workspace/meeting-room access Mark complete when finished.",
+      "Continue to Website and domain email"
+    ]
+  },
+  {
+    "path": "public/business-assets-equipment/index.html",
+    "title": "Business Assets and Equipment | Verge Five",
+    "h1": [
+      "Business Assets and Equipment"
+    ],
+    "h2": [
+      "Asset and equipment accounts should support the business plan.",
+      "How to use this category"
+    ],
+    "h3": [
+      "United Rentals",
+      "Sunbelt Rentals",
+      "Dell/TechData",
+      "Floor & Decor Pro"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/business-credit-criteria/index.html",
+    "title": "12-point business credit criteria | Verge Five",
+    "h1": [
+      "12-point business credit criteria"
+    ],
+    "h2": [
+      "Approval Readiness",
+      "The criteria prevent members from applying before the business profile is ready.",
+      "The 12-point criteria are the stop sign before unnecessary denials.",
+      "Confirm every signal before applications",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "12-point business credit criteria",
+      "Next module",
+      "Legal business name",
+      "EIN confirmation",
+      "Active state entity",
+      "Valid business address",
+      "Business phone number"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Review all 12 criteria above Do not move forward until every point has been checked.",
+      "Fix any mismatched records Correct name, address, phone, EIN, banking, license, or bureau issues first.",
+      "Confirm banking and bureau visibility Check bank activity and what appears through NAV.com or bureau resources.",
+      "Save proof before vendor applications Keep screenshots, confirmations, listings, reports, and bank proof.",
+      "Continue to Net 30 business credit"
+    ]
+  },
+  {
+    "path": "public/business-plan-report/index.html",
+    "title": "Progress report | Verge Five",
+    "h1": [
+      "Progress report"
+    ],
+    "h2": [
+      "Business Plan",
+      "This report shows progress and readiness without giving away the lesson plan.",
+      "Download or print the styled progress report.",
+      "Keep the insight. Keep the training inside the platform."
+    ],
+    "h3": [
+      "8-module buildout",
+      "Progress report",
+      "Next module",
+      "Next"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Download report",
+      "Print report",
+      "Continue to Business credit bureaus"
+    ]
+  },
+  {
+    "path": "public/business-plan/index.html",
+    "title": "Business plan | Verge Five",
+    "h1": [
+      "Business plan"
+    ],
+    "h2": [
+      "Business Plan",
+      "A plan gives the business a credible operating story when banks or lenders ask for documentation.",
+      "Business plan tools and sample download",
+      "A business plan gives the company a credible story when a bank asks what it does.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business plan",
+      "Next section",
+      "LivePlan",
+      "Bplans",
+      "SCORE template",
+      "Sample restaurant/store plan",
+      "Lesson complete"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Visit website",
+      "View examples",
+      "Open template",
+      "Download sample PDF",
+      "Download and review the sample business plan Use it to understand the format before writing your own.",
+      "Document products or services Mark complete when finished.",
+      "Add revenue, expense, and projection assumptions Make the numbers realistic for your business type and location.",
+      "Store the plan with business records Mark complete when finished.",
+      "Continue to Progress report"
+    ]
+  },
+  {
+    "path": "public/cd-business-loans/index.html",
+    "title": "CD-secured business loans | Verge Five",
+    "h1": [
+      "CD-secured business loans"
+    ],
+    "h2": [
+      "Bank Funding Options",
+      "Deposit-secured lending can create a lower-risk path to bank credit history.",
+      "Recommended options for this step",
+      "A CD-secured loan can build bank credit history with lower risk when used correctly.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "CD-secured business loans",
+      "Dashboard",
+      "Bank of America",
+      "Chase",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Dashboard",
+      "Select option",
+      "Select option",
+      "Confirm cash reserve amount Mark complete when finished.",
+      "Ask bank about CD-secured options Mark complete when finished.",
+      "Document loan terms and payment dates Mark complete when finished.",
+      "Track reporting and relationship history Mark complete when finished.",
+      "Continue to Coaching and support"
+    ]
+  },
+  {
+    "path": "public/comparable-credit/index.html",
+    "title": "Comparable credit | Verge Five",
+    "h1": [
+      "Comparable credit"
+    ],
+    "h2": [
+      "Approval Readiness",
+      "Bigger approvals often depend on what the business has already handled responsibly.",
+      "Comparable credit helps a lender understand what the business has already handled.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Comparable credit",
+      "Next section",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next section",
+      "List current business tradelines Mark complete when finished.",
+      "Identify limits and payment history Mark complete when finished.",
+      "Compare requested account size to existing history Mark complete when finished.",
+      "Delay applications that are too large for the profile Mark complete when finished.",
+      "Continue to 12-point criteria"
+    ]
+  },
+  {
+    "path": "public/contact-list/index.html",
+    "title": "Secretary of State contact list | Verge Five",
+    "h1": [
+      "Secretary of State contact list"
+    ],
+    "h2": [
+      "Legal Setup",
+      "State records must match the business identity used in banking, directories, and vendor applications.",
+      "Choose your state to open the correct filing website.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Secretary of State contact list",
+      "Next section",
+      "Select a state to see the filing office.",
+      "Select a state to see the filing office.",
+      "'+item.office+'",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next section",
+      "Open official state site",
+      "Find your state filing office Mark complete when finished.",
+      "Confirm business name availability or status Mark complete when finished.",
+      "Verify address and registered agent details Mark complete when finished.",
+      "Save a copy of the state record Mark complete when finished.",
+      "Continue to EIN from IRS"
+    ]
+  },
+  {
+    "path": "public/contact-usb3806186/index.html",
+    "title": "Account and Contact | Verge Five",
+    "h1": [
+      "Account and Contact"
+    ],
+    "h2": [
+      "Recommended next action"
+    ],
+    "h3": [
+      "Member access",
+      "Billing questions",
+      "Support request"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Open dashboard"
+    ]
+  },
+  {
+    "path": "public/contact/index.html",
+    "title": "Contact Verge Five",
+    "h1": [
+      "Contact Verge Five."
+    ],
+    "h2": [],
+    "h3": [
+      "Membership access",
+      "Platform help",
+      "Email"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Open membership",
+      "Member support",
+      "admin@vergefive.com"
+    ]
+  },
+  {
+    "path": "public/conversational-ai-bot/index.html",
+    "title": "Business Credit AI Assistant | Verge Five",
+    "h1": [
+      "Business Credit AI Assistant"
+    ],
+    "h2": [
+      "Recommended next action"
+    ],
+    "h3": [
+      "Ask step questions",
+      "Check sequence",
+      "Prepare for coaching"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Open dashboard"
+    ]
+  },
+  {
+    "path": "public/demo/index.html",
+    "title": "Test drive Verge Five | Business credit readiness demo",
+    "h1": [
+      "Start or fix your business profile before you apply."
+    ],
+    "h2": [
+      "Check your business name or planned company profile.",
+      "Choose what this sample business already has."
+    ],
+    "h3": [
+      "Sample vendor readiness",
+      "Sample card path",
+      "Your paid report would summarize progress without exporting the lessons."
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Run the free scan",
+      "Watch how it works",
+      "Test drive the platform",
+      "Get my visibility score",
+      "View sample report",
+      "Unlock saved progress and full report"
+    ]
+  },
+  {
+    "path": "public/downloads/index.html",
+    "title": "Downloads and Worksheets | Verge Five",
+    "h1": [
+      "Downloads and Worksheets"
+    ],
+    "h2": [
+      "Recommended next action"
+    ],
+    "h3": [
+      "Readiness checklist",
+      "Vendor tracking sheet",
+      "Document folder"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Open dashboard"
+    ]
+  },
+  {
+    "path": "public/ein/index.html",
+    "title": "EIN from IRS | Verge Five",
+    "h1": [
+      "EIN from IRS"
+    ],
+    "h2": [
+      "Legal Setup",
+      "The EIN connects the legal entity to banking, tax, and vendor records.",
+      "Do not let the EIN become the first place the business name gets inconsistent.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "EIN from IRS",
+      "Next module",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Confirm legal entity name Mark complete when finished.",
+      "Apply for or locate the EIN letter Mark complete when finished.",
+      "Store the EIN confirmation Mark complete when finished.",
+      "Use the same EIN details on future applications Mark complete when finished.",
+      "Continue to Business bank account"
+    ]
+  },
+  {
+    "path": "public/equifax-business/index.html",
+    "title": "Business credit bureaus | Verge Five",
+    "h1": [
+      "Business credit bureaus"
+    ],
+    "h2": [
+      "Approval Readiness",
+      "Members need to know where vendor and lender data may appear before they apply.",
+      "Business bureau and monitoring resources",
+      "Business credit bureaus do not all see the same information at the same time.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business credit bureaus",
+      "Next section",
+      "Creditsafe",
+      "Equifax Business",
+      "NAV.com",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Identify relevant business bureaus Mark complete when finished.",
+      "Check NAV or another bureau monitoring resource Save notes on what appears and what is missing.",
+      "Confirm records match Mark complete when finished.",
+      "Save bureau/profile notes Mark complete when finished.",
+      "Continue to Comparable credit"
+    ]
+  },
+  {
+    "path": "public/final-readiness-summary/index.html",
+    "title": "Final readiness summary | Verge Five",
+    "h1": [
+      "Final readiness summary"
+    ],
+    "h2": [
+      "Readiness review",
+      "What is captured right now",
+      "What the business may be ready to review",
+      "Use the report to decide what to fix before applications.",
+      "Save the final readiness summary."
+    ],
+    "h3": [
+      "8-module buildout",
+      "Readiness review",
+      "Next action"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Support",
+      "Print final summary",
+      "Download final summary",
+      "Download report",
+      "Print report"
+    ]
+  },
+  {
+    "path": "public/gas-fleet-and-auto/index.html",
+    "title": "Gas, Fleet, and Auto Vendors | Verge Five",
+    "h1": [
+      "Gas, Fleet, and Auto Vendors"
+    ],
+    "h2": [
+      "Fleet accounts work best when the business has real travel or vehicle use.",
+      "How to use this category"
+    ],
+    "h3": [
+      "BP",
+      "Chevron",
+      "Valero",
+      "Ford Pro"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/general-credit-cards/index.html",
+    "title": "General Business Credit Cards | Verge Five",
+    "h1": [
+      "General Business Credit Cards"
+    ],
+    "h2": [
+      "General credit cards require stronger profile signals.",
+      "How to use this category"
+    ],
+    "h3": [
+      "American Express",
+      "Capital One",
+      "Citi Business",
+      "Ramp"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/high-tech-auto-vendors/index.html",
+    "title": "High Tech and Auto Vendors | Verge Five",
+    "h1": [
+      "High Tech and Auto Vendors"
+    ],
+    "h2": [
+      "High tech vendors often expect a more credible business profile.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Apple Business",
+      "CDW",
+      "Toyota Financial",
+      "Ford"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/home/index.html",
+    "title": "Business Credit System | Verge Five",
+    "h1": [
+      "Business Credit System"
+    ],
+    "h2": [
+      "Recommended next action"
+    ],
+    "h3": [
+      "Member curriculum",
+      "Vendor sequence",
+      "Coaching and AI"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Open dashboard"
+    ]
+  },
+  {
+    "path": "public/homeefe757a6/index.html",
+    "title": "Member Dashboard | Verge Five",
+    "h1": [
+      "Your 8-module business credit buildout."
+    ],
+    "h2": [
+      "Business credit setup roadmap"
+    ],
+    "h3": [
+      "Business Identity",
+      "Legal Setup",
+      "Banking Foundation",
+      "Business Plan",
+      "Approval Readiness",
+      "Starter Vendor Credit",
+      "Credit Tools",
+      "Bank Funding Options"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Begin the roadmap"
+    ]
+  },
+  {
+    "path": "public/index.html",
+    "title": "Business Credit System | Verge Five",
+    "h1": [
+      "Build business credit in the right order"
+    ],
+    "h2": [
+      "See how Verge Five protects you from wasted applications.",
+      "See what is ready before you apply.",
+      "Five steps, one correct order.",
+      "A visual operating system for credit readiness.",
+      "Most denials happen before a human reviews the application.",
+      "Simple access for the full buildout.",
+      "Ready to build it properly?"
+    ],
+    "h3": [
+      "Net-30 account readiness",
+      "Card path readiness",
+      "Business Identity",
+      "Legal Setup",
+      "Banking Foundation",
+      "Approval Readiness",
+      "Vendors and Credit",
+      "Identity signals must match"
+    ],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Start the checklist",
+      "View the system",
+      "Start the roadmap",
+      "Preview the platform",
+      "Get started",
+      "Get annual access",
+      "Start the checklist"
+    ]
+  },
+  {
+    "path": "public/llc-vs-corporation/index.html",
+    "title": "LLC vs Corporation | Verge Five",
+    "h1": [
+      "LLC vs Corporation"
+    ],
+    "h2": [
+      "Legal Setup",
+      "The entity filing becomes the legal anchor for the business credit profile.",
+      "LLC vs Corporation: choose the structure before you file.",
+      "Entity filing options",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "LLC vs Corporation",
+      "Next section",
+      "LLC",
+      "Corporation",
+      "Caveats",
+      "CorpNet",
+      "Bizee"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Choose LLC or Corporation with professional advice if needed Mark complete when finished.",
+      "Review LLC vs Corporation caveats before choosing Mark complete when finished.",
+      "File with the Secretary of State or approved filing service Mark complete when finished.",
+      "Save stamped formation proof Mark complete when finished.",
+      "Use the exact legal name on future records Mark complete when finished.",
+      "Continue to Secretary of State contact list"
+    ]
+  },
+  {
+    "path": "public/login/index.html",
+    "title": "Login | Verge Five",
+    "h1": [
+      "Continue your Verge Five buildout."
+    ],
+    "h2": [],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Login"
+    ]
+  },
+  {
+    "path": "public/membership/index.html",
+    "title": "Membership Access | Verge Five",
+    "h1": [
+      "Unlock the full Verge Five platform."
+    ],
+    "h2": [
+      "Choose access"
+    ],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Start free 7-day test drive",
+      "Select monthly",
+      "Select annual",
+      "Continue to checkout",
+      "Create account first"
+    ]
+  },
+  {
+    "path": "public/nav-boot/index.html",
+    "title": "NAV.com and eCredable fast track | Verge Five",
+    "h1": [
+      "NAV.com and eCredable fast track"
+    ],
+    "h2": [
+      "Credit Tools",
+      "Optional reporting tools can help a thin business profile become visible sooner.",
+      "Recommended options for this step",
+      "How Nav Boost and eCredable can work together.",
+      "Optional reporting tools can help visibility, but they do not replace proper setup.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "NAV.com and eCredable fast track",
+      "Next module",
+      "Nav Business Boost",
+      "eCredable Business Lift",
+      "Nav Boost",
+      "eCredable Business Lift",
+      "Together"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Visit website",
+      "Visit website",
+      "Confirm profile readiness Mark complete when finished.",
+      "Compare Nav and eCredable before choosing a reporting option Mark complete when finished.",
+      "Track account and reporting dates Mark complete when finished.",
+      "Continue vendor sequence carefully Mark complete when finished.",
+      "Continue to CD-secured business loans"
+    ]
+  },
+  {
+    "path": "public/newpage7c157847/index.html",
+    "title": "LLC vs Corporation | Verge Five",
+    "h1": [
+      "LLC vs Corporation"
+    ],
+    "h2": [
+      "Legal Setup",
+      "The entity filing becomes the legal anchor for the business credit profile.",
+      "LLC vs Corporation: choose the structure before you file.",
+      "Entity filing options",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "LLC vs Corporation",
+      "Next section",
+      "LLC",
+      "Corporation",
+      "Caveats",
+      "CorpNet",
+      "Bizee"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Choose LLC or Corporation with professional advice if needed Mark complete when finished.",
+      "Review LLC vs Corporation caveats before choosing Mark complete when finished.",
+      "File with the Secretary of State or approved filing service Mark complete when finished.",
+      "Save stamped formation proof Mark complete when finished.",
+      "Use the exact legal name on future records Mark complete when finished.",
+      "Continue to Secretary of State contact list"
+    ]
+  },
+  {
+    "path": "public/newpage87229491/index.html",
+    "title": "Website and domain email | Verge Five",
+    "h1": [
+      "Website and domain email"
+    ],
+    "h2": [
+      "Business Identity",
+      "Vendors look for a business that appears real, reachable, and consistent online.",
+      "Your website has to look like a real business, not a placeholder.",
+      "Website and email options",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Website and domain email",
+      "Next module",
+      "TurnCom360",
+      "Wix",
+      "Webflow",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Secure the domain Mark complete when finished.",
+      "Publish a complete professional business website Mark complete when finished.",
+      "Add Terms of Service, Privacy Policy, About, Contact, and service pages Mark complete when finished.",
+      "Create domain-based business email Use firstname.lastname@yourdomain.com, info@yourdomain.com, or a similar domain email.",
+      "Match website contact details to the business records Mark complete when finished.",
+      "Continue to LLC vs Corporation"
+    ]
+  },
+  {
+    "path": "public/newpagea5b34995/index.html",
+    "title": "12-point business credit criteria | Verge Five",
+    "h1": [
+      "12-point business credit criteria"
+    ],
+    "h2": [
+      "Approval Readiness",
+      "The criteria prevent members from applying before the business profile is ready.",
+      "The 12-point criteria are the stop sign before unnecessary denials.",
+      "Confirm every signal before applications",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "12-point business credit criteria",
+      "Next module",
+      "Legal business name",
+      "EIN confirmation",
+      "Active state entity",
+      "Valid business address",
+      "Business phone number"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Review all 12 criteria above Do not move forward until every point has been checked.",
+      "Fix any mismatched records Correct name, address, phone, EIN, banking, license, or bureau issues first.",
+      "Confirm banking and bureau visibility Check bank activity and what appears through NAV.com or bureau resources.",
+      "Save proof before vendor applications Keep screenshots, confirmations, listings, reports, and bank proof.",
+      "Continue to Net 30 business credit"
+    ]
+  },
+  {
+    "path": "public/newpagebd8ae2e6/index.html",
+    "title": "High Tech and Auto Vendors | Verge Five",
+    "h1": [
+      "High Tech and Auto Vendors"
+    ],
+    "h2": [
+      "High tech vendors often expect a more credible business profile.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Apple Business",
+      "CDW",
+      "Toyota Financial",
+      "Ford"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/newpageed554e37/index.html",
+    "title": "Business Assets and Equipment | Verge Five",
+    "h1": [
+      "Business Assets and Equipment"
+    ],
+    "h2": [
+      "Asset and equipment accounts should support the business plan.",
+      "How to use this category"
+    ],
+    "h3": [
+      "United Rentals",
+      "Sunbelt Rentals",
+      "Dell/TechData",
+      "Floor & Decor Pro"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/office-and-cleaning/index.html",
+    "title": "Office and Cleaning Vendors | Verge Five",
+    "h1": [
+      "Office and Cleaning Vendors"
+    ],
+    "h2": [
+      "Office and cleaning vendors are best for routine, low-risk purchasing history.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Office Depot",
+      "Staples",
+      "Crown Office Supplies",
+      "Betty Mills"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/phones-and-411/index.html",
+    "title": "Business phone number and 411 listing | Verge Five",
+    "h1": [
+      "Business phone number and 411 listing"
+    ],
+    "h2": [
+      "Business Identity",
+      "Your business phone number is one of the first identity signals vendors check.",
+      "Use a real business phone number that can be listed in commercial business databases.",
+      "Business phone options",
+      "The phone number is not finished until it is listed in Business 411.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Business phone number and 411 listing",
+      "Next section",
+      "TurnCom360",
+      "RingCentral",
+      "Grasshopper",
+      "Phone and 411 preview complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Back to dashboard",
+      "Next section",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Choose one business phone provider Mark complete when finished.",
+      "Set up the number under the exact legal business name Mark complete when finished.",
+      "Add or verify the business in a 411/directory listing Mark complete when finished.",
+      "Save proof of the number and listing for your records Mark complete when finished.",
+      "Continue to trial roadmap"
+    ]
+  },
+  {
+    "path": "public/privacy-policy/index.html",
+    "title": "Privacy Policy | Verge Five",
+    "h1": [
+      "Privacy Policy"
+    ],
+    "h2": [
+      "Platform notice"
+    ],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/retail-and-fleet/index.html",
+    "title": "Retail and Fleet Vendors | Verge Five",
+    "h1": [
+      "Retail and Fleet Vendors"
+    ],
+    "h2": [
+      "Retail and fleet accounts should be sequenced after the starter foundation.",
+      "How to use this category"
+    ],
+    "h3": [
+      "WEX",
+      "Fleet One",
+      "Universal Fleet",
+      "Shell Fleet"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/retail-and-wholesale/index.html",
+    "title": "Retail and Wholesale Vendors | Verge Five",
+    "h1": [
+      "Retail and Wholesale Vendors"
+    ],
+    "h2": [
+      "Wholesale and retail accounts should connect to inventory or real business needs.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Amazon Business",
+      "Costco Business",
+      "Sam's Club",
+      "Wayfair Professional"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/revolving-business-credit-cards/index.html",
+    "title": "Revolving business credit cards | Verge Five",
+    "h1": [
+      "Revolving business credit cards"
+    ],
+    "h2": [
+      "Credit Tools",
+      "Revolving credit should come after the profile can support the application.",
+      "Recommended options for this step",
+      "Revolving credit should come after the business can support the application.",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Revolving business credit cards",
+      "Next section",
+      "American Express",
+      "Capital One",
+      "Ramp",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous module",
+      "Next section",
+      "Select option",
+      "Select option",
+      "Select option",
+      "Review readiness score Mark complete when finished.",
+      "Choose cards appropriate to profile stage Mark complete when finished.",
+      "Apply with matching records Mark complete when finished.",
+      "Track limits, balances, and payment dates Mark complete when finished.",
+      "Continue to NAV.com and eCredable"
+    ]
+  },
+  {
+    "path": "public/signup/index.html",
+    "title": "Create Account | Verge Five",
+    "h1": [
+      "Start your 7-day Verge Five test drive."
+    ],
+    "h2": [],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Start free test drive"
+    ]
+  },
+  {
+    "path": "public/start-here/index.html",
+    "title": "Start Here: Business Credit Setup Roadmap | Verge Five",
+    "h1": [
+      "Start here before you build business credit."
+    ],
+    "h2": [
+      "This is a buildout process, not a list of applications.",
+      "Understand NAP before you start Module 1.",
+      "Name, address, and phone must match everywhere.",
+      "NAP and listing support options",
+      "Enter the basic company information first.",
+      "Mark it in your mind as \"verify,\" not \"skip.\"",
+      "Start with Module 1: Business Identity."
+    ],
+    "h3": [
+      "TurnCom360",
+      "Yext",
+      "BrightLocal",
+      "Before Module 1",
+      "After the buildout"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Enter business profile",
+      "Begin Module 1",
+      "Save and begin Module 1",
+      "Go to dashboard",
+      "Begin Module 1",
+      "Back to dashboard",
+      "View final summary"
+    ]
+  },
+  {
+    "path": "public/starter-cards/index.html",
+    "title": "Starter Business Cards | Verge Five",
+    "h1": [
+      "Starter Business Cards"
+    ],
+    "h2": [
+      "Starter cards are for controlled spending and payment discipline.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Capital One Spark",
+      "Brex",
+      "Divvy/Bill",
+      "Ramp"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/starter-net-30-vendors/index.html",
+    "title": "Starter Net 30 Vendors | Verge Five",
+    "h1": [
+      "Starter Net 30 Vendors"
+    ],
+    "h2": [
+      "Use starter vendors to create clean payment history, not random accounts.",
+      "How to use this category"
+    ],
+    "h3": [
+      "Quill",
+      "Uline",
+      "Nav Business Boost",
+      "Grainger"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Check readiness",
+      "Return to dashboard"
+    ]
+  },
+  {
+    "path": "public/support/index.html",
+    "title": "Coaching and Support | Verge Five",
+    "h1": [
+      "Coaching and Support"
+    ],
+    "h2": [
+      "Recommended next action"
+    ],
+    "h3": [
+      "Setup help",
+      "Profile review",
+      "Denial review"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Open dashboard"
+    ]
+  },
+  {
+    "path": "public/terms/index.html",
+    "title": "Terms of Use | Verge Five",
+    "h1": [
+      "Terms of Use"
+    ],
+    "h2": [
+      "Platform notice"
+    ],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access"
+    ]
+  },
+  {
+    "path": "public/trial-roadmap/index.html",
+    "title": "Trial Readiness Roadmap | Verge Five",
+    "h1": [
+      "You previewed the first identity signal. Now see what the full system checks next."
+    ],
+    "h2": [
+      "The rest of the buildout opens after upgrade.",
+      "Check what the sample business already has."
+    ],
+    "h3": [
+      "Sample vendor readiness",
+      "Sample card path",
+      "Your paid report summarizes progress &mdash; without exporting the lessons."
+    ],
+    "buttons": [
+      "Login",
+      "Unlock full access",
+      "Check a sample profile",
+      "Unlock the full platform",
+      "Upgrade to unlock all modules",
+      "View sample report",
+      "Unlock full report &rarr;"
+    ]
+  },
+  {
+    "path": "public/verify-email/index.html",
+    "title": "Verify Email | Verge Five",
+    "h1": [
+      "Verify your email address."
+    ],
+    "h2": [],
+    "h3": [],
+    "buttons": [
+      "Login",
+      "Get access",
+      "Go to login"
+    ]
+  },
+  {
+    "path": "public/website-domain-email/index.html",
+    "title": "Website and domain email | Verge Five",
+    "h1": [
+      "Website and domain email"
+    ],
+    "h2": [
+      "Business Identity",
+      "Vendors look for a business that appears real, reachable, and consistent online.",
+      "Your website has to look like a real business, not a placeholder.",
+      "Website and email options",
+      "Complete this before continuing"
+    ],
+    "h3": [
+      "8-module buildout",
+      "Website and domain email",
+      "Next module",
+      "TurnCom360",
+      "Wix",
+      "Webflow",
+      "Lesson complete",
+      "Before you leave"
+    ],
+    "buttons": [
+      "Account",
+      "Continue",
+      "Previous section",
+      "Next module",
+      "Visit website",
+      "Visit website",
+      "Visit website",
+      "Secure the domain Mark complete when finished.",
+      "Publish a complete professional business website Mark complete when finished.",
+      "Add Terms of Service, Privacy Policy, About, Contact, and service pages Mark complete when finished.",
+      "Create domain-based business email Use firstname.lastname@yourdomain.com, info@yourdomain.com, or a similar domain email.",
+      "Match website contact details to the business records Mark complete when finished.",
+      "Continue to LLC vs Corporation"
+    ]
+  },
+  {
+    "path": "public/your-bank-rating/index.html",
+    "title": "Business bank rating | Verge Five",
+    "h1": [],
+    "h2": [],
+    "h3": [],
+    "buttons": []
+  }
+]

@@ -1,0 +1,4 @@
+npm warn exec The following package was not found and will be installed: hyperframes@0.5.5
+[?25l|
+o  Transcription failed: whisper-cpp not found. Install: See https://github.com/ggml-org/whisper.cpp#building
+[?25h

@@ -1,0 +1,8 @@
+name = "vergefive"
+pages_build_output_dir = "public"
+compatibility_date = "2026-05-13"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vergefive-members"
+database_id = "c9291712-1726-4010-8ff2-f64652c01d59"

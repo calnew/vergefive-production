@@ -1,0 +1,295 @@
+[
+    {
+        "slug":  "newpage7c157847",
+        "title":  "LLC vs Corporation",
+        "subtitle":  "Lesson 4 / Legal Setup",
+        "tag":  "Entity choice",
+        "poster":  "/Resources/images/llc-vs-corporation-thumbnail.png",
+        "script":  "In this lesson, we are choosing the legal structure for the business. This matters because the entity filing becomes the legal anchor for your business credit profile. An LLC is often simpler to operate, with flexible ownership and pass through taxation by default. A corporation is more formal, with shareholders, directors, officers, bylaws, and stock. Neither choice is automatically better for every business. The right choice depends on ownership, taxes, liability, investors, licensing, and long term plans. Before you file, make sure the legal name, address, registered agent, and ownership information are correct. If the setup is complicated, get tax or legal guidance before moving forward. Once the entity is filed, save the stamped formation proof and use the exact legal name on every future record.",
+        "slides":  [
+                       [
+                           "Choose the structure before filing",
+                           "LLC and Corporation records become the legal source for the business profile."
+                       ],
+                       [
+                           "LLC",
+                           "Often simpler to operate, with flexible ownership and fewer formal requirements."
+                       ],
+                       [
+                           "Corporation",
+                           "More formal structure for shareholders, directors, officers, bylaws, and stock."
+                       ],
+                       [
+                           "Caveat",
+                           "Entity choice can affect taxes, ownership, compliance, and annual reporting."
+                       ],
+                       [
+                           "Before continuing",
+                           "Save the approved filing and use the exact legal name everywhere."
+                       ]
+                   ],
+        "checks":  [
+                       "Choose LLC or Corporation",
+                       "Review caveats",
+                       "File correctly",
+                       "Save proof"
+                   ]
+    },
+    {
+        "slug":  "contact-list",
+        "title":  "Secretary of State Contact List",
+        "subtitle":  "Lesson 5 / Legal Setup",
+        "tag":  "Official records",
+        "poster":  "/Resources/images/secretary-of-state-records.svg",
+        "script":  "In this lesson, you are using the official state filing office as the source of truth. Every state has its own Secretary of State, corporation commission, or business filing office. That official record is what banks, vendors, payment processors, and lenders may compare against your applications. Do not rely on memory or old paperwork if the state record says something different. Use the dropdown on this page to find the correct filing website for your state. Search the business name, confirm the status, verify the address and registered agent, and save a copy of the state record. If the state record is wrong, fix it before moving into banking or credit applications. The goal is to make sure the legal record and every future business credit signal match.",
+        "slides":  [
+                       [
+                           "Use the official state site",
+                           "The state record is the legal source of truth for the business."
+                       ],
+                       [
+                           "Pick your state",
+                           "Use the dropdown to open the correct official filing or search portal."
+                       ],
+                       [
+                           "Verify the record",
+                           "Confirm the legal name, status, address, and registered agent."
+                       ],
+                       [
+                           "Correct errors early",
+                           "Fix state record issues before applying for banking or credit."
+                       ],
+                       [
+                           "Save proof",
+                           "Keep the official record with the business credit file."
+                       ]
+                   ],
+        "checks":  [
+                       "Select state",
+                       "Open official site",
+                       "Verify record",
+                       "Save proof"
+                   ]
+    },
+    {
+        "slug":  "bank-rating",
+        "title":  "Business Bank Rating",
+        "subtitle":  "Lesson 8 / Banking Foundation",
+        "tag":  "Banking signal",
+        "poster":  "/Resources/images/Bank Rating.png",
+        "script":  "In this lesson, we are going to talk about your business bank rating. This is one of the quiet signals that can make a big difference before you apply for stronger business credit. When a bank or lender looks at your company, they are not only looking at whether you have an account. They are looking for stability. That means your average balance, how long the account has been open, regular deposits, and clean account activity. The goal is to build a banking relationship that makes the business look dependable. A Low 5 bank rating is often used as a practical checkpoint because it suggests the account has enough balance strength to support larger requests. Before you move forward, review your average balance, set a target balance plan, keep money moving, and avoid NSF activity.",
+        "slides":  [
+                       [
+                           "What bank rating means",
+                           "Average balance, account history, deposits, and clean activity all matter."
+                       ],
+                       [
+                           "Why lenders care",
+                           "A stable bank account makes the business look more dependable."
+                       ],
+                       [
+                           "Low 5 target",
+                           "A practical checkpoint before stronger business credit requests."
+                       ],
+                       [
+                           "Do not rush",
+                           "Low balances, new accounts, or NSF activity can weaken applications."
+                       ],
+                       [
+                           "Next step",
+                           "Use the worksheet to track current rating and target balance."
+                       ]
+                   ],
+        "checks":  [
+                       "Review balance",
+                       "Set target",
+                       "Avoid NSF activity",
+                       "Track readiness"
+                   ]
+    },
+    {
+        "slug":  "your-bank-rating",
+        "title":  "Your Bank Rating Worksheet",
+        "subtitle":  "Lesson 9 / Banking Foundation",
+        "tag":  "Worksheet",
+        "poster":  "/Resources/images/Bank Rating.png",
+        "script":  "In this lesson, you are going to track your banking foundation instead of guessing. The bank rating worksheet helps you look at the account like a lender might look at it. You want to know the account age, average balance, daily balance habits, deposits, and whether the account has stayed clean. This is not about pretending the business is ready. It is about knowing where the business stands right now. Record your current balance range, set a target, and watch how the account behaves over time. Save monthly statements as proof. If the account is too new or the balance is too low, the next move is not more applications. The next move is strengthening the bank relationship before moving forward.",
+        "slides":  [
+                       [
+                           "Track instead of guessing",
+                           "Use the worksheet to judge the banking foundation honestly."
+                       ],
+                       [
+                           "Measure the right signals",
+                           "Account age, average balance, deposits, and clean activity matter."
+                       ],
+                       [
+                           "Set a target",
+                           "Choose the balance range you need before stronger applications."
+                       ],
+                       [
+                           "Save statements",
+                           "Monthly statements become proof of banking behavior."
+                       ],
+                       [
+                           "Move when ready",
+                           "If the foundation is weak, strengthen it before applying."
+                       ]
+                   ],
+        "checks":  [
+                       "Estimate rating",
+                       "Set target",
+                       "Track habits",
+                       "Document progress"
+                   ]
+    },
+    {
+        "slug":  "equifax-business",
+        "title":  "Business Credit Bureaus",
+        "subtitle":  "Lesson 11 / Approval Readiness",
+        "tag":  "Bureau visibility",
+        "poster":  "/Resources/images/business-credit-advisor.png",
+        "script":  "In this lesson, we are looking at business credit bureaus and why visibility matters before you apply. Business credit data can appear with different bureaus at different times. Dun and Bradstreet, Experian Business, Equifax Business, Creditsafe, and other providers may not all show the same information. That is why consistency matters so much. The legal name, address, phone number, website, E I N, bank records, and vendor applications all need to line up. You also need to monitor what is actually reporting. NAV dot com is one place business owners can use to review business credit information, monitor profile activity, and see certain data connected to major business credit bureaus, depending on the plan and available records. Use NAV, Equifax Business, Creditsafe, and bureau resources as checkpoints. Do not assume every vendor reports to every bureau, and do not assume a thin file means something is wrong. The goal is to see what exists, correct mismatches early, save proof, and choose accounts that support the reporting history you are trying to build.",
+        "slides":  [
+                       [
+                           "Bureaus do not match perfectly",
+                           "Different bureaus may see different information at different times."
+                       ],
+                       [
+                           "Monitor what is reporting",
+                           "Use resources like NAV dot com, Equifax Business, and Creditsafe as checkpoints."
+                       ],
+                       [
+                           "Consistency matters",
+                           "Legal name, address, phone, E I N, banking, and website should line up."
+                       ],
+                       [
+                           "Reporting varies",
+                           "Not every vendor reports to every bureau or on the same timeline."
+                       ],
+                       [
+                           "Correct mismatches",
+                           "Fix incorrect or inconsistent bureau information before new applications."
+                       ],
+                       [
+                           "Build visibility",
+                           "Save proof and choose accounts that support the profile you are building."
+                       ]
+                   ],
+        "checks":  [
+                       "Check NAV",
+                       "Review bureaus",
+                       "Correct mismatches",
+                       "Track reporting"
+                   ]
+    },
+    {
+        "slug":  "comparable-credit",
+        "title":  "Comparable Credit",
+        "subtitle":  "Lesson 12 / Approval Readiness",
+        "tag":  "Approval leverage",
+        "poster":  "/Resources/images/comparable-credit-thumbnail.png",
+        "script":  "In this lesson, we are talking about comparable credit. Comparable credit means the business has already handled accounts that support the next request. If a lender sees that the company has managed small vendor accounts responsibly, it may be easier to understand why the business is ready for a larger account. If the file is thin, asking for too much too soon can create unnecessary denials. Start with the accounts that fit your profile stage. Pay them cleanly. Let them report. Then use that history to decide what the next tier should be. The goal is not to chase the biggest approval. The goal is to build a business credit file that makes the next approval make sense.",
+        "slides":  [
+                       [
+                           "What comparable credit means",
+                           "Existing accounts help explain what the business can already handle."
+                       ],
+                       [
+                           "Thin files need sequence",
+                           "Starter accounts should come before larger requests."
+                       ],
+                       [
+                           "Let history report",
+                           "Pay cleanly and give accounts time to show up."
+                       ],
+                       [
+                           "Choose the next tier",
+                           "Use current approvals to decide the next realistic request."
+                       ],
+                       [
+                           "Build logically",
+                           "The next approval should make sense from the file."
+                       ]
+                   ],
+        "checks":  [
+                       "List current accounts",
+                       "Review limits",
+                       "Let accounts report",
+                       "Choose next tier"
+                   ]
+    },
+    {
+        "slug":  "newpagea5b34995",
+        "title":  "12-Point Business Credit Criteria",
+        "subtitle":  "Lesson 13 / Approval Readiness",
+        "tag":  "Readiness gate",
+        "poster":  "/Resources/images/credit-readiness-desk.png",
+        "script":  "In this lesson, the 12 point criteria work like a readiness gate before vendor accounts, cards, or funding. Do not treat this like busy work. Treat it like a pre application review. The first point is legal business name consistency. The second is E I N confirmation. Third, the entity must be active with the state. Fourth, the business address should be a valid commercial address, not a mailbox-only location. Fifth, the business phone should be a real business number. Sixth, that phone number should be listed in Business four one one. Seventh, the website should be live and professional. Eighth, the business should use domain email, not a personal email address. Ninth, the business bank account should be open in the exact legal name. Tenth, the bank rating and account activity should show stability. Eleventh, any required license, registration, or professional record should match. Twelfth, bureau and public records should be checked for visibility and mismatches. If several items are incomplete, the answer is not more applications. The answer is to fix the foundation first, save proof, and then move forward.",
+        "slides":  [
+                       [
+                           "The 12-point gate",
+                           "Run this review before vendor accounts, cards, or funding."
+                       ],
+                       [
+                           "Identity and legal records",
+                           "Legal name, E I N, state record, and licenses must match."
+                       ],
+                       [
+                           "Contact and online signals",
+                           "Address, phone, Business four one one, website, and domain email must line up."
+                       ],
+                       [
+                           "Banking and bureau signals",
+                           "Bank account, bank rating, and bureau visibility should be checked."
+                       ],
+                       [
+                           "Fix first, then apply",
+                           "If several points fail, strengthen the foundation before applications."
+                       ]
+                   ],
+        "checks":  [
+                       "Legal records",
+                       "Contact signals",
+                       "Online signals",
+                       "Banking signals",
+                       "Bureau review"
+                   ]
+    },
+    {
+        "slug":  "cd-business-loans",
+        "title":  "CD-Secured Business Loans",
+        "subtitle":  "Lesson 17 / Vendors and Credit",
+        "tag":  "Secured credit",
+        "poster":  "/Resources/images/CD Loans.png",
+        "script":  "In this lesson, we are looking at CD secured business loans. This can be a lower risk way to build a banking credit relationship when it is used correctly. The idea is simple. The business places money in a certificate of deposit or secured account, and the bank lends against that deposit. Because the loan is secured, the bank has less risk. But the business still has to make payments exactly as agreed. This strategy is not free money. It is a way to document clean repayment history with a financial institution. Before using this path, confirm the terms, understand how the deposit is held, ask whether the relationship can help your business credit file, and save all loan documents and payoff proof.",
+        "slides":  [
+                       [
+                           "A lower-risk bank credit path",
+                           "The loan is secured by money held with the bank."
+                       ],
+                       [
+                           "Understand the structure",
+                           "The deposit protects the bank while the business makes payments."
+                       ],
+                       [
+                           "Not free money",
+                           "The purpose is clean repayment history, not extra cash flow."
+                       ],
+                       [
+                           "Confirm terms",
+                           "Know how the deposit is held and how payments are documented."
+                       ],
+                       [
+                           "Save proof",
+                           "Keep loan documents, payment history, and payoff confirmation."
+                       ]
+                   ],
+        "checks":  [
+                       "Confirm terms",
+                       "Understand deposit",
+                       "Pay as agreed",
+                       "Save payoff proof"
+                   ]
+    }
+]

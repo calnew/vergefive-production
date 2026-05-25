@@ -1,0 +1,13 @@
+﻿In this lesson, we are setting up the business website, domain, and domain-based business email. These three items work together as one identity signal.
+
+A professional website helps vendors, banks, and lenders understand what the company does, how it operates, and how customers can reach it. But the website by itself is not enough.
+
+The business also needs email on the same domain. A missing business email is a major red flag. If the company is using a personal email address like Gmail, Yahoo, Outlook, or an internet provider email, it can make the business look unfinished or less legitimate during review.
+
+Once you purchase the domain, set up business email from that domain. A strong format is first name dot last name at your domain dot com. You can also use info at your domain dot com, billing at your domain dot com, or support at your domain dot com when those addresses fit the business.
+
+Wherever you get the domain or website, that provider should be able to help with business email. GoDaddy, Wix, Webflow, Google Workspace, Microsoft 365, and similar services all have paths for connecting a domain and creating professional email.
+
+Before moving forward, make sure the website has real service pages, an about page, a contact page, a privacy policy, terms of service, the same business phone number, the same address, and the same legal business name used everywhere else.
+
+The goal is simple. When a vendor or lender checks the company, the website and email should make the business look real, reachable, professional, and consistent.

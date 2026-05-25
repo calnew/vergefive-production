@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-labelledby="title">
+  <title id="title">Equifax Business logo</title>
+  <rect width="420" height="120" rx="16" fill="#ffffff"/>
+  <g transform="translate(30 28)">
+    <path d="M0 0h86v18H18v13h62v18H18v15h70v18H0z" fill="#b31b34"/>
+    <path d="M102 0h22l22 31 22-31h22l-32 45 34 37h-24l-22-25-22 25h-23l33-38z" fill="#b31b34"/>
+  </g>
+  <text x="226" y="62" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="#25364f">Equifax</text>
+  <text x="228" y="91" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="800" fill="#5c6f86">Business</text>
+</svg>

@@ -1,0 +1,376 @@
+[
+  {
+    "id": "about-net-30",
+    "slug": "about-net-30",
+    "title": "Net 30 Business Credit",
+    "subtitle": "Lesson 14 / Vendors and Credit",
+    "tag": "Vendor credit",
+    "poster": "/Resources/images/office_table_set_computer_cup_notebook.jpg",
+    "scriptFile": "about-net-30.clean.txt",
+    "slides": [
+      [
+        "Vendor credit matters",
+        "It builds relationships, manages cash flow, and strengthens the business credit profile."
+      ],
+      [
+        "Net 30 accounts",
+        "Purchase goods or services on credit and pay the invoice within 30 days."
+      ],
+      [
+        "Payment history",
+        "On-time payments help demonstrate reliability to future lenders."
+      ],
+      [
+        "Use in sequence",
+        "Start after the foundation is ready and records match."
+      ],
+      [
+        "Document everything",
+        "Track accounts, invoice dates, and proof of payment."
+      ]
+    ],
+    "checks": [
+      "Vendor credit",
+      "Net 30",
+      "Payment history",
+      "Proof"
+    ]
+  },
+  {
+    "id": "bank-account",
+    "slug": "bank-account",
+    "title": "Business Bank Account",
+    "subtitle": "Lesson 7 / Banking Foundation",
+    "tag": "Banking",
+    "poster": "/Resources/images/Biz bank acct.jpg",
+    "scriptFile": "bank-account.clean.txt",
+    "slides": [
+      [
+        "Financial identity",
+        "The business bank account starts the company financial history."
+      ],
+      [
+        "Relationship banking",
+        "A local or regional bank may be better for future loan conversations."
+      ],
+      [
+        "Ask before opening",
+        "Look for a business banker, credit products, and small-business lending support."
+      ],
+      [
+        "Handle cleanly",
+        "Avoid overdrafts, returned items, and inconsistent activity."
+      ],
+      [
+        "Save proof",
+        "Keep account documents and statements in the business file."
+      ]
+    ],
+    "checks": [
+      "Open account",
+      "Fund account",
+      "Clean activity",
+      "Statements"
+    ]
+  },
+  {
+    "id": "business-address",
+    "slug": "business-address",
+    "title": "Business Address",
+    "subtitle": "Lesson 2 / Business Identity",
+    "tag": "Address",
+    "poster": "/Resources/images/pexels-photo-927022-2880w.jpeg",
+    "scriptFile": "business-address.clean.txt",
+    "slides": [
+      [
+        "Real business location",
+        "The address should support credibility, not just mail handling."
+      ],
+      [
+        "Use legal name",
+        "The address should connect to the exact business legal name."
+      ],
+      [
+        "Virtual office rule",
+        "Choose a location where you can work or meet a client if needed."
+      ],
+      [
+        "Avoid red flags",
+        "P.O. boxes, mailbox stores, and mailbox-only addresses can create approval issues."
+      ],
+      [
+        "Use everywhere",
+        "Keep the same verified address on records, banking, directories, and applications."
+      ]
+    ],
+    "checks": [
+      "Legal name",
+      "Commercial address",
+      "Avoid red flags",
+      "Consistency"
+    ]
+  },
+  {
+    "id": "business-plan",
+    "slug": "business-plan",
+    "title": "Business Plan",
+    "subtitle": "Lesson 10 / Banking Foundation",
+    "tag": "Planning",
+    "poster": "/Resources/images/Biz Plan.jpg",
+    "scriptFile": "business-plan.clean.txt",
+    "slides": [
+      [
+        "Business plan value",
+        "A plan gives lenders a structured view of the company."
+      ],
+      [
+        "Executive summary",
+        "Explain the business, goals, and how they will be achieved."
+      ],
+      [
+        "Operations and market",
+        "Show how the company works and who it serves."
+      ],
+      [
+        "Financial picture",
+        "Use realistic numbers and a clear use of funds."
+      ],
+      [
+        "Professional document",
+        "Save a clean plan that matches the website and applications."
+      ]
+    ],
+    "checks": [
+      "Summary",
+      "Market",
+      "Financials",
+      "Use of funds"
+    ]
+  },
+  {
+    "id": "ein",
+    "slug": "ein",
+    "title": "EIN From IRS",
+    "subtitle": "Lesson 6 / Legal Setup",
+    "tag": "Federal ID",
+    "poster": "/Resources/images/WzBNYUFfQIyMEAX9AKBs_Biz IDs.v2.0000000.jpg",
+    "scriptFile": "ein.clean.txt",
+    "slides": [
+      [
+        "EIN means Employer Identification Number",
+        "The IRS assigns this federal tax ID to the business."
+      ],
+      [
+        "Business identity",
+        "Think of it as a federal ID number for the company."
+      ],
+      [
+        "Banking and records",
+        "The EIN connects tax, bank, and vendor information."
+      ],
+      [
+        "Use exact details",
+        "The EIN should match the legal business name."
+      ],
+      [
+        "Save the letter",
+        "Keep the EIN confirmation with business records."
+      ]
+    ],
+    "checks": [
+      "Legal name",
+      "EIN letter",
+      "Bank records",
+      "Proof"
+    ]
+  },
+  {
+    "id": "nav-boot",
+    "slug": "nav-boot",
+    "title": "NAV.com and eCredable Fast Track",
+    "subtitle": "Lesson 15 / Vendors and Credit",
+    "tag": "Monitoring",
+    "poster": "/Resources/images/ebook Nav _ecred-1.jpg",
+    "scriptFile": "nav-boot.clean.txt",
+    "slides": [
+      [
+        "Credit profile tools",
+        "NAV.com and eCredable help monitor and build profile visibility."
+      ],
+      [
+        "NAV.com",
+        "Review personal and business credit signals in one place."
+      ],
+      [
+        "NAV Boost",
+        "Monthly payments may help report activity to major bureaus."
+      ],
+      [
+        "eCredable",
+        "Certain eligible bills may be reported to support the business file."
+      ],
+      [
+        "Use carefully",
+        "Tools help visibility, but they do not replace proper setup."
+      ]
+    ],
+    "checks": [
+      "Monitor",
+      "Report",
+      "Verify",
+      "Save proof"
+    ]
+  },
+  {
+    "id": "newpage87229491",
+    "slug": "newpage87229491",
+    "title": "Website and Domain Email",
+    "subtitle": "Lesson 3 / Business Identity",
+    "tag": "Digital presence",
+    "poster": "/Resources/images/0hVmoTqDQJukNW0ODtgD_Biz website.v2.0000000.jpg",
+    "scriptFile": "newpage87229491.clean.txt",
+    "slides": [
+      [
+        "Website and email work together",
+        "A domain, website, and domain email create one business identity signal."
+      ],
+      [
+        "Missing email is a red flag",
+        "Personal email can make the business look unfinished or less legitimate."
+      ],
+      [
+        "Use domain email",
+        "Use firstname.lastname@yourdomain.com, info@yourdomain.com, or a similar business address."
+      ],
+      [
+        "Provider setup",
+        "GoDaddy, Wix, Webflow, Google Workspace, Microsoft 365, and similar services can help."
+      ],
+      [
+        "Match every record",
+        "Website, email, phone, address, and applications should tell the same story."
+      ]
+    ],
+    "checks": [
+      "Website",
+      "Domain",
+      "Business email",
+      "Consistency"
+    ]
+  },
+  {
+    "id": "phones-and-411-phone",
+    "slug": "phones-and-411",
+    "title": "Business Phone Setup",
+    "subtitle": "Lesson 1A / Business Identity",
+    "tag": "Phone signal",
+    "poster": "/Resources/images/Biz Phone.jpg",
+    "scriptFile": "phones-and-411-phone.clean.txt",
+    "slides": [
+      [
+        "Business phone number",
+        "Lenders may check whether the business has a legitimate phone signal."
+      ],
+      [
+        "FCC and carrier data",
+        "The number type can affect how professional the company appears."
+      ],
+      [
+        "Avoid personal-only setup",
+        "A dedicated business number supports trust and reliability."
+      ],
+      [
+        "Use consistently",
+        "Put the same number on records, website, and applications."
+      ],
+      [
+        "Next step",
+        "Add the number to the Business 411 directory."
+      ],
+      [
+        "Choose a qualified provider",
+        "If you do not have a business number yet, use one of the vendor options below for proper business phone setup and registration."
+      ]
+    ],
+    "checks": [
+      "Dedicated number",
+      "Carrier signal",
+      "Auto attendant",
+      "Business 411"
+    ]
+  },
+  {
+    "id": "phones-and-411-411",
+    "slug": "phones-and-411",
+    "title": "Business 411 Directory",
+    "subtitle": "Lesson 1B / Business Identity",
+    "tag": "Directory",
+    "poster": "/Resources/images/Biz 411.jpg",
+    "scriptFile": "phones-and-411-411.clean.txt",
+    "slides": [
+      [
+        "Business 411 listing",
+        "Make the business easier to verify in directory records."
+      ],
+      [
+        "ListYourself.net",
+        "Use the business listing flow to submit your information."
+      ],
+      [
+        "Business information",
+        "Fill out the business name, phone number, and address correctly."
+      ],
+      [
+        "Phone verification",
+        "Answer the call and enter the PIN shown on screen."
+      ],
+      [
+        "Save confirmation",
+        "Keep proof that the number is listed."
+      ]
+    ],
+    "checks": [
+      "Business listing",
+      "Correct info",
+      "PIN call",
+      "Confirmation"
+    ]
+  },
+  {
+    "id": "revolving-business-credit-cards",
+    "slug": "revolving-business-credit-cards",
+    "title": "Revolving Business Credit Cards",
+    "subtitle": "Lesson 16 / Vendors and Credit",
+    "tag": "Credit cards",
+    "poster": "/Resources/images/sSBDBFTw2ce0IDjrPt1g_Understanding Business Credit Cards_ Typ 2023-11-19.v2.0000000.jpg",
+    "scriptFile": "revolving-business-credit-cards.clean.txt",
+    "slides": [
+      [
+        "Business card options",
+        "Different cards serve different stages of business credit."
+      ],
+      [
+        "Bank cards",
+        "Major banks may offer rewards, cash back, and travel benefits."
+      ],
+      [
+        "Retail cards",
+        "Store cards can support purchasing with specific vendors."
+      ],
+      [
+        "Approval readiness",
+        "Personal credit, business profile, and revenue may matter."
+      ],
+      [
+        "Use responsibly",
+        "Control utilization and pay on time after approval."
+      ]
+    ],
+    "checks": [
+      "Card type",
+      "Readiness",
+      "Apply carefully",
+      "Utilization"
+    ]
+  }
+]

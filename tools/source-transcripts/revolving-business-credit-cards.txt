@@ -1,0 +1,3 @@
+[?25l|
+o  Transcription failed: whisper-cpp not found. Install: See https://github.com/ggml-org/whisper.cpp#building
+[?25h
