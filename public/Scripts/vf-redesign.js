@@ -855,7 +855,7 @@
       if(!active)return;
       var email=(data.user.email||'member').toLowerCase();
       var key='vf-member-guide-seen:'+email+':v1';
-      var isDashboard=location.pathname==='/homeefe757a6/'||location.pathname==='/start-here/';
+      var shouldAutoOpenGuide=location.pathname==='/homeefe757a6/';
       var steps=[
         ['Start with the profile','Capture the legal name, state, EIN, phone, address, website, email, and banking signals before applications.'],
         ['Verify NAP consistency','Name, address, and phone should match across state records, bank records, directory listings, website, and applications.'],
@@ -865,7 +865,7 @@
       var modal=document.createElement('div');
       modal.className='member-guide-modal';
       modal.setAttribute('data-member-guide-modal','');
-      modal.innerHTML="<div class='member-guide-backdrop' data-member-guide-close></div><article class='member-guide-card'><button type='button' class='vendor-detail-close' data-member-guide-close>Close</button><p class='kicker'>Platform guide</p><h2>"+(isTrial?'How your free test drive works.':'How to use Verge Five.')+"</h2><p>"+(isTrial?'Your test drive lets you start the foundation and see how the rest of the system unlocks. The deeper vendor, card, and funding areas stay preview-locked until full access is active.':'Verge Five is built to move in order: foundation first, then vendor credit, credit cards, and funding only when the business profile is ready.')+"</p><div class='member-guide-steps'>"+steps.map(function(step,index){return "<span><b>"+(index+1)+"</b><strong>"+escapeHtml(step[0])+"</strong><small>"+escapeHtml(step[1])+"</small></span>"}).join('')+"</div><div class='member-guide-note'><strong>The goal:</strong> build the business identifiers lenders and vendors expect, then use the matchers and report to avoid rushed applications.</div><div class='proof-actions'><a class='btn dark' href='/start-here/'>Start Here</a><a class='btn secondary' href='/business-visibility-audit/'>Run visibility audit</a><button class='btn ghost' type='button' data-member-guide-close>Keep working</button></div></article>";
+      modal.innerHTML="<div class='member-guide-backdrop' data-member-guide-close></div><article class='member-guide-card'><button type='button' class='vendor-detail-close' data-member-guide-close>Close</button><p class='kicker'>Platform guide</p><h2>"+(isTrial?'How your free test drive works.':'How to use Verge Five.')+"</h2><p>"+(isTrial?'Your test drive lets you start the foundation and see how the rest of the system unlocks. The deeper vendor, card, and funding areas stay preview-locked until full access is active.':'Verge Five is built to move in order: foundation first, then vendor credit, credit cards, and funding only when the business profile is ready.')+"</p><div class='member-guide-steps'>"+steps.map(function(step,index){return "<span><b>"+(index+1)+"</b><strong>"+escapeHtml(step[0])+"</strong><small>"+escapeHtml(step[1])+"</small></span>"}).join('')+"</div><div class='member-guide-note'><strong>The goal:</strong> build the business identifiers lenders and vendors expect, then use the matchers and report to avoid rushed applications.</div><div class='proof-actions'><a class='btn dark' href='/start-here/' data-member-guide-start>Start Here</a><a class='btn secondary' href='/business-visibility-audit/' data-member-guide-start>Run visibility audit</a><button class='btn ghost' type='button' data-member-guide-close>Keep working</button></div></article>";
       document.body.appendChild(modal);
       function close(){
         modal.classList.remove('active');
@@ -879,7 +879,7 @@
         modal.classList.add('active');
         document.body.classList.add('modal-open');
       }
-      modal.addEventListener('click',function(e){if(e.target.closest('[data-member-guide-close]'))close()});
+      modal.addEventListener('click',function(e){if(e.target.closest('[data-member-guide-start]')){try{localStorage.setItem(key,'1')}catch(err){} document.body.classList.remove('modal-open');return} if(e.target.closest('[data-member-guide-close]'))close()});
       document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('active'))close()});
       var trigger=document.createElement('button');
       trigger.type='button';
@@ -888,7 +888,7 @@
       trigger.textContent='Guide';
       trigger.addEventListener('click',function(){open(true)});
       document.body.appendChild(trigger);
-      setTimeout(function(){open(false)},isDashboard?650:1200);
+      if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650);
     }).catch(function(){});
   }
   initMemberGuideWalkthrough();
@@ -948,7 +948,7 @@
       var firstName=(member.name||'').split(/\s+/)[0]||'there';
       return {
         subject:'Your Verge Five test drive is ready',
-        message:'Hi '+firstName+',\n\nWelcome to Verge Five. Your test drive gives you a guided way to see how the platform helps you build the foundation before vendor credit, credit cards, or funding applications.\n\nStart here:\nhttps://backend-progress.vergefive.pages.dev/start-here/\n\nThe first thing to do is run the Business Visibility Audit so you have a baseline before Module 1. After that, move through the first business identity step and see how the system opens the next parts of the buildout in order.\n\nInside the platform, you will be able to:\n- Capture the business profile\n- Check name, address, and phone consistency\n- Complete the first business identity step\n- Preview how vendor, credit card, and funding paths unlock when the business is ready\n\nThe goal is simple: do not rush applications. Build the profile first, then use the platform to decide what should happen next.\n\nYou can log in here:\nhttps://backend-progress.vergefive.pages.dev/login/\n\nIf you have questions, reply to this email and we can help you get started.\n\nVerge Five'
+        message:'Hi '+firstName+',\n\nWelcome to Verge Five. Your test drive gives you a guided way to see how the platform helps you build the foundation before vendor credit, credit cards, or funding applications.\n\nStart here:\nhttps://www.vergefive.com/start-here/\n\nThe first thing to do is run the Business Visibility Audit so you have a baseline before Module 1. After that, move through the first business identity step and see how the system opens the next parts of the buildout in order.\n\nInside the platform, you will be able to:\n- Capture the business profile\n- Check name, address, and phone consistency\n- Complete the first business identity step\n- Preview how vendor, credit card, and funding paths unlock when the business is ready\n\nThe goal is simple: do not rush applications. Build the profile first, then use the platform to decide what should happen next.\n\nYou can log in here:\nhttps://www.vergefive.com/login/\n\nIf you have questions, reply to this email and we can help you get started.\n\nVerge Five'
       };
     }
     function applyAdminEmailTemplate(form,member,template){
