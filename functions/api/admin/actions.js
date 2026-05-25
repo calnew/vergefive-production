@@ -98,6 +98,43 @@ export async function onRequestPost(context) {
     return json({ ok: true });
   }
 
+  if (action === 'grant-affiliate-preview') {
+    await context.env.DB.prepare('update users set email_verified_at = coalesce(email_verified_at, datetime("now")) where id = ?').bind(memberId).run();
+    await context.env.DB.prepare(
+      `insert into memberships (user_id, status, current_period_end, plan, created_at, updated_at)
+       values (?, 'lifetime', null, 'affiliate-preview', datetime('now'), datetime('now'))
+       on conflict(user_id) do update set status = 'lifetime', current_period_end = null, plan = 'affiliate-preview', updated_at = datetime('now')`
+    ).bind(memberId).run();
+
+    const resetUrl = await createResetUrl(context, member.id, member.email);
+    const origin = String(context.env.SITE_URL || '') || new URL(context.request.url).origin;
+    const firstName = cleanLimited(member.name, 120).split(/\s+/)[0] || 'there';
+    const subject = 'You have been selected for a Verge Five affiliate preview';
+    const message = [
+      `Hi ${firstName},`,
+      '',
+      'You have been chosen as a potential Verge Five affiliate partner, and we opened full platform preview access for you.',
+      '',
+      'This is not the regular 30-day test drive. This affiliate preview lets you walk through the full platform so you can see what members experience before deciding whether Verge Five is something you would want to share.',
+      '',
+      'Inside the platform, you can review the business visibility audit, the guided modules, the readiness logic, the report flow, and the vendor, credit card, and funding decision path.',
+      '',
+      'Take the platform for a test drive here:',
+      `${origin}/start-here/`,
+      '',
+      'If you need to set or reset your password, use this secure link within 1 hour:',
+      resetUrl,
+      '',
+      'Do not take our word for it. Test drive the platform and see whether this is the missing structure business owners need before they rush into applications.',
+      '',
+      'Verge Five'
+    ].join('\n');
+
+    const result = await sendAdminEmail(context.env, member.email, subject, message, auth.user.email);
+    await logAdminAction(context.env, auth, 'grant-affiliate-preview', memberId, { to: member.email, sent: !!result.sent });
+    if (!result.sent) return json({ error: `Affiliate preview access was granted, but email was not sent: ${result.reason || 'email provider unavailable'}`, resetUrl }, 503);
+    return json({ ok: true, sent: true, resetUrl, expiresInMinutes: 60 });
+  }
   if (action === 'send-email') {
     const subject = cleanLimited(input.subject, 180);
     const message = cleanLimited(input.message, 8000);
