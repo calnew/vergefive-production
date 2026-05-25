@@ -919,6 +919,50 @@
     });
   }
   initContactForm();
+  function initFeedbackForm(){
+    var form=document.querySelector('[data-feedback-form]');
+    if(!form)return;
+    var status=document.querySelector('[data-feedback-status]');
+    var pageUrl=form.querySelector('[data-feedback-page-url]');
+    if(pageUrl&&!pageUrl.value)pageUrl.value=new URLSearchParams(location.search).get('from')||location.href;
+    fetch('/api/auth/me',{headers:{accept:'application/json'}}).then(function(res){return res.ok?res.json():null}).then(function(data){
+      if(!data||!data.user)return;
+      if(form.elements.email&&!form.elements.email.value)form.elements.email.value=data.user.email||'';
+      if(form.elements.name&&!form.elements.name.value)form.elements.name.value=data.user.name||'';
+    }).catch(function(){});
+    form.addEventListener('submit',function(event){
+      event.preventDefault();
+      if(status){status.textContent='Sending report...';status.classList.remove('danger')}
+      var payload={name:(form.elements.name||{}).value||'',email:(form.elements.email||{}).value||'',type:(form.elements.type||{}).value||'Report a problem',severity:(form.elements.severity||{}).value||'Normal',pageUrl:(form.elements.pageUrl||{}).value||location.href,message:(form.elements.message||{}).value||'',steps:(form.elements.steps||{}).value||'',company:(form.elements.company||{}).value||'',browser:navigator.userAgent||''};
+      fetch('/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}).then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Report could not be sent.');return data})}).then(function(){form.reset();if(pageUrl)pageUrl.value=location.href;if(status)status.textContent='Report sent. Thank you - we will review it.'}).catch(function(err){if(status){status.textContent=err.message||'Report could not be sent. Please try again.';status.classList.add('danger')}});
+    });
+  }
+  initFeedbackForm();
+
+  function initFeedbackBugButton(){
+    if(!isMemberExperiencePath()||location.pathname==='/feedback/'||location.pathname==='/admin/')return;
+    if(document.querySelector('[data-feedback-trigger]'))return;
+    var style=document.createElement('style');
+    style.textContent='.feedback-trigger{position:fixed;right:18px;bottom:72px;z-index:1000;border:1px solid #7dd9e7;background:#071733;color:#fff;border-radius:999px;padding:11px 15px;font-size:13px;font-weight:900;text-decoration:none;box-shadow:0 14px 36px rgba(7,23,51,.24)}.feedback-trigger:hover{background:#0b3558}.feedback-inline-link{display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px auto}@media(max-width:760px){.feedback-trigger{right:12px;bottom:18px;padding:10px 12px;font-size:12px}.feedback-inline-link{width:100%;margin:0 0 12px 0}}';
+    document.head.appendChild(style);
+    var href='/feedback/?from='+encodeURIComponent(location.pathname+location.search);
+    var a=document.createElement('a');
+    a.className='feedback-trigger';
+    a.href=href;
+    a.setAttribute('data-feedback-trigger','');
+    a.textContent='Report a problem';
+    document.body.appendChild(a);
+    var target=document.querySelector('.member-main')||document.querySelector('.section.member-layout')||document.querySelector('main');
+    if(target&&!document.querySelector('[data-feedback-inline]')){
+      var inline=document.createElement('a');
+      inline.className='btn secondary feedback-inline-link';
+      inline.href=href;
+      inline.setAttribute('data-feedback-inline','');
+      inline.textContent='Report a problem';
+      target.insertBefore(inline,target.firstChild);
+    }
+  }
+  initFeedbackBugButton();
 
   function initAdminBackend(){
     if(location.pathname!=='/admin/')return;
