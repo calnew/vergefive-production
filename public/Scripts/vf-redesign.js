@@ -1044,6 +1044,9 @@
     function loadEnvironmentStatus(){
       if(!envList)return;
       fetch('/api/config').then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Unable to load environment status');return data})}).then(function(data){
+        if(!data.emailProviderConfigured){
+          adminMessage('Email is not configured in this Cloudflare environment. Use the live admin at https://www.vergefive.com/admin/ or add Resend secrets to this preview environment.',true);
+        }
         var items=[
           envStatusItem('Turnstile',!!data.turnstileConfigured,'Bot protection for signup/login'),
           envStatusItem('Email provider',!!data.emailProviderConfigured,'Resend API key and sender address'),
