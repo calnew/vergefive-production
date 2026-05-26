@@ -15,7 +15,7 @@
     var target=document.querySelector('.member-main .module-section-overview');
     if(!target)return;
     var lessons=[
-      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'Business phone number and 411 listing'},
+      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'NAP overview, phone, and 411 listing'},
       {path:'/business-address/',module:'Module 1',section:'Section 2',title:'Business address'},
       {path:'/website-domain-email/',module:'Module 1',section:'Section 3',title:'Website and domain email'},
       {path:'/llc-vs-corporation/',module:'Module 2',section:'Section 1',title:'LLC vs Corporation'},
@@ -1321,7 +1321,7 @@
       return missing;
     }
     function requiredScanMessage(missing){
-      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, that is the sign to go through Module 1 before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/phones-and-411/">Start Module 1</a>';
+      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, that is the sign to start Module 1 with the NAP overview before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/phones-and-411/">Start Module 1</a>';
     }    function localAdvice(score){
       if(score<=3)return 'The company may be hard for vendors, banks, or lenders to verify. Build the foundation before applying.';
       if(score<=5)return 'The company has limited visibility, but visibility is not the same as being ready for credit applications.';
@@ -1343,7 +1343,7 @@
     }
     function consistencyGate(score){
       var high=(Number(score)||0)>=7;
-      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>NAP consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/phones-and-411/'>Start NAP cleanup</a></div>";
+      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>NAP consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/phones-and-411/'>Start Module 1 NAP overview</a></div>";
     }
     function readinessLocks(score){
       var low=Number(score)||1;
@@ -2159,7 +2159,7 @@
       if(!result)return '';
       var high=(Number(result.score)||0)>=7;
       var copy=high?'This business has public visibility, but that does not prove the name, address, phone, website, email, and listings match across the board. Complete the NAP consistency review before applications.':'Use the NAP consistency review to make sure the business identifiers match before vendor, card, or funding applications.';
-      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>NAP consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/phones-and-411/'>Start NAP cleanup</a></div>";
+      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>NAP consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/phones-and-411/'>Start Module 1 NAP overview</a></div>";
     }    function renderCard(mode,result){
       var card=root.querySelector('[data-audit-card="'+mode+'"]');
       if(!card)return;
