@@ -1069,6 +1069,32 @@
       wrap.appendChild(exportLink);
     }
     addAdminToolbar();
+    function addMemberCreator(){
+      if(document.querySelector('[data-admin-create-member]'))return;
+      var workspace=document.querySelector('.admin-workspace');
+      if(!workspace)return;
+      var section=document.createElement('section');
+      section.className='content-block admin-create-member-panel';
+      section.setAttribute('data-admin-create-member','');
+      section.innerHTML='<div class="block-head"><div><p class="kicker">Create access</p><h2>Add a member manually</h2><p>Create a login, assign access, and optionally send a setup email with a password link.</p></div></div><form class="admin-create-member-form"><label>First name<input class="input" name="firstName" placeholder="First name"></label><label>Last name<input class="input" name="lastName" placeholder="Last name"></label><label>Email<input class="input" name="email" type="email" required placeholder="name@example.com"></label><label>Phone<input class="input" name="phone" placeholder="Optional"></label><label>Access type<select class="input" name="accessType"><option value="test_drive">Test drive</option><option value="paid_member">Paid member</option><option value="grandfathered">Grandfathered member</option><option value="potential_affiliate">Potential affiliate - full access</option><option value="internal_admin">Internal/admin label</option></select></label><label class="admin-checkbox"><input type="checkbox" name="sendSetupEmail" checked> Send setup email</label><button class="btn" type="submit">Create member</button></form><div class="admin-reset-output hide" data-admin-create-output></div>';
+      workspace.parentNode.insertBefore(section,workspace);
+      var form=section.querySelector('form');
+      var output=section.querySelector('[data-admin-create-output]');
+      form.addEventListener('submit',function(e){
+        e.preventDefault();
+        var payload={action:'create-member',firstName:(form.elements.firstName||{}).value||'',lastName:(form.elements.lastName||{}).value||'',email:(form.elements.email||{}).value||'',phone:(form.elements.phone||{}).value||'',accessType:(form.elements.accessType||{}).value||'test_drive',sendSetupEmail:!!(form.elements.sendSetupEmail&&form.elements.sendSetupEmail.checked)};
+        adminMessage('Creating member...');
+        if(output){output.classList.remove('hide');output.textContent='Creating member...'}
+        postAdminAction(payload).then(function(data){
+          adminMessage('Member created.');
+          if(output){output.innerHTML='<strong>Member created</strong><input class="input" readonly value="'+escapeHtml(data.resetUrl||'')+'"><small>'+(data.setupEmailSent?'Setup email sent.':'Setup email was not sent. Use this setup link manually.')+'</small>'}
+          form.reset();
+          if(form.elements.sendSetupEmail)form.elements.sendSetupEmail.checked=true;
+          loadMembers().then(function(){if(data.memberId)loadMemberDetail(data.memberId)});
+        }).catch(function(err){adminMessage(err.message,true);if(output){output.innerHTML='<strong>Unable to create member</strong><small>'+escapeHtml(err.message)+'</small>'}});
+      });
+    }
+    addMemberCreator();
     loadEnvironmentStatus();
     function render(){
       var q=(search&&search.value||'').toLowerCase();
@@ -1113,7 +1139,7 @@
       if(data.billingLinks&&data.billingLinks.stripeCustomer)stripeLinks+='<a class="btn secondary small" target="_blank" rel="noopener" href="'+escapeHtml(data.billingLinks.stripeCustomer)+'">Open Stripe customer</a>';
       if(data.billingLinks&&data.billingLinks.stripeSubscription)stripeLinks+='<a class="btn secondary small" target="_blank" rel="noopener" href="'+escapeHtml(data.billingLinks.stripeSubscription)+'">Open Stripe subscription</a>';
       detailBody.innerHTML='<div class="admin-detail-head"><div><strong>'+escapeHtml(m.name||'Member')+'</strong><span>'+escapeHtml(m.email||'')+'</span><small>'+escapeHtml(m.id||'')+'</small></div><span class="match-status ready">'+escapeHtml(m.membership_status||'none')+'</span></div>'+
-        '<div class="admin-control-panel"><div><label>Status<select class="input" data-admin-status><option>pending</option><option>trial</option><option>active</option><option>lifetime</option><option>paused</option><option>canceled</option></select></label><label>Plan<input class="input" data-admin-plan placeholder="monthly, annual, lifetime" value="'+escapeHtml(m.plan||'')+'"></label><label>Period end<input class="input" data-admin-period placeholder="YYYY-MM-DD or ISO date" value="'+escapeHtml(m.current_period_end||'')+'"></label><button class="btn" type="button" data-admin-action="update-status">Save status</button></div><div><label>Extend trial days<input class="input" data-admin-trial-days type="number" min="1" max="365" value="30"></label><button class="btn secondary" type="button" data-admin-action="extend-trial">Extend trial</button><button class="btn secondary" type="button" data-admin-action="verify-email">Mark email verified</button><button class="btn secondary" type="button" data-admin-action="reset-password">Create reset link</button><button class="btn ghost" type="button" data-admin-action="clear-progress">Clear progress</button></div></div>'+
+        '<div class="admin-control-panel"><div><label>Status<select class="input" data-admin-status><option>pending</option><option>trial</option><option>active</option><option>lifetime</option><option>paused</option><option>canceled</option></select></label><label>Plan<input class="input" data-admin-plan placeholder="monthly, annual, lifetime" value="'+escapeHtml(m.plan||'')+'"></label><label>Period end<input class="input" data-admin-period placeholder="YYYY-MM-DD or ISO date" value="'+escapeHtml(m.current_period_end||'')+'"></label><button class="btn" type="button" data-admin-action="update-status">Save status</button></div><div><label>Extend trial days<input class="input" data-admin-trial-days type="number" min="1" max="365" value="30"></label><button class="btn secondary" type="button" data-admin-action="extend-trial">Extend trial</button><button class="btn secondary" type="button" data-admin-action="verify-email">Mark email verified</button><button class="btn secondary" type="button" data-admin-action="reset-password">Create reset link</button><button class="btn ghost" type="button" data-admin-action="clear-progress">Clear progress</button><button class="btn danger" type="button" data-admin-action="delete-member">Delete member</button></div></div>'+
         '<div class="admin-reset-output hide" data-admin-reset-output></div>'+
         '<div class="admin-detail-section"><h3>Email member</h3><form data-admin-email-form class="admin-email-form"><label>Template<select class="input" data-admin-email-template><option value="custom">Custom message</option><option value="test-drive-welcome">Welcome / test drive invite</option><option value="stalled-business-credit">Stalled business credit invite</option><option value="business-credit-game-changed">Business credit game changed</option><option value="potential-affiliate-full-access">Potential affiliate full access</option></select></label><input class="input" name="subject" placeholder="Subject" value="Update from Verge Five"><textarea class="input" name="message" rows="12" placeholder="Write or edit the message to '+escapeHtml(m.email||'this member')+'"></textarea><p class="legal" data-admin-email-edit-note>Templates only fill this draft. Review and edit before sending. The affiliate access template labels the member as a potential affiliate and grants full platform access when sent.</p><div class="proof-actions"><button class="btn" type="submit">Send email</button><button class="btn secondary" type="button" data-admin-load-template="test-drive-welcome">Load welcome template</button><button class="btn secondary" type="button" data-admin-load-template="stalled-business-credit">Load test drive invite</button><button class="btn secondary" type="button" data-admin-load-template="business-credit-game-changed">Load game changed email</button><button class="btn secondary" type="button" data-admin-load-template="potential-affiliate-full-access">Load affiliate access email</button><a class="btn secondary" href="mailto:'+encodeURIComponent(m.email||'')+'">Open email app</a></div><p class="legal" data-admin-email-status></p></form></div>'+
         '<div class="admin-detail-section"><h3>Billing</h3><p class="legal">Customer: '+escapeHtml(m.stripe_customer_id||'Not connected')+'<br>Subscription: '+escapeHtml(m.stripe_subscription_id||'Not connected')+'</p><div class="proof-actions">'+(stripeLinks||'<span class="legal">No Stripe links available for this member.</span>')+'</div></div>'+
@@ -1163,6 +1189,7 @@
       if(!btn||!currentMemberId)return;
       var action=btn.getAttribute('data-admin-action');
       if(action==='clear-progress'&&!confirm('Clear this member progress, signals, and resume location?'))return;
+      if(action==='delete-member'){var typed=prompt('This permanently deletes the member, login, progress, reports, notes, and access. Type DELETE to confirm.');if(typed!=='DELETE')return;}
       adminMessage('Updating member...');
       var payload={action:action,memberId:currentMemberId};
       if(action==='update-status'){
@@ -1171,8 +1198,10 @@
         payload.currentPeriodEnd=(detailBody.querySelector('[data-admin-period]')||{}).value||'';
       }
       if(action==='extend-trial')payload.days=(detailBody.querySelector('[data-admin-trial-days]')||{}).value||30;
+      if(action==='delete-member')payload.confirm='DELETE';
       postAdminAction(payload).then(function(data){
-        adminMessage('Member updated.');
+        adminMessage(action==='delete-member'?'Member deleted.':'Member updated.');
+        if(action==='delete-member'){currentMemberId='';detailBody.innerHTML='<p class="legal">Member deleted. Choose another member.</p>';loadMembers();return;}
         var out=detailBody.querySelector('[data-admin-reset-output]');
         if(data.resetUrl&&out){out.classList.remove('hide');out.innerHTML='<strong>Password reset link</strong><input class="input" readonly value="'+escapeHtml(data.resetUrl)+'"><small>Expires in '+Number(data.expiresInMinutes||60)+' minutes.</small>'}
         loadMembers();
