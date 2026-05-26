@@ -101,11 +101,29 @@ export async function onRequestPost(context) {
   if (action === 'send-email') {
     const subject = cleanLimited(input.subject, 180);
     const message = cleanLimited(input.message, 8000);
+    const template = cleanLimited(input.template, 120).toLowerCase();
     if (!subject) return json({ error: 'Email subject is required.' }, 400);
     if (!message) return json({ error: 'Email message is required.' }, 400);
     const result = await sendAdminEmail(context.env, member.email, subject, message, auth.user.email);
     if (!result.sent) return json({ error: `Email was not sent: ${result.reason || 'email provider unavailable'}` }, 503);
-    await logAdminAction(context.env, auth, 'send-email', memberId, { to: member.email, subject });
+    if (template === 'potential-affiliate-full-access') {
+      await context.env.DB.prepare(
+        `insert into memberships (user_id, status, current_period_end, plan, created_at, updated_at)
+         values (?, 'lifetime', null, 'potential_affiliate', datetime('now'), datetime('now'))
+         on conflict(user_id) do update set status = 'lifetime', current_period_end = null, plan = 'potential_affiliate', updated_at = datetime('now')`
+      ).bind(memberId).run();
+      await context.env.DB.prepare(
+        `insert into admin_notes (id, user_id, admin_email, note, created_at)
+         values (?, ?, ?, ?, datetime('now'))`
+      ).bind(
+        crypto.randomUUID(),
+        memberId,
+        auth.user.email,
+        'Potential affiliate: full platform access granted after affiliate invitation email was sent.'
+      ).run();
+      await logAdminAction(context.env, auth, 'grant-potential-affiliate-access', memberId, { plan: 'potential_affiliate', status: 'lifetime' });
+    }
+    await logAdminAction(context.env, auth, 'send-email', memberId, { to: member.email, subject, template });
     return json({ ok: true, sent: true });
   }
   if (action === 'add-note') {
