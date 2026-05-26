@@ -1,6 +1,6 @@
 import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, requireSameOrigin } from '../../_lib/auth.js';
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
-import { sendAdminEmail } from '../../_lib/security.js';
+import { createPasswordReset, sendAdminEmail } from '../../_lib/security.js';
 import { stripeGet, stripeRequest } from '../../_lib/stripe.js';
 
 async function requireAdmin(context) {
@@ -180,11 +180,12 @@ export async function onRequestPost(context) {
   }
 
   if (action === 'reset-password') {
-    const resetUrl = await createResetUrl(context, member.id, member.email);
-    await logAdminAction(context.env, auth, 'create-password-reset', memberId, { email: member.email });
-    return json({ ok: true, resetUrl, expiresInMinutes: 60 });
+    const reset = await createPasswordReset(context.env, member.id, member.email, context.request);
+    const emailSent = !!(reset.emailResult && reset.emailResult.sent);
+    const emailReason = reset.emailResult && reset.emailResult.reason || '';
+    await logAdminAction(context.env, auth, 'send-password-reset', memberId, { email: member.email, emailSent, emailReason });
+    return json({ ok: true, resetUrl: reset.url, expiresInMinutes: 60, emailSent, emailReason });
   }
-
   if (action === 'clear-progress') {
     await context.env.DB.prepare('delete from lesson_progress where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from readiness_signals where user_id = ?').bind(memberId).run();
