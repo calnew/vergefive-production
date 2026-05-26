@@ -347,7 +347,7 @@
     var heroTrust=document.querySelector('.hero .trust-row');
     if(heroTrust)heroTrust.innerHTML="<span><i class='dot'></i>Free visibility scan</span><span><i class='dot'></i>Business visibility check</span><span><i class='dot'></i>Readiness before applications</span>";
     if(heroText&&!heroText.querySelector('.home-hero-explainers')){
-      heroText.insertAdjacentHTML('beforeend',"<div class='home-hero-explainers'><article class='home-hero-note light'><p class='kicker'>Start here</p><h2>Scan the public signals first.</h2><p>Check the business name, website, phone, and public footprint before spending time on applications.</p></article><article class='home-hero-note dark'><p class='kicker'>Then preview the system</p><h2>See what membership unlocks.</h2><p>The What&apos;s Inside page shows the platform video and quick readiness test drive without crowding the homepage.</p></article></div>");
+      heroText.insertAdjacentHTML('beforeend',"<div class='home-hero-explainers'><article class='home-hero-note light'><p class='kicker'>Start here</p><h2>Scan the public signals first.</h2><p>Check the business name, website, phone, and public footprint before spending time on applications.</p></article><article class='home-hero-note dark'><p class='kicker'>Next step</p><h2>See how the buildout works.</h2><p>Watch the walkthrough and try a sample readiness demo so you understand how Verge Five moves from scan to stronger applications.</p></article></div>");
     }
     var heroVisual=document.querySelector('.hero-visual');
     if(heroVisual){
