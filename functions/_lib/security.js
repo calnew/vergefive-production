@@ -75,7 +75,7 @@ export async function sendAdminEmail(env, email, subject, message, adminEmail = 
 }
 
 async function sendResendEmail(env, input) {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { sent: false, reason: 'email provider not configured' };
+  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { sent: false, reason: 'email provider not configured in this Cloudflare environment. Missing RESEND_API_KEY or EMAIL_FROM.' };
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
