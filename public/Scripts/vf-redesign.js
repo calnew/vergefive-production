@@ -898,11 +898,8 @@
       document.body.appendChild(trigger);
       fetch('/api/member/guide',{headers:{accept:'application/json'}})
         .then(function(res){return res.ok?res.json():{seen:false}})
-        .then(function(guide){
-          accountGuideSeen=!!(guide&&guide.seen);
-          if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650);
-        })
-        .catch(function(){if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650)});
+        .then(function(guide){accountGuideSeen=!!(guide&&guide.seen)})
+        .catch(function(){});
     }).catch(function(){});
   }
   initMemberGuideWalkthrough();
@@ -1424,7 +1421,7 @@
         grid.parentNode.insertBefore(card,grid);
       }
     }
-    if(location.pathname==='/start-here/'&&!document.querySelector('[data-start-audit-alert]')){
+    if(location.pathname==='/start-here/'&&!document.querySelector('[data-start-flow]')&&!document.querySelector('[data-start-audit-alert]')){
       var lead=document.querySelector('.orientation-lead-panel');
       if(lead){
         var alert=document.createElement('div');
