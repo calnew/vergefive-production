@@ -855,6 +855,7 @@
       if(!active)return;
       var email=(data.user.email||'member').toLowerCase();
       var key='vf-member-guide-seen:'+email+':v1';
+      var accountGuideSeen=false;
       var shouldAutoOpenGuide=location.pathname==='/homeefe757a6/';
       var steps=[
         ['Start with the profile','Capture the legal name, state, EIN, phone, address, website, email, and banking signals before applications.'],
@@ -867,19 +868,25 @@
       modal.setAttribute('data-member-guide-modal','');
       modal.innerHTML="<div class='member-guide-backdrop' data-member-guide-close></div><article class='member-guide-card'><button type='button' class='vendor-detail-close' data-member-guide-close>Close</button><p class='kicker'>Platform guide</p><h2>"+(isTrial?'How your free test drive works.':'How to use Verge Five.')+"</h2><p>"+(isTrial?'Your test drive lets you start the foundation and see how the rest of the system unlocks. The deeper vendor, card, and funding areas stay preview-locked until full access is active.':'Verge Five is built to move in order: foundation first, then vendor credit, credit cards, and funding only when the business profile is ready.')+"</p><div class='member-guide-steps'>"+steps.map(function(step,index){return "<span><b>"+(index+1)+"</b><strong>"+escapeHtml(step[0])+"</strong><small>"+escapeHtml(step[1])+"</small></span>"}).join('')+"</div><div class='member-guide-note'><strong>The goal:</strong> build the business identifiers lenders and vendors expect, then use the matchers and report to avoid rushed applications.</div><div class='proof-actions'><a class='btn dark' href='/start-here/' data-member-guide-start>Start Here</a><a class='btn secondary' href='/business-visibility-audit/' data-member-guide-start>Run visibility audit</a><button class='btn ghost' type='button' data-member-guide-close>Keep working</button></div></article>";
       document.body.appendChild(modal);
+      function markGuideSeen(){
+        accountGuideSeen=true;
+        try{localStorage.setItem(key,'1')}catch(e){}
+        fetch('/api/member/guide',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({seen:true}),keepalive:true}).catch(function(){});
+      }
       function close(){
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
-        try{localStorage.setItem(key,'1')}catch(e){}
+        markGuideSeen();
       }
       function open(force){
         if(!force){
+          if(accountGuideSeen)return;
           try{if(localStorage.getItem(key))return}catch(e){}
         }
         modal.classList.add('active');
         document.body.classList.add('modal-open');
       }
-      modal.addEventListener('click',function(e){if(e.target.closest('[data-member-guide-start]')){try{localStorage.setItem(key,'1')}catch(err){} document.body.classList.remove('modal-open');return} if(e.target.closest('[data-member-guide-close]'))close()});
+      modal.addEventListener('click',function(e){if(e.target.closest('[data-member-guide-start]')){markGuideSeen(); document.body.classList.remove('modal-open');return} if(e.target.closest('[data-member-guide-close]'))close()});
       document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('active'))close()});
       var trigger=document.createElement('button');
       trigger.type='button';
@@ -888,7 +895,13 @@
       trigger.textContent='Guide';
       trigger.addEventListener('click',function(){open(true)});
       document.body.appendChild(trigger);
-      if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650);
+      fetch('/api/member/guide',{headers:{accept:'application/json'}})
+        .then(function(res){return res.ok?res.json():{seen:false}})
+        .then(function(guide){
+          accountGuideSeen=!!(guide&&guide.seen);
+          if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650);
+        })
+        .catch(function(){if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650)});
     }).catch(function(){});
   }
   initMemberGuideWalkthrough();
