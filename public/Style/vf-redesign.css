@@ -1364,3 +1364,14 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
 .contact-side .callout p:not(.kicker){margin:0;color:#334155}
 @media(max-width:980px){.contact-shell{grid-template-columns:1fr}.contact-side{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.contact-two,.contact-side{grid-template-columns:1fr}.contact-form-card{padding:20px}}
+
+/* Admin manual member access */
+.admin-create-member-panel{margin-bottom:12px}
+.admin-create-member-form{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end}
+.admin-create-member-form label,.admin-checkbox{display:grid;gap:5px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:900;color:#5c6f86}
+.admin-checkbox{align-content:center;min-height:34px;text-transform:none;letter-spacing:0;color:#17324d;font-size:12px}
+.admin-checkbox input{width:14px;height:14px;margin-right:6px;vertical-align:middle}
+.admin-page .btn.danger{background:#8f1d1d;border-color:#8f1d1d;color:#fff}
+.admin-page .btn.danger:hover{background:#6f1414;border-color:#6f1414}
+@media(max-width:1180px){.admin-create-member-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.admin-create-member-form{grid-template-columns:1fr}}
