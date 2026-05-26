@@ -585,7 +585,7 @@
               if(msg)msg.innerHTML='Account created. Verification email provider is not configured yet.<br><a href="'+data.emailVerification.verificationUrl+'">Verify this test account</a>';
               return;
             }
-            location.href=nextPath(mode==='register'?'/start-here/?trial=started':'/homeefe757a6/');
+            location.href=nextPath(mode==='register'?'/start-here/?trial=started':(data.isAdmin?'/admin/':'/homeefe757a6/'));
           })
           .catch(function(err){message(err.message,true)});
       });
@@ -849,6 +849,7 @@
     if(location.pathname==='/login/'||location.pathname==='/signup/'||document.querySelector('[data-member-guide-modal]'))return;
     fetch('/api/auth/me',{headers:{accept:'application/json'}}).then(function(res){return res.json()}).then(function(data){
       if(!data||!data.user)return;
+      if(data.isAdmin)return;
       var status=(data.membership&&data.membership.status)||'none';
       var isTrial=/^trial$/i.test(status);
       var active=!!data.active||isTrial;
