@@ -73,6 +73,7 @@ const TRIAL_PREVIEW_PREFIXES = PROTECTED_PREFIXES.filter((prefix) => (
 ));
 
 const TRIAL_ALLOWED_MEMBER_API_PREFIXES = [
+  '/api/member/guide',
   '/api/member/profile',
   '/api/member/progress',
   '/api/member/visibility-audits'
