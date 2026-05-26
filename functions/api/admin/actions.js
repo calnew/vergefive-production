@@ -1,4 +1,4 @@
-import { cleanLimited, getAuth, isAdminEmail, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, requireSameOrigin } from '../../_lib/auth.js';
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 import { stripeGet, stripeRequest } from '../../_lib/stripe.js';
@@ -22,6 +22,48 @@ async function createResetUrl(context, userId, email) {
   const origin = String(context.env.SITE_URL || '') || new URL(context.request.url).origin;
   return `${origin}/reset-password/?token=${encodeURIComponent(token)}`;
 }
+function accessPlan(accessType, env) {
+  const type = cleanLimited(accessType, 80).toLowerCase();
+  if (type === 'potential_affiliate') return { status: 'lifetime', plan: 'potential_affiliate', periodEnd: null, label: 'Potential affiliate' };
+  if (type === 'grandfathered') return { status: 'lifetime', plan: 'grandfathered', periodEnd: null, label: 'Grandfathered member' };
+  if (type === 'paid_member') return { status: 'active', plan: 'manual_paid', periodEnd: null, label: 'Manual paid member' };
+  if (type === 'internal_admin') return { status: 'lifetime', plan: 'internal_admin', periodEnd: null, label: 'Internal/admin' };
+  const trialDays = Math.max(1, Math.min(365, Number(env.TRIAL_DAYS || 30)));
+  return { status: 'trial', plan: 'test_drive', periodEnd: addDays(trialDays), label: 'Test drive', trialDays };
+}
+
+async function deleteMemberData(env, userId) {
+  const tables = [
+    'sessions',
+    'email_verification_tokens',
+    'password_reset_tokens',
+    'memberships',
+    'business_profiles',
+    'lesson_progress',
+    'readiness_signals',
+    'resume_locations',
+    'report_snapshots',
+    'visibility_audits',
+    'member_preferences',
+    'affiliate_commissions',
+    'affiliate_referrals',
+    'admin_notes'
+  ];
+  try {
+    await env.DB.prepare('delete from affiliate_invoice_events where commission_id in (select id from affiliate_commissions where user_id = ?)').bind(userId).run();
+  } catch (error) {
+    if (!/no such table/i.test(String(error && error.message || error))) throw error;
+  }
+  for (const table of tables) {
+    try {
+      await env.DB.prepare(`delete from ${table} where user_id = ?`).bind(userId).run();
+    } catch (error) {
+      if (!/no such table/i.test(String(error && error.message || error))) throw error;
+    }
+  }
+  await env.DB.prepare('update admin_activity_log set user_id = null where user_id = ?').bind(userId).run();
+  await env.DB.prepare('delete from users where id = ?').bind(userId).run();
+}
 
 export async function onRequestPost(context) {
   const originError = requireSameOrigin(context);
@@ -43,12 +85,65 @@ export async function onRequestPost(context) {
     return json({ ok: true, coupons });
   }
 
+  if (action === 'create-member') {
+    const email = normalizeEmail(input.email);
+    const firstName = cleanLimited(input.firstName, 80);
+    const lastName = cleanLimited(input.lastName, 80);
+    const name = cleanLimited(input.name || [firstName, lastName].filter(Boolean).join(' '), 140);
+    const phone = cleanLimited(input.phone, 80);
+    const access = accessPlan(input.accessType || 'test_drive', context.env);
+    const sendSetupEmail = input.sendSetupEmail !== false;
+    if (!email || !email.includes('@')) return json({ error: 'Enter a valid email address.' }, 400);
+    const existing = await context.env.DB.prepare('select id from users where email = ? limit 1').bind(email).first();
+    if (existing) return json({ error: 'An account already exists for that email.' }, 409);
+    const userId = crypto.randomUUID();
+    await context.env.DB.prepare(
+      `insert into users (id, email, name, auth_provider, email_verified_at, created_at)
+       values (?, ?, ?, 'admin-created', datetime('now'), datetime('now'))`
+    ).bind(userId, email, name).run();
+    await context.env.DB.prepare(
+      `insert into memberships (user_id, status, current_period_end, plan, created_at, updated_at)
+       values (?, ?, ?, ?, datetime('now'), datetime('now'))`
+    ).bind(userId, access.status, access.periodEnd, access.plan).run();
+    if (phone) {
+      await context.env.DB.prepare(
+        `insert into business_profiles (user_id, phone, updated_at)
+         values (?, ?, datetime('now'))
+         on conflict(user_id) do update set phone = excluded.phone, updated_at = datetime('now')`
+      ).bind(userId, phone).run();
+    }
+    const resetUrl = await createResetUrl(context, userId, email);
+    await context.env.DB.prepare(
+      `insert into admin_notes (id, user_id, admin_email, note, created_at)
+       values (?, ?, ?, ?, datetime('now'))`
+    ).bind(crypto.randomUUID(), userId, auth.user.email, `Admin-created account. Access type: ${access.label}.`).run();
+    let emailSent = false;
+    let emailReason = '';
+    if (sendSetupEmail) {
+      const greeting = firstName || name || 'there';
+      const subject = access.plan === 'potential_affiliate' ? 'Your full access to the new Verge Five platform' : 'Set up your Verge Five account';
+      const message = access.plan === 'potential_affiliate'
+        ? `Hey ${greeting},\n\nThe new Verge Five platform is live, and I am giving you full access so you can walk through the entire scope of what has been built.\n\nThis is the resource we are using going forward, and the one I want you using when you are talking to people about building business credit the right way. It has been rebuilt from the ground up around how AI and automated underwriting actually work today, so the people you send here are not getting the old guru playbook that gets businesses declined. They are getting a real, step-by-step buildout that gets approved by the algorithm.\n\nTake the time to test drive it. Click through every module, run the readiness checks, and look at the tools. Get familiar with the full flow so you can speak to it confidently when you are putting it in front of your audience.\n\nUse this secure link to set your password and access the platform:\n${resetUrl}\n\nAny constructive criticism is welcome. If something feels off, unclear, or could be sharper, tell me. This platform is going to keep evolving, and your feedback shapes where it goes next.\n\nGoing forward, this is the platform to point people to. It is how business credit gets built correctly in 2026 - not the wrong way the internet is still teaching.\n\nLet us go,\nBill Turner\nFounder, Verge Five`
+        : `Hey ${greeting},\n\nYour Verge Five account has been created. Use the secure link below to set your password and log in.\n\n${resetUrl}\n\nAccess type: ${access.label}.\n\nVerge Five`;
+      const sent = await sendAdminEmail(context.env, email, subject, message, auth.user.email);
+      emailSent = !!sent.sent;
+      emailReason = sent.reason || '';
+    }
+    await logAdminAction(context.env, auth, 'create-member', userId, { email, accessType: access.plan, status: access.status, setupEmailSent: emailSent, setupEmailReason: emailReason });
+    return json({ ok: true, memberId: userId, resetUrl, setupEmailSent: emailSent, setupEmailReason: emailReason });
+  }
   const memberId = cleanLimited(input.memberId || input.userId, 80);
   if (!memberId) return json({ error: 'Member ID is required.' }, 400);
 
   const member = await context.env.DB.prepare('select id, email, name from users where id = ? limit 1').bind(memberId).first();
   if (!member) return json({ error: 'Member not found.' }, 404);
-
+  if (action === 'delete-member') {
+    if (member.id === auth.user.id) return json({ error: 'You cannot delete your own admin account while logged in.' }, 400);
+    if (String(input.confirm || '').toUpperCase() !== 'DELETE') return json({ error: 'Type DELETE to confirm member deletion.' }, 400);
+    await deleteMemberData(context.env, memberId);
+    await logAdminAction(context.env, auth, 'delete-member', null, { deletedUserId: memberId, deletedEmail: member.email });
+    return json({ ok: true, deleted: true });
+  }
   if (action === 'update-status') {
     const allowed = ['pending', 'trial', 'active', 'trialing', 'paid', 'lifetime', 'paused', 'canceled', 'expired', 'none'];
     const status = cleanLimited(input.status, 40).toLowerCase();
