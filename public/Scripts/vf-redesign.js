@@ -1307,6 +1307,8 @@
   function initPublicVisibilityScan(){
     var form=document.querySelector('[data-public-scan]');
     if(!form)return;
+    var isMemberStartScan=form.hasAttribute('data-member-start-scan');
+    if(isMemberStartScan){var existingProfile=loadProfile();['businessName','formationState','phone','website','address','email','industry'].forEach(function(key){var input=form.querySelector('[data-profile-field=\"'+key+'\"]');if(input&&existingProfile[key])input.value=existingProfile[key];});}
     var result=form.querySelector('[data-scan-result]');
     function checked(name){var el=form.elements[name];return !!(el&&el.checked)}
     function value(name){var el=form.elements[name];return el?String(el.value||'').trim():''}
@@ -1368,7 +1370,9 @@
       var evidence=(data.evidence||[]).slice(0,3).map(function(item){return "<li><a href='"+escapeHtml(item.url)+"' target='_blank' rel='noopener'>"+escapeHtml(item.title||item.domain||item.url)+"</a></li>"}).join('');
       var redFlags=(data.redFlags||[]).slice(0,4).map(function(item){return "<li>"+escapeHtml(item)+"</li>"}).join('');
       var findings=(data.findings||[]).slice(0,4).map(function(item){return "<li>"+escapeHtml(item)+"</li>"}).join('');
-      result.innerHTML="<div class='scan-source'>"+escapeHtml(source)+"</div><div class='scan-score'><span>"+escapeHtml(data.score)+"</span><small>/ 10</small></div><strong>"+escapeHtml(data.label)+"</strong><span>"+escapeHtml(data.aiRecommendation||localAdvice(Number(data.score)||1))+"</span><em>Visibility is only the surface check. It does not confirm full vendor, credit card, funding, or NAP consistency readiness.</em>"+consistencyGate(data.score)+readinessLocks(data.score)+(findings?"<div class='scan-list'><b>What we found</b><ul>"+findings+"</ul></div>":"")+(redFlags?"<div class='scan-list danger'><b>What may need work</b><ul>"+redFlags+"</ul></div>":"")+(evidence?"<div class='scan-list'><b>Public evidence</b><ul>"+evidence+"</ul></div>":"<em>"+(data.sourceMode==='public-search'?'No evidence links returned.':'Live public lookup is not configured yet; this score uses entered signals.')+"</em>")+"<a class='btn dark' href='/start-here/'>Start the full readiness path</a>";
+      var cta=isMemberStartScan?"<a class='btn dark' href='/nap-overview/'>Continue to Module 1</a>":"<a class='btn dark' href='/start-here/'>Start the full readiness path</a>";
+      var scanNote=isMemberStartScan?"<em>This member scan saves the profile to the account and becomes the starting baseline. Public homepage scan entries are only previews.</em>":"<em>Visibility is only the surface check. It does not confirm full vendor, credit card, funding, or NAP consistency readiness.</em>";
+      result.innerHTML="<div class='scan-source'>"+escapeHtml(source)+"</div><div class='scan-score'><span>"+escapeHtml(data.score)+"</span><small>/ 10</small></div><strong>"+escapeHtml(data.label)+"</strong><span>"+escapeHtml(data.aiRecommendation||localAdvice(Number(data.score)||1))+"</span>"+scanNote+consistencyGate(data.score)+readinessLocks(data.score)+(findings?"<div class='scan-list'><b>What we found</b><ul>"+findings+"</ul></div>":"")+(redFlags?"<div class='scan-list danger'><b>What may need work</b><ul>"+redFlags+"</ul></div>":"")+(evidence?"<div class='scan-list'><b>Public evidence</b><ul>"+evidence+"</ul></div>":"<em>"+(data.sourceMode==='public-search'?'No evidence links returned.':'Live public lookup is not configured yet; this score uses entered signals.')+"</em>")+cta;
     }
     form.addEventListener('submit',function(e){
       e.preventDefault();
@@ -1376,6 +1380,7 @@
       if(!name){result.innerHTML='<strong>Business name required.</strong><span>Enter the exact business name first.</span>';return}
       var mode=(form.elements.scanMode&&form.elements.scanMode.value)||'before';
       var payload={mode:mode,businessName:name,state:value('state'),website:value('website'),phone:value('phone'),address:value('address'),email:checked('email'),directory:checked('directory'),entity:checked('entity')};
+      if(isMemberStartScan){var p=loadProfile();p.businessName=payload.businessName;p.formationState=payload.state;p.website=payload.website;p.phone=payload.phone;p.address=payload.address;p.email=value('domainEmail')||p.email||'';p.industry=value('industry')||p.industry||'';saveProfile(p);saveMemberProfile(p);renderProfileMentions();}
       var missing=missingRequiredScanFields(payload);
       if(missing.length){markMissingFields(missing.map(function(item){return item==='business phone'?'phone':item==='business address'?'address':item}));result.innerHTML=requiredScanMessage(missing);return}
       clearMissingMarks();
@@ -1385,7 +1390,7 @@
         .catch(function(){return localScan(payload)})
         .then(function(data){
           var saved={mode:mode,businessName:name,state:payload.state,score:data.score,label:data.label,sourceMode:data.sourceMode,time:new Date().toISOString()};
-          try{localStorage.setItem('vf-public-visibility-scan:'+mode,JSON.stringify(saved))}catch(err){}
+          if(isMemberStartScan){memberApi('POST','/api/member/visibility-audits',{mode:mode,businessName:name,result:data}).catch(function(){});}
           renderScan(data);
         });
     });
