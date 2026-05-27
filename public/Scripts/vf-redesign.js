@@ -955,7 +955,7 @@
   initFeedbackForm();
 
   function initFeedbackBugButton(){
-    if(!isMemberExperiencePath()||location.pathname==='/feedback/'||location.pathname==='/admin/')return;
+    if(!isMemberExperiencePath()||location.pathname==='/feedback/'||location.pathname==='/admin/'||location.pathname==='/start-here/')return;
     if(document.querySelector('[data-feedback-trigger]'))return;
     var style=document.createElement('style');
     style.textContent='.feedback-trigger{position:fixed;right:18px;bottom:72px;z-index:1000;border:1px solid #7dd9e7;background:#071733;color:#fff;border-radius:999px;padding:11px 15px;font-size:13px;font-weight:900;text-decoration:none;box-shadow:0 14px 36px rgba(7,23,51,.24)}.feedback-trigger:hover{background:#0b3558}.feedback-inline-link{display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px auto}@media(max-width:760px){.feedback-trigger{right:12px;bottom:18px;padding:10px 12px;font-size:12px}.feedback-inline-link{width:100%;margin:0 0 12px 0}}';
