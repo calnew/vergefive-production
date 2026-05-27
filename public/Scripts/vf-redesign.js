@@ -15,7 +15,7 @@
     var target=document.querySelector('.member-main .module-section-overview');
     if(!target)return;
     var lessons=[
-      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'Business phone number and 411 listing'},
+      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'NAP overview, phone, and 411 listing'},
       {path:'/business-address/',module:'Module 1',section:'Section 2',title:'Business address'},
       {path:'/website-domain-email/',module:'Module 1',section:'Section 3',title:'Website and domain email'},
       {path:'/llc-vs-corporation/',module:'Module 2',section:'Section 1',title:'LLC vs Corporation'},
