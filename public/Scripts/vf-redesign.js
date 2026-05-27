@@ -15,9 +15,10 @@
     var target=document.querySelector('.member-main .module-section-overview');
     if(!target)return;
     var lessons=[
-      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'NAP overview, phone, and 411 listing'},
-      {path:'/business-address/',module:'Module 1',section:'Section 2',title:'Business address'},
-      {path:'/website-domain-email/',module:'Module 1',section:'Section 3',title:'Website and domain email'},
+      {path:'/nap-overview/',module:'Module 1',section:'Section 1',title:'NAP consistency overview'},
+      {path:'/phones-and-411/',module:'Module 1',section:'Section 2',title:'Business phone number and 411 listing'},
+      {path:'/business-address/',module:'Module 1',section:'Section 3',title:'Business address'},
+      {path:'/website-domain-email/',module:'Module 1',section:'Section 4',title:'Website and domain email'},
       {path:'/llc-vs-corporation/',module:'Module 2',section:'Section 1',title:'LLC vs Corporation'},
       {path:'/contact-list/',module:'Module 2',section:'Section 2',title:'Secretary of State contact list'},
       {path:'/ein/',module:'Module 2',section:'Section 3',title:'EIN from IRS'},
@@ -749,7 +750,7 @@
     fetch('/api/auth/me',{headers:{accept:'application/json'}}).then(function(res){return res.json()}).then(function(data){
       var status=data&&data.membership&&data.membership.status;
       if(!/^trial$/i.test(status||''))return;
-      var fullAccess=['/account/','/start-here/','/homeefe757a6/','/business-visibility-audit/','/ai-visibility-audit/','/phones-and-411/'];
+      var fullAccess=['/account/','/start-here/','/homeefe757a6/','/business-visibility-audit/','/ai-visibility-audit/','/nap-overview/','/phones-and-411/'];
       var path=location.pathname;
       var isFullAccess=fullAccess.some(function(prefix){return path===prefix||path.indexOf(prefix)===0});
       if(isFullAccess)return;
@@ -776,7 +777,7 @@
           frame.insertAdjacentHTML('beforeend',"<div class='trial-video-lock'><strong>Video locked</strong><span>Unlock full access to play this lesson.</span></div>");
         }
       });
-      var allowedLinks=['/membership/','/account/','/homeefe757a6/','/phones-and-411/','/whats-inside/'];
+      var allowedLinks=['/membership/','/account/','/homeefe757a6/','/nap-overview/','/phones-and-411/','/whats-inside/'];
       document.querySelectorAll('.member-main a,.member-main button,.member-main input,.member-main select,.member-main textarea').forEach(function(el){
         if(el.matches('a')){
           var href=el.getAttribute('href')||'';
@@ -1329,7 +1330,7 @@
       return missing;
     }
     function requiredScanMessage(missing){
-      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, that is the sign to go through Module 1 before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/phones-and-411/">Start Module 1</a>';
+      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, that is the sign to go through Module 1 before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/nap-overview/">Start Module 1</a>';
     }    function localAdvice(score){
       if(score<=3)return 'The company may be hard for vendors, banks, or lenders to verify. Build the foundation before applying.';
       if(score<=5)return 'The company has limited visibility, but visibility is not the same as being ready for credit applications.';
@@ -1351,7 +1352,7 @@
     }
     function consistencyGate(score){
       var high=(Number(score)||0)>=7;
-      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>NAP consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/phones-and-411/'>Start NAP cleanup</a></div>";
+      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>NAP consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/nap-overview/'>Start NAP cleanup</a></div>";
     }
     function readinessLocks(score){
       var low=Number(score)||1;
@@ -1457,7 +1458,7 @@
     return {path:location.pathname,title:title.trim(),crumb:crumb.trim(),time:new Date().toISOString()};
   }
   function isMemberExperiencePath(){
-    return ['/account/','/start-here/','/homeefe757a6/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/general-credit-cards/','/starter-cards/','/cd-business-loans/','/business-plan-report/','/final-readiness-summary/','/downloads/','/business-visibility-audit/','/conversational-ai-bot/','/support/'].some(function(prefix){return location.pathname===prefix||location.pathname.indexOf(prefix)===0});
+    return ['/account/','/start-here/','/homeefe757a6/','/nap-overview/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/general-credit-cards/','/starter-cards/','/cd-business-loans/','/business-plan-report/','/final-readiness-summary/','/downloads/','/business-visibility-audit/','/conversational-ai-bot/','/support/'].some(function(prefix){return location.pathname===prefix||location.pathname.indexOf(prefix)===0});
   }
   function memberApi(method,url,payload){
     return fetch(url,{
@@ -1734,6 +1735,7 @@
   }
   function progressCompletionMap(){
     return {
+      '/nap-overview/':3,
       '/phones-and-411/':4,
       '/business-address/':4,
       '/website-domain-email/':5,
@@ -1802,7 +1804,7 @@
     try{return JSON.parse(localStorage.getItem(key)||'[]')||[]}catch(e){return []}
   }
   function knownProgressPages(){
-    return ['/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/cd-business-loans/'];
+    return ['/nap-overview/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/cd-business-loans/'];
   }
   function finalSummaryData(){
     var profile=derivedProfileFromProgress(loadProfile()), labels=profileSchema();
@@ -2167,7 +2169,7 @@
       if(!result)return '';
       var high=(Number(result.score)||0)>=7;
       var copy=high?'This business has public visibility, but that does not prove the name, address, phone, website, email, and listings match across the board. Complete the NAP consistency review before applications.':'Use the NAP consistency review to make sure the business identifiers match before vendor, card, or funding applications.';
-      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>NAP consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/phones-and-411/'>Start NAP cleanup</a></div>";
+      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>NAP consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/nap-overview/'>Start NAP cleanup</a></div>";
     }    function renderCard(mode,result){
       var card=root.querySelector('[data-audit-card="'+mode+'"]');
       if(!card)return;

@@ -4,6 +4,7 @@ const PROTECTED_PREFIXES = [
   '/account/',
   '/start-here/',
   '/homeefe757a6/',
+  '/nap-overview/',
   '/phones-and-411/',
   '/business-address/',
   '/website-domain-email/',
@@ -64,6 +65,7 @@ const TRIAL_ALLOWED_FULL_PREFIXES = [
   '/homeefe757a6/',
   '/business-visibility-audit/',
   '/ai-visibility-audit/',
+  '/nap-overview/',
   '/phones-and-411/'
 ];
 
