@@ -36,7 +36,7 @@ export async function sendVerificationEmail(env, email, url) {
   return await sendResendEmail(env, {
     to: email,
     subject: 'Verify your Verge Five account',
-    html: `<p>Welcome to Verge Five.</p><p>Verify your email address to secure your account:</p><p><a href="${url}">Verify email</a></p><p>This link expires in 24 hours.</p>`
+    html: `<p>Welcome to Verge Five.</p><p>Verify your email address to secure your account:</p><p><a href="${url}">Verify email</a></p><p>This link expires in 24 hours.</p><p>Verge Five team</p>`
   });
 }
 
@@ -57,7 +57,7 @@ export async function sendPasswordResetEmail(env, email, url) {
   return await sendResendEmail(env, {
     to: email,
     subject: 'Set your Verge Five password',
-    html: `<p>Your Verge Five access is ready.</p><p>Use this link to set your password and enter the member platform:</p><p><a href="${url}">Set password</a></p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>`
+    html: `<p>Your Verge Five access is ready.</p><p>Use this link to set your password and enter the member platform:</p><p><a href="${url}">Set password</a></p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p><p>Verge Five team</p>`
   });
 }
 
@@ -69,7 +69,7 @@ export async function sendAdminEmail(env, email, subject, message, adminEmail = 
     to: email,
     replyTo: adminEmail || undefined,
     subject: safeSubject,
-    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">${paragraphs}<p style="margin-top:24px;color:#64748b;font-size:13px">Verge Five</p></div>`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">${paragraphs}</div>`,
     text: safeMessage
   });
 }
