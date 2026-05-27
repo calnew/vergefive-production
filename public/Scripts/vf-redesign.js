@@ -857,7 +857,7 @@
       var email=(data.user.email||'member').toLowerCase();
       var key='vf-member-guide-seen:'+email+':v1';
       var accountGuideSeen=false;
-      var shouldAutoOpenGuide=location.pathname==='/homeefe757a6/';
+      var shouldAutoOpenGuide=false;
       var steps=[
         ['Start with the profile','Capture the legal name, state, EIN, phone, address, website, email, and banking signals before applications.'],
         ['Verify NAP consistency','Name, address, and phone should match across state records, bank records, directory listings, website, and applications.'],
@@ -900,9 +900,9 @@
         .then(function(res){return res.ok?res.json():{seen:false}})
         .then(function(guide){
           accountGuideSeen=!!(guide&&guide.seen);
-          if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650);
+          // Guide remains available from the floating button; do not auto-open.
         })
-        .catch(function(){if(shouldAutoOpenGuide)setTimeout(function(){open(false)},650)});
+        .catch(function(){});
     }).catch(function(){});
   }
   initMemberGuideWalkthrough();

@@ -1375,3 +1375,5 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
 .admin-page .btn.danger:hover{background:#6f1414;border-color:#6f1414}
 @media(max-width:1180px){.admin-create-member-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.admin-create-member-form{grid-template-columns:1fr}}
+/* Keep guide usable when feedback button is present on mobile */
+@media(max-width:760px){.member-guide-trigger{right:12px;bottom:70px;z-index:1001}}
