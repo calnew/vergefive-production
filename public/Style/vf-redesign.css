@@ -820,8 +820,8 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
 .trial-access-banner{display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 20px;background:linear-gradient(135deg,#071733 0%,#0b3558 100%);color:#fff;border-bottom:1px solid #1d74b8;box-shadow:0 12px 28px rgba(7,23,51,.14)}
 .trial-access-banner strong{color:#54e0ef;text-transform:uppercase;letter-spacing:.08em;font-size:12px;white-space:nowrap}
 .trial-access-banner span{color:#d8e9f7;line-height:1.45}
-.trial-access-banner .btn{padding:8px 14px;min-height:auto;background:#fff;color:#0b3558;border-color:#fff}
-@media(max-width:760px){.trial-access-banner{display:grid;justify-items:start;gap:8px}.trial-access-banner .btn{width:100%;text-align:center}}
+.trial-access-banner .btn{padding:10px 16px;min-height:42px;background:#fff;color:#0b3558;border-color:#fff}
+@media(max-width:760px){.trial-access-banner{display:grid;justify-items:start;gap:8px}.trial-access-banner .btn{width:100%;text-align:center;justify-content:center}}
 
 /* Trial roadmap */
 .trial-roadmap-page .demo-hero h1{max-width:760px}
