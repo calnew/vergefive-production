@@ -1,13 +1,13 @@
 # Verge Five Official Platform Audit
 
 Base URL: https://www.vergefive.com
-Generated: 2026-05-28T13:45:48.712Z
+Generated: 2026-05-28T13:48:19.119Z
 
 ## Summary
 
 - Total checks: 157
-- PASS: 156
-- FAIL: 1
+- PASS: 157
+- FAIL: 0
 - REVIEW: 0
 
 ## Public website
@@ -154,7 +154,7 @@ Generated: 2026-05-28T13:45:48.712Z
 | PASS | Logged-out protected redirect /downloads/ | 302 -> /login/?next=%2Fdownloads%2F |
 | PASS | Logged-out protected redirect /account/ | 302 -> /login/?next=%2Faccount%2F |
 | PASS | Logged-out protected redirect /admin/ | 302 -> /login/?next=%2Fadmin%2F |
-| FAIL | Password reset double-click sends one request | 2 reset requests sent |
+| PASS | Password reset double-click sends one request | One reset request sent under double-click |
 
 ## Conversion
 
