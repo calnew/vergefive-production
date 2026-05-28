@@ -613,17 +613,26 @@
       if(tokenField)tokenField.value=new URL(location.href).searchParams.get('token')||'';
       form.addEventListener('submit',function(e){
         e.preventDefault();
+        if(form.getAttribute('data-reset-submitting')==='true')return;
+        var submit=form.querySelector('button[type="submit"],input[type="submit"]');
         var payload={};
         Array.prototype.forEach.call(form.elements,function(el){if(el.name)payload[el.name]=el.value});
+        if(!payload.token){message('Password reset token is missing. Request another reset link.',true);return;}
         var turnstile=form.querySelector('[name="cf-turnstile-response"]');
         if(turnstile)payload.turnstileToken=turnstile.value;
+        form.setAttribute('data-reset-submitting','true');
+        if(submit)submit.disabled=true;
         message('Updating password...');
         postJson('/api/auth/reset-password',payload)
           .then(function(data){
             message((data.message||'Password updated.')+' Redirecting to login...');
             setTimeout(function(){location.href='/login/?reset=success'},900);
           })
-          .catch(function(err){message(err.message,true)});
+          .catch(function(err){
+            form.removeAttribute('data-reset-submitting');
+            if(submit)submit.disabled=false;
+            message(err.message||'Unable to reset password. Request another reset link.',true);
+          });
       });
     });    document.querySelectorAll('[data-select-plan]').forEach(function(btn){
       btn.addEventListener('click',function(){
