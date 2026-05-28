@@ -179,7 +179,8 @@ async function run() {
   results.push({ section: 'Conversion', item: 'Visibility scan requires full identifiers', ...(scanMissing.status === 400 ? pass(scanMissing.text.slice(0, 180)) : fail(`${scanMissing.status} should be 400`)) });
   results.push({ section: 'Conversion', item: 'Visibility scan returns score', ...(scanComplete.ok && /score/.test(scanComplete.text) ? pass(scanComplete.text.slice(0, 180)) : fail(`${scanComplete.status} ${scanComplete.text.slice(0, 180)}`)) });
 
-  const resetReq = await postJson(request, '/api/auth/request-password-reset', { email: EMAIL });
+  const resetAuditEmail = 'audit-reset-' + Date.now() + '@example.com';
+  const resetReq = await postJson(request, '/api/auth/request-password-reset', { email: resetAuditEmail });
   const resetBad = await postJson(request, '/api/auth/reset-password', { token: 'not-a-real-token', password: 'Newpass12345' });
   results.push({ section: 'Conversion', item: 'Password reset request accepts known/unknown email safely', ...(resetReq.status === 200 ? pass(resetReq.text.slice(0, 180)) : fail(`${resetReq.status} ${resetReq.text.slice(0, 180)}`)) });
   results.push({ section: 'Security/abuse', item: 'Invalid reset token handled cleanly', ...(resetBad.status === 400 && /invalid|expired|used/i.test(resetBad.text) ? pass(resetBad.text.slice(0, 180)) : fail(`${resetBad.status} ${resetBad.text.slice(0, 180)}`)) });
