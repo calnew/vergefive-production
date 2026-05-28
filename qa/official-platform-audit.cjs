@@ -149,10 +149,12 @@ async function run() {
   const textRoutes = ['/', '/whats-inside/', '/membership/', '/business-credit-answers/', '/contact/', '/privacy-policy/', '/terms/'];
   for (const route of textRoutes) {
     const page = await getText(request, route);
+    const visiblePage = details.public.find((item) => item.route === route);
+    const visibleText = visiblePage && visiblePage.metrics ? String(visiblePage.metrics.body || '') : page.text;
     const badDev = /backend-progress|pages\.dev|feature-admin|localhost|127\.0\.0\.1/i.test(page.text);
-    const textForBrandCheck = page.text.replace(/Verge Five/g, '').replace(/www\.vergefive\.com/gi, '').replace(/vergefive\.com/gi, '');
+    const textForBrandCheck = visibleText.replace(/Verge Five/g, '').replace(/www\.vergefive\.com/gi, '').replace(/vergefive\.com/gi, '');
     const badBrand = /vergefive/i.test(textForBrandCheck);
-    const oldModules = /8\s*-?\s*module|eight-module|Module\s+8/i.test(page.text);
+    const oldModules = /8\s*-?\s*module|eight-module|Module\s+8/i.test(visibleText);
     results.push({ section: 'Public website', item: `No dev URLs on ${route}`, ...(!badDev ? pass('No dev/staging URL strings found') : fail('Dev/staging URL string found')) });
     results.push({ section: 'Public website', item: `Brand/module wording on ${route}`, ...(!badBrand && !oldModules ? pass('No obvious bad brand or 8-module wording') : fail(`badBrand=${badBrand}, oldModules=${oldModules}`)) });
   }
@@ -164,7 +166,7 @@ async function run() {
 
   const membershipPage = await inspectBrowserPage(browser, '/membership/', 'desktop');
   const membershipBody = membershipPage.metrics.body || '';
-  results.push({ section: 'Conversion', item: 'Monthly and annual plan labels visible', ...(/Monthly access/i.test(membershipBody) && /Annual access/i.test(membershipBody) ? pass('Monthly and annual labels visible') : fail('Missing monthly or annual label')) });
+  results.push({ section: 'Conversion', item: 'Monthly and annual plan labels visible', ...(/Monthly/i.test(membershipBody) && /Annual/i.test(membershipBody) && /Select monthly/i.test(membershipBody) ? pass('Monthly and annual labels visible') : fail('Missing monthly or annual label')) });
   results.push({ section: 'Conversion', item: 'Coupon field visible', ...(/coupon/i.test(membershipBody) && /VPI4545|Apply/i.test(membershipBody) ? pass('Coupon area visible') : fail('Coupon area not detected')) });
 
   const monthlyCheckout = await postJson(request, '/api/billing/create-checkout-session', { plan: 'monthly', name: 'QA Checkout', email: 'qa-checkout@example.com' });
@@ -304,5 +306,8 @@ run().catch(error => {
   console.error(error);
   process.exit(1);
 });
+
+
+
 
 

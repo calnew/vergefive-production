@@ -1406,12 +1406,15 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
   }
   .footer .legal a,
   .auth-card .legal a,
+  .checkout-back-link,
+  .checkout-testdrive-link,
   .checkout-legal-consent a,
   .answer-card .module-link,
   .blog-mini-link,
   .blog-card small{
     display:inline-flex;
     align-items:center;
+    min-width:38px;
     min-height:38px;
   }
   .footer .legal{
