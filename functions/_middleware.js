@@ -17,6 +17,7 @@ const PROTECTED_PREFIXES = [
   '/bank-rating/',
   '/your-bank-rating/',
   '/business-plan/',
+  '/business-plan-report/',
   '/equifax-business/',
   '/comparable-credit/',
   '/business-credit-criteria/',

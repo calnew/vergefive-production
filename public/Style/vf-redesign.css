@@ -1398,3 +1398,29 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
 .start-extra-fields{padding-top:2px}
 .start-module-action{justify-content:flex-end;margin-top:0}
 @media(max-width:760px){.start-scan-points{grid-template-columns:1fr}.start-module-action{display:grid}.start-module-action .btn{width:100%}}
+/* Official launch audit mobile tap-target hardening */
+@media(max-width:760px){
+  .site-header .brand,
+  .footer .brand{
+    min-height:44px;
+  }
+  .footer .legal a,
+  .auth-card .legal a,
+  .checkout-legal-consent a,
+  .answer-card .module-link,
+  .blog-mini-link,
+  .blog-card small{
+    display:inline-flex;
+    align-items:center;
+    min-height:38px;
+  }
+  .footer .legal{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 12px;
+    align-items:center;
+  }
+  .footer .legal br{
+    display:none;
+  }
+}
