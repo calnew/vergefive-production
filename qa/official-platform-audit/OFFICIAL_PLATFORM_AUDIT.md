@@ -1,13 +1,13 @@
 # Verge Five Official Platform Audit
 
 Base URL: https://www.vergefive.com
-Generated: 2026-05-28T13:34:31.044Z
+Generated: 2026-05-28T13:45:48.712Z
 
 ## Summary
 
 - Total checks: 157
-- PASS: 143
-- FAIL: 14
+- PASS: 156
+- FAIL: 1
 - REVIEW: 0
 
 ## Public website
@@ -86,15 +86,15 @@ Generated: 2026-05-28T13:34:31.044Z
 | PASS | No dev URLs on /whats-inside/ | No dev/staging URL strings found |
 | PASS | Brand/module wording on /whats-inside/ | No obvious bad brand or 8-module wording |
 | PASS | No dev URLs on /membership/ | No dev/staging URL strings found |
-| FAIL | Brand/module wording on /membership/ | badBrand=true, oldModules=false |
+| PASS | Brand/module wording on /membership/ | No obvious bad brand or 8-module wording |
 | PASS | No dev URLs on /business-credit-answers/ | No dev/staging URL strings found |
-| FAIL | Brand/module wording on /business-credit-answers/ | badBrand=true, oldModules=false |
+| PASS | Brand/module wording on /business-credit-answers/ | No obvious bad brand or 8-module wording |
 | PASS | No dev URLs on /contact/ | No dev/staging URL strings found |
-| FAIL | Brand/module wording on /contact/ | badBrand=true, oldModules=false |
+| PASS | Brand/module wording on /contact/ | No obvious bad brand or 8-module wording |
 | PASS | No dev URLs on /privacy-policy/ | No dev/staging URL strings found |
-| FAIL | Brand/module wording on /privacy-policy/ | badBrand=true, oldModules=false |
+| PASS | Brand/module wording on /privacy-policy/ | No obvious bad brand or 8-module wording |
 | PASS | No dev URLs on /terms/ | No dev/staging URL strings found |
-| FAIL | Brand/module wording on /terms/ | badBrand=true, oldModules=false |
+| PASS | Brand/module wording on /terms/ | No obvious bad brand or 8-module wording |
 
 ## Trust/compliance
 
@@ -110,19 +110,19 @@ Generated: 2026-05-28T13:34:31.044Z
 | Status | Check | Evidence |
 | --- | --- | --- |
 | PASS | Mobile route / | 200, overflowX 0 |
-| FAIL | Mobile tap targets / | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Become an affiliate","href":"https://www.vergefive.com/affiliate-signup/","width":123.75,"height":17,"visible":true},{"text":" |
+| PASS | Mobile tap targets / | No visible tap targets under 36px |
 | PASS | Mobile route /whats-inside/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /whats-inside/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Become an affiliate","href":"https://www.vergefive.com/affiliate-signup/","width":123.75,"height":17,"visible":true},{"text":" |
+| PASS | Mobile tap targets /whats-inside/ | No visible tap targets under 36px |
 | PASS | Mobile route /membership/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /membership/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Back to pricing","href":"https://www.vergefive.com/membership/","width":118.46875,"height":24,"visible":true},{"text":"Terms & |
+| PASS | Mobile tap targets /membership/ | No visible tap targets under 36px |
 | PASS | Mobile route /login/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /login/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Create an account","href":"https://www.vergefive.com/signup/","width":103.640625,"height":17,"visible":true},{"text":"Forgot p |
+| PASS | Mobile tap targets /login/ | No visible tap targets under 36px |
 | PASS | Mobile route /signup/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /signup/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Login","href":"https://www.vergefive.com/login/","width":31.90625,"height":17,"visible":true},{"text":"Become an affiliate","h |
+| PASS | Mobile tap targets /signup/ | No visible tap targets under 36px |
 | PASS | Mobile route /contact/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /contact/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Become an affiliate","href":"https://www.vergefive.com/affiliate-signup/","width":123.75,"height":17,"visible":true},{"text":" |
+| PASS | Mobile tap targets /contact/ | No visible tap targets under 36px |
 | PASS | Mobile route /business-credit-answers/ | 200, overflowX 0 |
-| FAIL | Mobile tap targets /business-credit-answers/ | [{"text":"Verge Five","href":"https://www.vergefive.com/","width":134.234375,"height":34,"visible":true},{"text":"Business credit checklist","href":"https://www.vergefive.com/blog/business-credit-checklist-before-vendors/","width":155.35937 |
+| PASS | Mobile tap targets /business-credit-answers/ | No visible tap targets under 36px |
 
 ## Security/abuse
 
@@ -143,7 +143,7 @@ Generated: 2026-05-28T13:34:31.044Z
 | PASS | Logged-out protected redirect /bank-account/ | 302 -> /login/?next=%2Fbank-account%2F |
 | PASS | Logged-out protected redirect /bank-rating/ | 302 -> /login/?next=%2Fbank-rating%2F |
 | PASS | Logged-out protected redirect /business-plan/ | 302 -> /login/?next=%2Fbusiness-plan%2F |
-| FAIL | Logged-out protected redirect /business-plan-report/ | 200 ->  |
+| PASS | Logged-out protected redirect /business-plan-report/ | 302 -> /login/?next=%2Fbusiness-plan-report%2F |
 | PASS | Logged-out protected redirect /equifax-business/ | 302 -> /login/?next=%2Fequifax-business%2F |
 | PASS | Logged-out protected redirect /comparable-credit/ | 302 -> /login/?next=%2Fcomparable-credit%2F |
 | PASS | Logged-out protected redirect /business-credit-criteria/ | 302 -> /login/?next=%2Fbusiness-credit-criteria%2F |
@@ -154,13 +154,13 @@ Generated: 2026-05-28T13:34:31.044Z
 | PASS | Logged-out protected redirect /downloads/ | 302 -> /login/?next=%2Fdownloads%2F |
 | PASS | Logged-out protected redirect /account/ | 302 -> /login/?next=%2Faccount%2F |
 | PASS | Logged-out protected redirect /admin/ | 302 -> /login/?next=%2Fadmin%2F |
-| PASS | Password reset double-click sends one request | One reset request sent under double-click |
+| FAIL | Password reset double-click sends one request | 2 reset requests sent |
 
 ## Conversion
 
 | Status | Check | Evidence |
 | --- | --- | --- |
-| FAIL | Monthly and annual plan labels visible | Missing monthly or annual label |
+| PASS | Monthly and annual plan labels visible | Monthly and annual labels visible |
 | PASS | Coupon field visible | Coupon area visible |
 | PASS | Monthly Stripe checkout URL | Stripe monthly URL returned |
 | PASS | Annual Stripe checkout URL | Stripe annual URL returned |

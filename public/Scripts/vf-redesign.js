@@ -614,15 +614,16 @@
       form.addEventListener('submit',function(e){
         e.preventDefault();
         if(form.getAttribute('data-reset-submitting')==='true')return;
+        form.setAttribute('data-reset-submitting','true');
         var submit=form.querySelector('button[type="submit"],input[type="submit"]');
+        if(submit)submit.disabled=true;
         var payload={};
         Array.prototype.forEach.call(form.elements,function(el){if(el.name)payload[el.name]=el.value});
-        if(!payload.token){message('Password reset token is missing. Request another reset link.',true);return;}
+        if(!payload.token){form.removeAttribute('data-reset-submitting');if(submit)submit.disabled=false;message('Password reset token is missing. Request another reset link.',true);return;}
         var turnstile=form.querySelector('[name="cf-turnstile-response"]');
         if(turnstile)payload.turnstileToken=turnstile.value;
-        form.setAttribute('data-reset-submitting','true');
-        if(submit)submit.disabled=true;
         message('Updating password...');
+
         postJson('/api/auth/reset-password',payload)
           .then(function(data){
             message((data.message||'Password updated.')+' Redirecting to login...');
