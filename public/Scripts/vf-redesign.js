@@ -395,6 +395,12 @@
       startPath.className='section home-start-path';
       startPath.innerHTML="<div class='home-start-head'><p class='kicker'>The buying path</p><h2>Check the gap for free. Upgrade when you want the full buildout.</h2><p class='lead'>The scan gives the first signal. The test drive shows the first locked path. Membership unlocks the full 7-module system, reports, matchers, and readiness tools.</p></div><div class='home-start-grid'><article><span>01</span><strong>Run the scan</strong><p>Get the baseline visibility score before you spend money or submit applications.</p></article><article><span>02</span><strong>Take the test drive</strong><p>Experience the first identity path and see why the platform keeps the order tight.</p></article><article><span>03</span><strong>Fix the foundation</strong><p>Work through phone, address, website, legal, banking, and readiness signals.</p></article><article><span>04</span><strong>Apply in order</strong><p>Use matchers, reports, and readiness gates before moving into vendors, cards, or funding.</p></article></div><div class='home-start-cta'><a class='btn dark' href='/signup/?trial=start'>Take the free test drive</a><a class='btn secondary' href='/whats-inside/'>Preview what is inside</a></div>";
       pricingAnchor.parentNode.insertBefore(startPath,pricingAnchor);
+    }
+    if(pricingAnchor&&!document.querySelector('.test-drive-explain-section')){
+      var testDrive=document.createElement('section');
+      testDrive.className='section test-drive-explain-section';
+      testDrive.innerHTML="<div class='test-drive-explain-card'><div class='test-drive-copy'><p class='kicker'>Free platform test drive</p><h2>Preview the buildout without unlocking the whole system.</h2><p class='lead'>The test drive is a controlled preview of Verge Five. It lets owners run the Business Visibility Scan, save the first profile baseline, complete the first identity setup preview, and see why the rest of the platform stays locked until membership.</p><p>It is not a discount and it is not meant to give away every vendor, card, funding path, report, or matcher. It shows how the decision system works before someone joins.</p><div class='proof-actions'><a class='btn dark' href='/signup/?trial=start'>Take the free test drive</a><a class='btn secondary' href='/whats-inside/'>See what unlocks</a></div></div><div class='test-drive-steps'><article><span>01</span><strong>Run the scan</strong><small>See the starting visibility baseline.</small></article><article><span>02</span><strong>Start identity setup</strong><small>Preview the first guided buildout step.</small></article><article><span>03</span><strong>See what is locked</strong><small>Reports, matchers, vendors, cards, and funding stay protected.</small></article><article><span>04</span><strong>Decide with context</strong><small>Upgrade only after the system makes sense.</small></article></div></div>";
+      pricingAnchor.parentNode.insertBefore(testDrive,pricingAnchor);
     }    var promo=document.querySelector('.homepage-promo-video');
     if(promo)promo.remove();
     var preview=document.querySelector('.platform-preview');
@@ -464,6 +470,10 @@
       if(demoHead)demoHead.textContent='Try the sample readiness logic before joining.';
       var demoCopy=document.querySelector('.whats-inside-demo .home-demo-head p');
       if(demoCopy)demoCopy.textContent='Click a sample profile and watch how the platform separates too early, partially ready, and looks ready. This is the same idea members use before touching vendors or cards.';
+      var demoCta=document.querySelector('.whats-inside-demo .home-demo-cta');
+      if(demoCta&&!demoCta.querySelector('.test-drive-clarifier')){
+        demoCta.insertAdjacentHTML('afterbegin',"<div class='test-drive-clarifier'><strong>Quick demo vs. free test drive</strong><span>This sample shows the logic. The free platform test drive lets you create an account, run the real starting scan, and complete the first identity preview before deciding whether to unlock the full system.</span></div>");
+      }
       var reportLead=document.querySelector('.report-section-copy .lead');
       if(reportLead)reportLead.textContent='Inside Verge Five, members can generate a clean progress snapshot that turns the checklist into a simple action plan: what is complete, what is missing, what should wait, and which hidden approval signals need attention next.';
       var cards=document.querySelectorAll('.whats-inside-grid .card');
