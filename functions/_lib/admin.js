@@ -36,6 +36,7 @@ export async function ensureAdminSchema(env) {
     first_name text,
     last_name text,
     email text not null,
+    phone text,
     source text,
     status text not null default 'imported',
     token text not null unique,
@@ -49,6 +50,7 @@ export async function ensureAdminSchema(env) {
     created_at text not null default (datetime('now')),
     updated_at text not null default (datetime('now'))
   )`).run();
+  await addColumn(env, 'legacy_leads', 'phone', 'text');
   await env.DB.prepare('create index if not exists idx_legacy_leads_campaign on legacy_leads(campaign_id, created_at)').run();
   await env.DB.prepare('create index if not exists idx_legacy_leads_email on legacy_leads(email)').run();
   await env.DB.prepare('create index if not exists idx_legacy_leads_status on legacy_leads(status)').run();
