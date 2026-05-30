@@ -12,6 +12,7 @@ const EXPECTED_PRICE_INTERVAL = {
 };
 const INTRO_MONTHLY_CODE = 'INTRO7';
 const INTRO_MONTHLY_COUPON_ID = 'vf_intro_first_month_7';
+const ANNUAL_PRICE_LOOKUP_KEY = 'verge_five_annual_597';
 
 export async function onRequestPost(context) {
   try {
@@ -24,14 +25,11 @@ export async function onRequestPost(context) {
     const plan = requestedPlan === 'annual' || requestedPlan === 'yearly' ? 'annual' : 'monthly';
     const guestEmail = auth ? '' : normalizeCheckoutEmail(input.email || input.customerEmail || '');
     const guestName = auth ? '' : cleanCheckoutText(input.name || input.customerName || '', 120);
-    const priceId = plan === 'annual'
+    const configuredPriceId = plan === 'annual'
       ? context.env.STRIPE_PRICE_ID_ANNUAL
       : (context.env.STRIPE_PRICE_ID_MONTHLY || context.env.STRIPE_PRICE_ID);
-    if (!priceId) {
-      return json({ error: plan === 'annual' ? 'Annual Stripe price ID is not configured.' : 'Monthly Stripe price ID is not configured.' }, 500);
-    }
-    const priceGuard = await verifyCheckoutPrice(context.env, priceId, plan);
-    if (priceGuard) return priceGuard;
+    const priceId = await resolveCheckoutPriceId(context.env, configuredPriceId, plan);
+    if (priceId instanceof Response) return priceId;
 
     const origin = siteUrl(context.request, context.env);
     const couponCode = cleanCouponCode(input.couponCode || input.promoCode || input.discountCode || (plan === 'monthly' ? INTRO_MONTHLY_CODE : ''));
@@ -86,20 +84,76 @@ export async function onRequestPost(context) {
   }
 }
 
-async function verifyCheckoutPrice(env, priceId, plan) {
-  const price = await stripeGet(env, `/prices/${encodeURIComponent(priceId)}`, {});
-  if (price instanceof Response) return price;
+async function resolveCheckoutPriceId(env, priceId, plan) {
+  if (!priceId && plan !== 'annual') {
+    return json({ error: 'Monthly Stripe price ID is not configured.' }, 500);
+  }
+  if (priceId) {
+    const price = await stripeGet(env, `/prices/${encodeURIComponent(priceId)}`, {});
+    if (price instanceof Response) return price;
+    if (priceMatchesPlan(price, plan)) return priceId;
+    if (plan !== 'annual') return checkoutPriceMismatch(plan);
+  }
+  if (plan === 'annual') {
+    const annualPrice = await ensureAnnualPrice(env);
+    if (annualPrice instanceof Response) return annualPrice;
+    if (annualPrice && annualPrice.id && priceMatchesPlan(annualPrice, plan)) return annualPrice.id;
+  }
+  return checkoutPriceMismatch(plan);
+}
+
+function priceMatchesPlan(price, plan) {
+  if (!price) return false;
   const expectedAmount = EXPECTED_PRICE_AMOUNT[plan];
   const expectedInterval = EXPECTED_PRICE_INTERVAL[plan];
   const actualAmount = Number(price.unit_amount || 0);
   const actualInterval = price.recurring && price.recurring.interval || '';
-  if (actualAmount !== expectedAmount || actualInterval !== expectedInterval) {
-    return json({
-      error: plan === 'annual'
-        ? 'Annual checkout is not ready. Stripe must point to a $597/year recurring price before this plan can be sold.'
-        : 'Monthly checkout is not ready. Stripe must point to a $49/month recurring price before this plan can be sold.'
-    }, 500);
-  }
+  return actualAmount === expectedAmount && actualInterval === expectedInterval;
+}
+
+function checkoutPriceMismatch(plan) {
+  return json({
+    error: plan === 'annual'
+      ? 'Annual checkout is not ready. Stripe must point to a $597/year recurring price before this plan can be sold.'
+      : 'Monthly checkout is not ready. Stripe must point to a $49/month recurring price before this plan can be sold.'
+  }, 500);
+}
+
+async function ensureAnnualPrice(env) {
+  const existing = await stripeGet(env, '/prices', {
+    active: true,
+    lookup_keys: [ANNUAL_PRICE_LOOKUP_KEY],
+    limit: 1
+  });
+  if (existing instanceof Response) return existing;
+  const price = existing.data && existing.data[0];
+  if (price && priceMatchesPlan(price, 'annual')) return price;
+
+  const product = await stripeRequest(env, '/products', {
+    name: 'Verge Five Membership',
+    metadata: {
+      product: 'verge-five-membership'
+    }
+  });
+  if (product instanceof Response) return product;
+
+  return stripeRequest(env, '/prices', {
+    unit_amount: EXPECTED_PRICE_AMOUNT.annual,
+    currency: 'usd',
+    recurring: { interval: EXPECTED_PRICE_INTERVAL.annual },
+    product: product.id,
+    lookup_key: ANNUAL_PRICE_LOOKUP_KEY,
+    metadata: {
+      product: 'verge-five-membership',
+      plan: 'annual'
+    }
+  });
+}
+
+async function verifyCheckoutPrice(env, priceId, plan) {
+  const price = await stripeGet(env, `/prices/${encodeURIComponent(priceId)}`, {});
+  if (price instanceof Response) return price;
+  if (!priceMatchesPlan(price, plan)) return checkoutPriceMismatch(plan);
   return null;
 }
 
