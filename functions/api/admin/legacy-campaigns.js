@@ -2,19 +2,31 @@ import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, re
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
-const DEFAULT_SUBJECT = 'Your Verge Five test drive is ready';
+const DEFAULT_SUBJECT = 'Is your business still showing up correctly?';
 const DEFAULT_MESSAGE = `Hi [First Name],
 
-The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.
+You were part of the original Verge Five, so I wanted to personally let you know the platform has been rebuilt.
 
-If you tried to build business credit before and felt like you never got clear answers, this platform was built to show what may have been missing: business identity, public visibility, NAP consistency, banking signals, readiness timing, and the order applications should happen in.
+Is this still the main business number for your company?
 
-Take the test drive here:
+[Phone Number]
+
+If it is, it may be worth running the free Verge Five visibility scan to see whether your business phone, address, website, email, legal records, and public listings are showing up correctly.
+
+That matters more now than it used to.
+
+Business credit approvals are increasingly driven by automated checks, data matching, and AI-assisted underwriting. If your core business identifiers do not line up, the system can flag the business before a person ever reviews it.
+
+That is why the new Verge Five starts with a Business Visibility Scan.
+
+Run the scan and take the test drive here:
 [Test Drive Link]
 
-Do not take our word for it. Run the Business Visibility Audit, start the first identity step, and see whether this is the structure your business needed.
+You do not have to guess what may have been missing before. Start with the scan and see what your business looks like now.
 
 Verge Five team`;
+const OLD_DEFAULT_SUBJECT = 'Your Verge Five test drive is ready';
+const OLD_DEFAULT_MARKER = 'The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.';
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
@@ -48,7 +60,7 @@ function parseContacts(text) {
     const parts = splitCsvLine(line);
     if (parts.length === 1) return { email: normalizeEmail(parts[0]) };
     if (parts.length === 2) return { firstName: cleanLimited(parts[0], 80), email: normalizeEmail(parts[1]) };
-    return { firstName: cleanLimited(parts[0], 80), lastName: cleanLimited(parts[1], 80), email: normalizeEmail(parts[2]) };
+    return { firstName: cleanLimited(parts[0], 80), lastName: cleanLimited(parts[1], 80), email: normalizeEmail(parts[2]), phone: cleanLimited(parts[3] || '', 40) };
   }).filter((item) => item.email && item.email.includes('@'));
 }
 
@@ -59,8 +71,10 @@ function testDriveUrl(context, token) {
 
 function personalize(message, lead, link) {
   const firstName = lead.first_name || lead.firstName || 'there';
+  const phone = lead.phone || 'the number we have on file';
   return String(message || DEFAULT_MESSAGE)
     .replace(/\[First Name\]/g, firstName)
+    .replace(/\[Phone Number\]/g, phone)
     .replace(/\[Test Drive Link\]/g, link);
 }
 
@@ -84,6 +98,13 @@ async function loadDashboard(env) {
       `insert into legacy_campaigns (id, name, subject, message, created_at, updated_at)
        values (?, 'Legacy Verge Five clients', ?, ?, datetime('now'), datetime('now'))`
     ).bind(campaignId, DEFAULT_SUBJECT, DEFAULT_MESSAGE).run();
+    return loadDashboard(env);
+  }
+  const activeCampaign = campaigns.results && campaigns.results[0];
+  if (activeCampaign && activeCampaign.subject === OLD_DEFAULT_SUBJECT && String(activeCampaign.message || '').includes(OLD_DEFAULT_MARKER)) {
+    await env.DB.prepare(
+      `update legacy_campaigns set subject = ?, message = ?, updated_at = datetime('now') where id = ?`
+    ).bind(DEFAULT_SUBJECT, DEFAULT_MESSAGE, activeCampaign.id).run();
     return loadDashboard(env);
   }
   const leads = await env.DB.prepare(
@@ -145,9 +166,9 @@ export async function onRequestPost(context) {
         continue;
       }
       await context.env.DB.prepare(
-        `insert into legacy_leads (id, campaign_id, first_name, last_name, email, source, token, status, created_at, updated_at)
-         values (?, ?, ?, ?, ?, ?, ?, 'imported', datetime('now'), datetime('now'))`
-      ).bind(crypto.randomUUID(), campaignId, contact.firstName || '', contact.lastName || '', contact.email, source, crypto.randomUUID()).run();
+        `insert into legacy_leads (id, campaign_id, first_name, last_name, email, phone, source, token, status, created_at, updated_at)
+         values (?, ?, ?, ?, ?, ?, ?, ?, 'imported', datetime('now'), datetime('now'))`
+      ).bind(crypto.randomUUID(), campaignId, contact.firstName || '', contact.lastName || '', contact.email, contact.phone || '', source, crypto.randomUUID()).run();
       imported += 1;
     }
     await logAdminAction(context.env, auth, 'import-legacy-leads', null, { campaignId, imported, skipped, source });
