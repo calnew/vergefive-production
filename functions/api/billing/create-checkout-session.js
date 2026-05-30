@@ -2,6 +2,15 @@ import { getAuth, getCookie, json, readJson, requireDb, requireSameOrigin } from
 import { siteUrl, stripeGet, stripeRequest } from '../../_lib/stripe.js';
 import { attachReferralToUser, normalizeAffiliateCode, referralForUser } from '../../_lib/affiliates.js';
 
+const EXPECTED_PRICE_AMOUNT = {
+  monthly: 4900,
+  annual: 59700
+};
+const EXPECTED_PRICE_INTERVAL = {
+  monthly: 'month',
+  annual: 'year'
+};
+
 export async function onRequestPost(context) {
   try {
     const originError = requireSameOrigin(context);
@@ -19,6 +28,8 @@ export async function onRequestPost(context) {
     if (!priceId) {
       return json({ error: plan === 'annual' ? 'Annual Stripe price ID is not configured.' : 'Monthly Stripe price ID is not configured.' }, 500);
     }
+    const priceGuard = await verifyCheckoutPrice(context.env, priceId, plan);
+    if (priceGuard) return priceGuard;
 
     const origin = siteUrl(context.request, context.env);
     const couponCode = cleanCouponCode(input.couponCode || input.promoCode || input.discountCode || '');
@@ -67,6 +78,23 @@ export async function onRequestPost(context) {
     console.error('checkout session failed', error && error.message ? error.message : error);
     return json({ error: 'Unable to start checkout.' }, 500);
   }
+}
+
+async function verifyCheckoutPrice(env, priceId, plan) {
+  const price = await stripeGet(env, `/prices/${encodeURIComponent(priceId)}`, {});
+  if (price instanceof Response) return price;
+  const expectedAmount = EXPECTED_PRICE_AMOUNT[plan];
+  const expectedInterval = EXPECTED_PRICE_INTERVAL[plan];
+  const actualAmount = Number(price.unit_amount || 0);
+  const actualInterval = price.recurring && price.recurring.interval || '';
+  if (actualAmount !== expectedAmount || actualInterval !== expectedInterval) {
+    return json({
+      error: plan === 'annual'
+        ? 'Annual checkout is not ready. Stripe must point to a $597/year recurring price before this plan can be sold.'
+        : 'Monthly checkout is not ready. Stripe must point to a $49/month recurring price before this plan can be sold.'
+    }, 500);
+  }
+  return null;
 }
 
 function cleanCouponCode(value) {

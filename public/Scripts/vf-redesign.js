@@ -403,7 +403,7 @@
       if(lead)lead.textContent='The scan and test drive show the gap. Membership unlocks the guided buildout, readiness tools, vendor and credit card matching, business visibility audits, reports, and support resources.';
       var cards=pricing.querySelectorAll('.pricing .card');
       if(cards[0]){cards[0].classList.add('membership-plan');cards[0].innerHTML="<span class='plan-eyebrow'>Flexible access</span><h3>Monthly access</h3><div class='price'>$49<small>/mo</small></div><p>Use the 7-module buildout, readiness checklist, vendor matcher, credit card matcher, funding readiness, and member reports.</p><ul><li>Start, pause, or resume the buildout</li><li>Save profile progress and reports</li><li>Use member-only readiness tools</li></ul><a class='btn secondary' href='/membership/?plan=monthly'>Choose monthly</a>";}
-      if(cards[1]){cards[1].classList.add('membership-plan','featured-plan');cards[1].innerHTML="<span class='plan-eyebrow'>Best value</span><h3>Annual access</h3><div class='price'>$497<small>/yr</small></div><p>Best value for the full Verge Five buildout year, especially if you want time to build clean records before applications.</p><ul><li>Full-year access to the platform</li><li>Better fit for 90-day readiness timing</li><li>Same tools with more room to execute</li></ul><a class='btn' href='/membership/?plan=annual'>Choose annual</a>";}
+      if(cards[1]){cards[1].classList.add('membership-plan','featured-plan');cards[1].innerHTML="<span class='plan-eyebrow'>Full-year buildout</span><h3>Annual access</h3><div class='price'>$597<small>/yr</small></div><p>Full-year buildout access for owners who want time to clean records, build banking history, and move through vendors, cards, and funding in order.</p><ul><li>Full-year access to the platform</li><li>Better fit for 90-day readiness timing</li><li>Same tools with more room to execute</li></ul><a class='btn' href='/membership/?plan=annual'>Choose annual</a>";}
     }
   }
   upgradeHomepageConversion();
@@ -589,8 +589,8 @@
       document.querySelectorAll('[data-checkout-selected-title],[data-checkout-summary-title]').forEach(function(el){el.textContent=plan==='monthly'?'Monthly access':'Annual access';});
       document.querySelectorAll('[data-checkout-selected-copy]').forEach(function(el){el.textContent=plan==='monthly'?'Month-to-month access to the Verge Five buildout.':'Full-year access to the Verge Five buildout.';});
       document.querySelectorAll('[data-checkout-order-name]').forEach(function(el){el.textContent=plan==='monthly'?'Verge Five Monthly':'Verge Five Annual';});
-      document.querySelectorAll('[data-checkout-order-price],[data-checkout-total]').forEach(function(el){el.textContent=plan==='monthly'?'$49.00':'$497.00';});
-      if(location.pathname==='/membership/')message(plan==='monthly'?'Monthly selected: $49/month.':'Annual selected: $497/year.');
+      document.querySelectorAll('[data-checkout-order-price],[data-checkout-total]').forEach(function(el){el.textContent=plan==='monthly'?'$49.00':'$597.00';});
+      if(location.pathname==='/membership/')message(plan==='monthly'?'Monthly selected: $49/month.':'Annual selected: $597/year.');
     }
     function postJson(url, payload){
       return fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload||{})})
