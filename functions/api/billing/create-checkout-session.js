@@ -119,7 +119,7 @@ async function ensureMonthlyIntroPromotionCode(env) {
     // and attach the promotion code to the known coupon id.
   }
   const promotionCode = await stripeRequest(env, '/promotion_codes', {
-    coupon: INTRO_MONTHLY_COUPON_ID,
+    promotion: { type: 'coupon', coupon: INTRO_MONTHLY_COUPON_ID },
     code: INTRO_MONTHLY_CODE,
     active: true,
     metadata: {
