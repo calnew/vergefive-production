@@ -399,7 +399,7 @@
     if(pricingAnchor&&!document.querySelector('.test-drive-explain-section')){
       var testDrive=document.createElement('section');
       testDrive.className='section test-drive-explain-section';
-      testDrive.innerHTML="<div class='test-drive-explain-card'><div class='test-drive-copy'><p class='kicker'>Free platform test drive</p><h2>Preview the buildout without unlocking the whole system.</h2><p class='lead'>The test drive is a controlled preview of Verge Five. It lets owners run the Business Visibility Scan, save the first profile baseline, complete the first identity setup preview, and see why the rest of the platform stays locked until membership.</p><p>It is not a discount and it is not meant to give away every vendor, card, funding path, report, or matcher. It shows how the decision system works before someone joins.</p><div class='proof-actions'><a class='btn dark' href='/signup/?trial=start'>Take the free test drive</a><a class='btn secondary' href='/whats-inside/'>See what unlocks</a></div></div><div class='test-drive-steps'><article><span>01</span><strong>Run the scan</strong><small>See the starting visibility baseline.</small></article><article><span>02</span><strong>Start identity setup</strong><small>Preview the first guided buildout step.</small></article><article><span>03</span><strong>See what is locked</strong><small>Reports, matchers, vendors, cards, and funding stay protected.</small></article><article><span>04</span><strong>Decide with context</strong><small>Upgrade only after the system makes sense.</small></article></div></div>";
+      testDrive.innerHTML="<div class='test-drive-explain-card'><div class='test-drive-copy'><p class='kicker'>Free platform test drive</p><h2>Preview the buildout without unlocking the whole system.</h2><p class='lead'>The test drive is a controlled preview of Verge Five. It lets owners run the Business Visibility Scan, save the first profile baseline, complete the first identity setup preview, and see why the rest of the platform stays locked until membership.</p><p>It is not a discount and it is not meant to give away every vendor, card, funding path, report, or matcher. It shows how the decision system works before someone joins.</p><div class='intro-offer-inline'><strong>Ready to unlock after the preview?</strong><span>Start the full monthly platform for $7 for the first month, then $49/month after that.</span></div><div class='proof-actions'><a class='btn dark' href='/signup/?trial=start'>Take the free test drive</a><a class='btn secondary' href='/membership/?plan=monthly'>Start full access for $7</a></div></div><div class='test-drive-steps'><article><span>01</span><strong>Run the scan</strong><small>See the starting visibility baseline.</small></article><article><span>02</span><strong>Start identity setup</strong><small>Preview the first guided buildout step.</small></article><article><span>03</span><strong>See what is locked</strong><small>Reports, matchers, vendors, cards, and funding stay protected.</small></article><article><span>04</span><strong>Decide with context</strong><small>Upgrade only after the system makes sense.</small></article></div></div>";
       pricingAnchor.parentNode.insertBefore(testDrive,pricingAnchor);
     }    var promo=document.querySelector('.homepage-promo-video');
     if(promo)promo.remove();
@@ -417,7 +417,7 @@
       if(h2)h2.textContent='Access the full decision system.';
       if(lead)lead.textContent='The scan and test drive show the gap. Membership unlocks the guided buildout, readiness tools, vendor and credit card matching, business visibility audits, reports, and support resources.';
       var cards=pricing.querySelectorAll('.pricing .card');
-      if(cards[0]){cards[0].classList.add('membership-plan');cards[0].innerHTML="<span class='plan-eyebrow'>Flexible access</span><h3>Monthly access</h3><div class='price'>$49<small>/mo</small></div><p>Use the 7-module buildout, readiness checklist, vendor matcher, credit card matcher, funding readiness, and member reports.</p><ul><li>Start, pause, or resume the buildout</li><li>Save profile progress and reports</li><li>Use member-only readiness tools</li></ul><a class='btn secondary' href='/membership/?plan=monthly'>Choose monthly</a>";}
+      if(cards[0]){cards[0].classList.add('membership-plan','intro-monthly-plan');cards[0].innerHTML="<span class='plan-eyebrow'>Intro monthly offer</span><h3>Monthly access</h3><div class='price'>$7<small>first month</small></div><p><strong>Then $49/month.</strong> Use the 7-module buildout, readiness checklist, vendor matcher, credit card matcher, funding readiness, and member reports.</p><ul><li>Unlock the full platform after the free preview</li><li>Save profile progress and reports</li><li>Use member-only readiness tools</li></ul><a class='btn secondary' href='/membership/?plan=monthly'>Start for $7</a>";}
       if(cards[1]){cards[1].classList.add('membership-plan','featured-plan');cards[1].innerHTML="<span class='plan-eyebrow'>Full-year buildout</span><h3>Annual access</h3><div class='price'>$597<small>/yr</small></div><p>Full-year buildout access for owners who want time to clean records, build banking history, and move through vendors, cards, and funding in order.</p><ul><li>Full-year access to the platform</li><li>Better fit for 90-day readiness timing</li><li>Same tools with more room to execute</li></ul><a class='btn' href='/membership/?plan=annual'>Choose annual</a>";}
     }
   }
@@ -510,6 +510,7 @@
   applyHiddenGatekeepersFraming();
 
   function initMembershipAccess(){
+    var INTRO_MONTHLY_CODE='INTRO7';
     function affiliateCode(){
       var params=new URL(location.href).searchParams;
       var ref=(params.get('ref')||params.get('affiliate')||'').replace(/[^a-zA-Z0-9_-]/g,'').toLowerCase();
@@ -559,8 +560,17 @@
       var input=document.querySelector('[data-coupon-code-input]');
       var note=document.querySelector('[data-coupon-code-note]');
       if(!input)return;
+      if(selectedMembershipPlan()==='monthly'&&!input.value){
+        input.value=INTRO_MONTHLY_CODE;
+        input.setAttribute('data-intro-code-applied','true');
+        if(note){
+          note.hidden=false;
+          note.textContent='Intro offer applied: first month $7, then $49/month.';
+        }
+      }
       input.addEventListener('input',function(){
         input.value=input.value.replace(/[^a-zA-Z0-9_-]/g,'').toUpperCase();
+        input.setAttribute('data-intro-code-applied','false');
         if(note){
           note.hidden=!input.value;
           note.textContent=input.value?'Coupon code will be applied at checkout: '+input.value:'';
@@ -611,13 +621,37 @@
       var signup=document.querySelector('.checkout-panel a[href="/signup/"]');
       if(signup)signup.href='/signup/?trial=start&plan='+plan;
       document.querySelectorAll('[data-checkout-plan-label]').forEach(function(el){
-        el.textContent=plan==='monthly'?'Continue to monthly checkout':'Continue to annual checkout';
+        el.textContent=plan==='monthly'?'Continue with $7 first month':'Continue to annual checkout';
       });
       document.querySelectorAll('[data-checkout-selected-title],[data-checkout-summary-title]').forEach(function(el){el.textContent=plan==='monthly'?'Monthly access':'Annual access';});
-      document.querySelectorAll('[data-checkout-selected-copy]').forEach(function(el){el.textContent=plan==='monthly'?'Month-to-month access to the Verge Five buildout.':'Full-year access to the Verge Five buildout.';});
+      document.querySelectorAll('[data-checkout-selected-copy]').forEach(function(el){el.textContent=plan==='monthly'?'First month $7, then month-to-month access at $49/month.':'Full-year access to the Verge Five buildout.';});
       document.querySelectorAll('[data-checkout-order-name]').forEach(function(el){el.textContent=plan==='monthly'?'Verge Five Monthly':'Verge Five Annual';});
-      document.querySelectorAll('[data-checkout-order-price],[data-checkout-total]').forEach(function(el){el.textContent=plan==='monthly'?'$49.00':'$597.00';});
-      if(location.pathname==='/membership/')message(plan==='monthly'?'Monthly selected: $49/month.':'Annual selected: $597/year.');
+      document.querySelectorAll('[data-checkout-order-price]').forEach(function(el){el.textContent=plan==='monthly'?'$49.00/mo':'$597.00';});
+      document.querySelectorAll('[data-checkout-total]').forEach(function(el){el.textContent=plan==='monthly'?'$7.00':'$597.00';});
+      document.querySelectorAll('[data-checkout-renewal-note]').forEach(function(el){el.textContent=plan==='monthly'?'Renews at $49/month after the first month.':'Renews annually at $597/year.';});
+      document.querySelectorAll('[data-checkout-intro-line]').forEach(function(el){el.hidden=plan!=='monthly';});
+      var couponInput=document.querySelector('[data-coupon-code-input]');
+      var couponNote=document.querySelector('[data-coupon-code-note]');
+      if(couponInput){
+        var autoApplied=couponInput.getAttribute('data-intro-code-applied')!=='false';
+        if(plan==='monthly'&&(!couponInput.value||autoApplied)){
+          couponInput.value=INTRO_MONTHLY_CODE;
+          couponInput.setAttribute('data-intro-code-applied','true');
+          if(couponNote){
+            couponNote.hidden=false;
+            couponNote.textContent='Intro offer applied: first month $7, then $49/month.';
+          }
+        }
+        if(plan==='annual'&&couponInput.value===INTRO_MONTHLY_CODE&&autoApplied){
+          couponInput.value='';
+          couponInput.setAttribute('data-intro-code-applied','true');
+          if(couponNote){
+            couponNote.hidden=true;
+            couponNote.textContent='';
+          }
+        }
+      }
+      if(location.pathname==='/membership/')message(plan==='monthly'?'Monthly selected: $7 first month, then $49/month.':'Annual selected: $597/year.');
     }
     function postJson(url, payload){
       return fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload||{})})

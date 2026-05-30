@@ -10,6 +10,8 @@ const EXPECTED_PRICE_INTERVAL = {
   monthly: 'month',
   annual: 'year'
 };
+const INTRO_MONTHLY_CODE = 'INTRO7';
+const INTRO_MONTHLY_COUPON_ID = 'vf_intro_first_month_7';
 
 export async function onRequestPost(context) {
   try {
@@ -32,12 +34,16 @@ export async function onRequestPost(context) {
     if (priceGuard) return priceGuard;
 
     const origin = siteUrl(context.request, context.env);
-    const couponCode = cleanCouponCode(input.couponCode || input.promoCode || input.discountCode || '');
+    const couponCode = cleanCouponCode(input.couponCode || input.promoCode || input.discountCode || (plan === 'monthly' ? INTRO_MONTHLY_CODE : ''));
     let promotionCode = null;
     if (couponCode) {
       const promoList = await stripeGet(context.env, '/promotion_codes', { active: true, code: couponCode, limit: 1 });
       if (promoList instanceof Response) return promoList;
       promotionCode = promoList.data && promoList.data[0];
+      if (!promotionCode && couponCode === INTRO_MONTHLY_CODE && plan === 'monthly') {
+        promotionCode = await ensureMonthlyIntroPromotionCode(context.env);
+        if (promotionCode instanceof Response) return promotionCode;
+      }
       if (!promotionCode) return json({ error: 'That coupon code is not active.' }, 400);
     }
     const postedCode = normalizeAffiliateCode(input.affiliateCode || input.ref || '');
@@ -95,6 +101,32 @@ async function verifyCheckoutPrice(env, priceId, plan) {
     }, 500);
   }
   return null;
+}
+
+async function ensureMonthlyIntroPromotionCode(env) {
+  const coupon = await stripeRequest(env, '/coupons', {
+    id: INTRO_MONTHLY_COUPON_ID,
+    name: 'Verge Five first month for $7',
+    amount_off: 4200,
+    currency: 'usd',
+    duration: 'once',
+    metadata: {
+      offer: 'monthly_intro_first_month_7'
+    }
+  });
+  if (coupon instanceof Response) {
+    // If the coupon already exists, Stripe rejects the duplicate create. Keep going
+    // and attach the promotion code to the known coupon id.
+  }
+  const promotionCode = await stripeRequest(env, '/promotion_codes', {
+    coupon: INTRO_MONTHLY_COUPON_ID,
+    code: INTRO_MONTHLY_CODE,
+    active: true,
+    metadata: {
+      offer: 'monthly_intro_first_month_7'
+    }
+  });
+  return promotionCode;
 }
 
 function cleanCouponCode(value) {
