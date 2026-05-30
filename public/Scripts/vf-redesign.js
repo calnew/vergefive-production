@@ -524,6 +524,17 @@
       if(match)return decodeURIComponent(match[1]);
       try{return localStorage.getItem('vf-affiliate')||''}catch(e){return ''}
     }
+    function legacyLeadToken(){
+      var params=new URL(location.href).searchParams;
+      var token=(params.get('legacy')||params.get('lead')||'').replace(/[^a-zA-Z0-9_-]/g,'');
+      if(token){
+        var maxAge=60*60*24*45;
+        document.cookie='vf_legacy_lead='+encodeURIComponent(token)+'; Path=/; Max-Age='+maxAge+'; SameSite=Lax';
+        try{localStorage.setItem('vf-legacy-lead',token)}catch(e){}
+        return token;
+      }
+      try{return localStorage.getItem('vf-legacy-lead')||''}catch(e){return ''}
+    }
     affiliateCode();
     var legacyContactLinks=document.querySelectorAll("a[href='/contact-usb3806186/']");
     legacyContactLinks.forEach(function(link){
@@ -711,7 +722,7 @@
         Array.prototype.forEach.call(form.elements,function(el){if(el.name)payload[el.name]=el.value});
         var turnstile=form.querySelector('[name="cf-turnstile-response"]');
         if(turnstile)payload.turnstileToken=turnstile.value;
-        if(mode==='register')payload.affiliateCode=affiliateCode();
+        if(mode==='register'){payload.affiliateCode=affiliateCode();payload.legacyToken=legacyLeadToken();}
         message(mode==='register'?'Creating account...':'Logging in...');
         postJson(mode==='register'?'/api/auth/register':'/api/auth/login',payload)
           .then(function(data){
@@ -1249,6 +1260,109 @@
       });
     }
     addMemberCreator();
+    function addLegacyCampaignPanel(){
+      if(document.querySelector('[data-legacy-campaign-panel]'))return;
+      var anchor=document.querySelector('[data-admin-create-member]');
+      var workspace=document.querySelector('.admin-workspace');
+      if(!workspace)return;
+      var section=document.createElement('section');
+      section.className='content-block legacy-campaign-panel';
+      section.setAttribute('data-legacy-campaign-panel','');
+      section.innerHTML='<div class="block-head"><div><p class="kicker">Legacy client campaigns</p><h2>Import previous-platform clients without mixing them into members.</h2><p>These contacts stay separate as campaign leads until they click the tracked link and register for the Verge Five test drive.</p></div><button class="btn secondary" type="button" data-legacy-refresh>Refresh</button></div><div class="legacy-campaign-metrics" data-legacy-metrics><article><strong>0</strong><span>Imported</span></article><article><strong>0</strong><span>Sent</span></article><article><strong>0</strong><span>Clicked</span></article><article><strong>0</strong><span>Registered</span></article></div><form class="legacy-campaign-form" data-legacy-campaign-form><div class="scan-two"><label>Campaign name<input class="input" name="name" placeholder="Legacy Verge Five clients"></label><label>Email subject<input class="input" name="subject" placeholder="Your Verge Five test drive is ready"></label></div><label>Email template<textarea class="input" name="message" rows="9" placeholder="Use [First Name] and [Test Drive Link]"></textarea></label><label>Import contacts<textarea class="input" name="contacts" rows="5" placeholder="First name, Last name, email@example.com&#10;First name, email@example.com"></textarea><small class="legal">Paste one contact per line. Accepted formats: email, first,email, or first,last,email.</small></label><div class="proof-actions"><button class="btn" type="submit" data-legacy-save-import>Save and import contacts</button><button class="btn secondary" type="button" data-legacy-send-selected>Send selected</button><button class="btn secondary" type="button" data-legacy-send-next>Send next 100 unsent</button></div><p class="auth-message" data-legacy-message></p></form><div class="vendor-library-tools"><input class="input" data-legacy-search placeholder="Search legacy leads"></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th><input type="checkbox" data-legacy-check-all></th><th>Contact</th><th>Status</th><th>Sent</th><th>Clicked</th><th>Registered</th><th>Link</th><th>Action</th></tr></thead><tbody data-legacy-leads><tr><td colspan="8">Loading legacy campaign leads...</td></tr></tbody></table></div>';
+      workspace.parentNode.insertBefore(section,anchor?anchor.nextSibling:workspace);
+      var form=section.querySelector('[data-legacy-campaign-form]');
+      var msg=section.querySelector('[data-legacy-message]');
+      var metrics=section.querySelector('[data-legacy-metrics]');
+      var tbody=section.querySelector('[data-legacy-leads]');
+      var searchInput=section.querySelector('[data-legacy-search]');
+      var checkAll=section.querySelector('[data-legacy-check-all]');
+      var campaign=null;
+      var leads=[];
+      function legacyMessage(text,danger){if(msg){msg.textContent=text||'';msg.classList.toggle('danger',!!danger)}}
+      function postLegacy(payload){
+        return fetch('/api/admin/legacy-campaigns',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload||{})})
+          .then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Unable to update legacy campaign');return data})});
+      }
+      function leadFullName(lead){return [lead.first_name,lead.last_name].filter(Boolean).join(' ')||'Legacy contact'}
+      function leadStatusClass(status){status=String(status||'').toLowerCase();return status==='registered'?'ready':status==='clicked'?'almost':status==='sent'?'wait':'wait'}
+      function selectedLeadIds(){
+        return [].slice.call(section.querySelectorAll('[data-legacy-lead-check]:checked')).map(function(input){return input.value});
+      }
+      function renderLegacy(){
+        var q=(searchInput&&searchInput.value||'').toLowerCase();
+        var filtered=leads.filter(function(lead){return !q||(lead.email+' '+leadFullName(lead)+' '+(lead.status||'')).toLowerCase().indexOf(q)>-1});
+        if(metrics){
+          var total=leads.length;
+          var sent=leads.filter(function(lead){return !!lead.email_sent_at}).length;
+          var clicked=leads.filter(function(lead){return !!lead.clicked_at}).length;
+          var registered=leads.filter(function(lead){return !!lead.registered_at}).length;
+          metrics.innerHTML='<article><strong>'+total+'</strong><span>Imported</span></article><article><strong>'+sent+'</strong><span>Sent</span></article><article><strong>'+clicked+'</strong><span>Clicked</span></article><article><strong>'+registered+'</strong><span>Registered</span></article>';
+        }
+        if(!filtered.length){tbody.innerHTML='<tr><td colspan="8">No legacy leads found yet.</td></tr>';return;}
+        tbody.innerHTML=filtered.map(function(lead){
+          var link=location.origin+'/api/legacy/track?token='+encodeURIComponent(lead.token||'');
+          var checkedDisabled=lead.registered_at||lead.do_not_contact?'disabled':'';
+          return '<tr><td><input type="checkbox" data-legacy-lead-check value="'+escapeHtml(lead.id)+'" '+checkedDisabled+'></td><td><strong>'+escapeHtml(leadFullName(lead))+'</strong><small>'+escapeHtml(lead.email||'')+'</small><small>'+escapeHtml(lead.source||'')+'</small></td><td><span class="match-status '+leadStatusClass(lead.status)+'">'+escapeHtml(lead.status||'imported')+'</span>'+(lead.do_not_contact?'<small>Do not contact</small>':'')+'</td><td>'+fmtDateTime(lead.email_sent_at)+'<small>'+Number(lead.email_send_count||0)+' sends</small></td><td>'+fmtDateTime(lead.clicked_at)+'<small>'+Number(lead.click_count||0)+' clicks</small></td><td>'+fmtDateTime(lead.registered_at)+'<small>'+escapeHtml(lead.member_email||lead.user_id||'')+'</small></td><td><input class="input legacy-link-input" readonly value="'+escapeHtml(link)+'"></td><td><button class="btn secondary small" type="button" data-copy-legacy-link="'+escapeHtml(link)+'">Copy link</button><button class="btn ghost small" type="button" data-legacy-dnc="'+escapeHtml(lead.id)+'">Do not contact</button><button class="btn danger small" type="button" data-legacy-delete="'+escapeHtml(lead.id)+'">Delete</button></td></tr>';
+        }).join('');
+      }
+      function loadLegacy(){
+        return fetch('/api/admin/legacy-campaigns').then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Unable to load legacy campaigns');return data})}).then(function(data){
+          campaign=(data.campaigns||[]).find(function(item){return item.id===data.activeCampaignId})||(data.campaigns||[])[0]||null;
+          leads=data.leads||[];
+          if(campaign&&form){
+            form.elements.name.value=campaign.name||'';
+            form.elements.subject.value=campaign.subject||'';
+            form.elements.message.value=campaign.message||'';
+          }
+          renderLegacy();
+        }).catch(function(err){legacyMessage(err.message,true);if(tbody)tbody.innerHTML='<tr><td colspan="8">'+escapeHtml(err.message)+'</td></tr>'});
+      }
+      form.addEventListener('submit',function(e){
+        e.preventDefault();
+        legacyMessage('Saving campaign and importing contacts...');
+        var campaignId=campaign&&campaign.id||'';
+        postLegacy({action:'save-campaign',campaignId:campaignId,name:form.elements.name.value,subject:form.elements.subject.value,message:form.elements.message.value}).then(function(saved){
+          campaignId=saved.campaignId;
+          var contacts=form.elements.contacts.value||'';
+          if(!contacts.trim())return {ok:true,imported:0,skipped:0,campaignId:campaignId};
+          return postLegacy({action:'import-leads',campaignId:campaignId,contacts:contacts,source:'Previous Verge Five platform'});
+        }).then(function(data){
+          legacyMessage('Campaign saved. Imported '+Number(data.imported||0)+' contact(s), skipped '+Number(data.skipped||0)+'.');
+          form.elements.contacts.value='';
+          loadLegacy();
+        }).catch(function(err){legacyMessage(err.message,true)});
+      });
+      section.querySelector('[data-legacy-send-selected]').addEventListener('click',function(){
+        if(!campaign)return;
+        var ids=selectedLeadIds();
+        legacyMessage('Sending selected legacy emails...');
+        postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'selected',leadIds:ids}).then(function(data){
+          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
+          loadLegacy();
+        }).catch(function(err){legacyMessage(err.message,true)});
+      });
+      section.querySelector('[data-legacy-send-next]').addEventListener('click',function(){
+        if(!campaign)return;
+        legacyMessage('Sending next 100 unsent legacy emails...');
+        postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'next-unsent'}).then(function(data){
+          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
+          loadLegacy();
+        }).catch(function(err){legacyMessage(err.message,true)});
+      });
+      section.querySelector('[data-legacy-refresh]').addEventListener('click',function(){legacyMessage('Refreshing...');loadLegacy().then(function(){legacyMessage('Legacy campaign refreshed.')})});
+      if(searchInput)searchInput.addEventListener('input',renderLegacy);
+      if(checkAll)checkAll.addEventListener('change',function(){section.querySelectorAll('[data-legacy-lead-check]:not(:disabled)').forEach(function(input){input.checked=checkAll.checked})});
+      tbody.addEventListener('click',function(e){
+        var copy=e.target.closest('[data-copy-legacy-link]');
+        if(copy){var link=copy.getAttribute('data-copy-legacy-link');navigator.clipboard&&navigator.clipboard.writeText(link);legacyMessage('Tracking link copied.');return;}
+        var dnc=e.target.closest('[data-legacy-dnc]');
+        if(dnc){postLegacy({action:'do-not-contact',leadId:dnc.getAttribute('data-legacy-dnc')}).then(loadLegacy).catch(function(err){legacyMessage(err.message,true)});return;}
+        var del=e.target.closest('[data-legacy-delete]');
+        if(del&&confirm('Delete this legacy lead? Registered leads are not deleted here.')){postLegacy({action:'delete-lead',leadId:del.getAttribute('data-legacy-delete')}).then(loadLegacy).catch(function(err){legacyMessage(err.message,true)});}
+      });
+      loadLegacy();
+    }
+    addLegacyCampaignPanel();
     loadEnvironmentStatus();
     function render(){
       var q=(search&&search.value||'').toLowerCase();
