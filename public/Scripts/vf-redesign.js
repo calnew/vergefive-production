@@ -380,6 +380,15 @@
       else if(aiTop)aiTop.insertAdjacentElement('afterend',pain);
       else hero.insertAdjacentElement('afterend',pain);
     }
+    if(hero&&!document.querySelector('.setup-path-section')){
+      var setupPaths=document.createElement('section');
+      setupPaths.className='section setup-path-section';
+      setupPaths.innerHTML="<div class='setup-path-head'><p class='kicker'>Business-safe setup paths</p><h2>The setup choices matter before the credit applications do.</h2><p class='lead'>Verge Five does not just tell owners to get a phone, address, website, bank account, or vendor account. It helps them understand which setup paths are safer, what shortcuts can weaken the profile, and what should verify before they move forward.</p></div><div class='setup-path-grid'><article><span>01</span><strong>Choose the right foundation vendors</strong><p>Use business-safe setup paths for phone, 411, address, website, domain email, legal records, and banking.</p></article><article><span>02</span><strong>Avoid weak signals</strong><p>See why personal-looking phone numbers, mailbox-style addresses, unfinished websites, and mismatched records can create problems later.</p></article><article><span>03</span><strong>Save proof</strong><p>Keep confirmations, screenshots, filings, statements, listings, and records tied to each buildout step.</p></article><article><span>04</span><strong>Verify before applying</strong><p>Return to the scan, checklist, and readiness gates before moving into vendor credit, cards, or funding.</p></article></div><div class='setup-path-cta'><a class='btn dark' href='/whats-inside/'>See how it works inside</a><a class='btn secondary' href='/signup/?trial=start'>Take the free test drive</a></div>";
+      var painSection=document.querySelector('.burned-buyer-section');
+      if(painSection)painSection.insertAdjacentElement('afterend',setupPaths);
+      else if(scanSection)scanSection.insertAdjacentElement('afterend',setupPaths);
+      else hero.insertAdjacentElement('afterend',setupPaths);
+    }
     var pricingAnchor=document.querySelector('#pricing');
     if(pricingAnchor&&!document.querySelector('.home-start-path')){
       var startPath=document.createElement('section');
@@ -438,6 +447,14 @@
       if(amazonLink)amazonLink.textContent='Get the book on Amazon';
       var timelineLead=document.querySelector('.victory-timeline-head .lead');
       if(timelineLead)timelineLead.textContent='This is the order members follow inside Verge Five. It starts with visibility, builds the business foundation, proves the cleanup, then moves into vendors, cards, and funding only when the profile looks consistent enough for the hidden approval checks.';
+      if(heroSection&&!document.querySelector('.inside-setup-path-section')){
+        var insideSetup=document.createElement('section');
+        insideSetup.className='section setup-path-section inside-setup-path-section';
+        insideSetup.innerHTML="<div class='setup-path-head'><p class='kicker'>Business-safe setup paths</p><h2>Inside Verge Five, members are not left to guess what to use.</h2><p class='lead'>Each foundation section points members toward safer setup paths, shows what to avoid, explains what proof to save, and makes the next move depend on readiness instead of rushing applications.</p></div><div class='setup-path-grid'><article><span>01</span><strong>Choose the setup path</strong><p>Use business-safe options for phone, address, website, domain email, legal setup, and banking.</p></article><article><span>02</span><strong>Avoid weak provider choices</strong><p>Understand the shortcuts that can make a business look personal, temporary, unverifiable, or inconsistent.</p></article><article><span>03</span><strong>Save the proof</strong><p>Keep the records that show each step was actually created, filed, listed, or verified.</p></article><article><span>04</span><strong>Unlock smarter moves</strong><p>Move into vendors, cards, and funding paths after the foundation signals are stronger.</p></article></div>";
+        var timeline=document.querySelector('.victory-timeline-section');
+        if(timeline)timeline.parentNode.insertBefore(insideSetup,timeline);
+        else heroSection.closest('.page-hero').insertAdjacentElement('afterend',insideSetup);
+      }
       setText('.victory-timeline-head h2','The path is simple: scan, fix, prove, then apply.');
       var videoHead=document.querySelector('.whats-inside-video .promo-video-head h2');
       if(videoHead)videoHead.textContent='See why the platform keeps members from rushing applications.';
