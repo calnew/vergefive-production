@@ -183,10 +183,32 @@ create table if not exists visibility_audits (
   created_at text not null default (datetime('now'))
 );
 
+create table if not exists member_access_events (
+  id text primary key,
+  user_id text not null references users(id) on delete cascade,
+  page_path text not null,
+  event_type text not null default 'page_view',
+  created_at text not null default (datetime('now'))
+);
+
+create table if not exists member_readiness_locks (
+  user_id text primary key references users(id) on delete cascade,
+  status text not null default 'clear',
+  reason text,
+  message text,
+  flagged_at text,
+  unlock_after text,
+  admin_unlocked_at text,
+  admin_unlocked_by text,
+  updated_at text not null default (datetime('now'))
+);
+
 create index if not exists idx_lesson_progress_user on lesson_progress(user_id);
 create index if not exists idx_readiness_signals_user on readiness_signals(user_id);
 create index if not exists idx_report_snapshots_user on report_snapshots(user_id, created_at);
 create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at);
+create index if not exists idx_member_access_events_user_time on member_access_events(user_id, created_at);
+create index if not exists idx_member_readiness_locks_status on member_readiness_locks(status, unlock_after);
 create index if not exists idx_sessions_token_hash on sessions(token_hash);
 create index if not exists idx_sessions_user on sessions(user_id);
 create index if not exists idx_users_stripe_customer on users(stripe_customer_id);

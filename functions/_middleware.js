@@ -1,4 +1,5 @@
 import { getAuth, isAdminEmail, isTrialExpired, isTrialMembership, redirect } from './_lib/auth.js';
+import { isAdvancedReadinessPath, readinessLockForPath, recordMemberPageAccess } from './_lib/readiness-locks.js';
 
 const PROTECTED_PREFIXES = [
   '/account/',
@@ -160,6 +161,15 @@ export async function onRequest(context) {
     }
     if (isTrialAllowedPath(url.pathname) || isTrialAllowedMemberApi(url.pathname)) {
       context.data.auth = auth;
+      if (!isMemberApi(url.pathname)) await recordMemberPageAccess(context.env, auth.user.id, url.pathname).catch(() => null);
+      if (!isMemberApi(url.pathname) && isAdvancedReadinessPath(url.pathname)) {
+        const settleHours = Number(context.env.READINESS_SETTLE_HOURS || 72);
+        const readiness = await readinessLockForPath(context.env, auth.user.id, url.pathname, { settleHours }).catch(() => ({ locked: false }));
+        if (readiness.locked) {
+          const message = encodeURIComponent(readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.');
+          return redirect(`/homeefe757a6/?readiness=locked&reason=${encodeURIComponent(readiness.code || 'readiness_locked')}&message=${message}&next=${encodeURIComponent(url.pathname + url.search)}`);
+        }
+      }
       return context.next();
     }
     if (isMemberApi(url.pathname)) {
@@ -179,6 +189,24 @@ export async function onRequest(context) {
       });
     }
     return redirect(`/membership/?next=${encodeURIComponent(url.pathname + url.search)}`);
+  }
+
+  if (!isMemberApi(url.pathname)) {
+    await recordMemberPageAccess(context.env, auth.user.id, url.pathname).catch(() => null);
+  }
+  if (isAdvancedReadinessPath(url.pathname)) {
+    const settleHours = Number(context.env.READINESS_SETTLE_HOURS || 72);
+    const readiness = await readinessLockForPath(context.env, auth.user.id, url.pathname, { settleHours }).catch(() => ({ locked: false }));
+    if (readiness.locked) {
+      const message = encodeURIComponent(readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.');
+      if (isMemberApi(url.pathname)) {
+        return new Response(JSON.stringify({ error: readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.', code: readiness.code || 'readiness_locked' }), {
+          status: 423,
+          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
+        });
+      }
+      return redirect(`/homeefe757a6/?readiness=locked&reason=${encodeURIComponent(readiness.code || 'readiness_locked')}&message=${message}&next=${encodeURIComponent(url.pathname + url.search)}`);
+    }
   }
 
   context.data.auth = auth;

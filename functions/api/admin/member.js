@@ -101,6 +101,21 @@ export async function onRequestGet(context) {
      limit 25`
   ).bind(memberId).all();
 
+  const readinessLock = await context.env.DB.prepare(
+    `select user_id, status, reason, message, flagged_at, unlock_after, admin_unlocked_at, admin_unlocked_by, updated_at
+     from member_readiness_locks
+     where user_id = ?
+     limit 1`
+  ).bind(memberId).first();
+
+  const accessRows = await context.env.DB.prepare(
+    `select page_path, event_type, created_at
+     from member_access_events
+     where user_id = ?
+     order by created_at desc
+     limit 40`
+  ).bind(memberId).all();
+
   const progress = (progressRows.results || []).map((row) => ({
     pagePath: row.page_path,
     completedIndexes: parseJson(row.completed_indexes, []),
@@ -136,11 +151,17 @@ export async function onRequestGet(context) {
     createdAt: row.created_at
   }));
 
+  const accessEvents = (accessRows.results || []).map((row) => ({
+    pagePath: row.page_path,
+    eventType: row.event_type,
+    createdAt: row.created_at
+  }));
+
   const stripeCustomer = member.stripe_customer_id || '';
   const billingLinks = {
     stripeCustomer: stripeCustomer ? `https://dashboard.stripe.com/customers/${stripeCustomer}` : '',
     stripeSubscription: member.stripe_subscription_id ? `https://dashboard.stripe.com/subscriptions/${member.stripe_subscription_id}` : ''
   };
 
-  return json({ member, profile: profile || null, resume: resume || null, progress, signals, reports, notes, activity, billingLinks });
+  return json({ member, profile: profile || null, resume: resume || null, progress, signals, reports, notes, activity, readinessLock: readinessLock || null, accessEvents, billingLinks });
 }

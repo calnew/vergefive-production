@@ -1256,7 +1256,9 @@
       if(!filtered.length){tbody.innerHTML='<tr><td colspan="7">No members found.</td></tr>';return}
       tbody.innerHTML=filtered.map(function(m){
         var active=/active|trial|trialing|paid|lifetime/i.test(m.membership_status);
-        return '<tr><td><strong>'+escapeHtml(m.name||'Member')+'</strong><small>'+escapeHtml(m.id)+'</small></td><td><span class="match-status '+(active?'ready':'wait')+'">'+escapeHtml(m.membership_status)+'</span><small>'+escapeHtml(m.plan||'')+'</small></td><td>'+escapeHtml(m.email)+'<small>'+(m.email_verified_at?'Verified':'Not verified')+'</small></td><td>'+Number(m.progress_pages||0)+' pages<small>'+Number(m.signal_groups||0)+' signal groups, '+Number(m.reports||0)+' reports</small></td><td>'+fmtDate(m.created_at)+'</td><td>'+fmtDate(m.last_login_at)+'</td><td><button class="btn secondary small" type="button" data-admin-member-id="'+escapeHtml(m.id)+'">View</button></td></tr>';
+        var lockStatus=(m.readiness_lock_status||'clear').toLowerCase();
+        var lockActive=lockStatus&&lockStatus!=='clear'&&!m.readiness_admin_unlocked_at;
+        return '<tr><td><strong>'+escapeHtml(m.name||'Member')+'</strong><small>'+escapeHtml(m.id)+'</small></td><td><span class="match-status '+(active?'ready':'wait')+'">'+escapeHtml(m.membership_status)+'</span><small>'+escapeHtml(m.plan||'')+'</small>'+(lockActive?'<span class="match-status wait">Readiness '+escapeHtml(lockStatus)+'</span>':'')+'</td><td>'+escapeHtml(m.email)+'<small>'+(m.email_verified_at?'Verified':'Not verified')+'</small></td><td>'+Number(m.progress_pages||0)+' pages<small>'+Number(m.signal_groups||0)+' signal groups, '+Number(m.reports||0)+' reports</small>'+(lockActive?'<small>Lock reason: '+escapeHtml(m.readiness_lock_reason||'review')+'</small>':'')+'</td><td>'+fmtDate(m.created_at)+'</td><td>'+fmtDate(m.last_login_at)+'</td><td><button class="btn secondary small" type="button" data-admin-member-id="'+escapeHtml(m.id)+'">View</button></td></tr>';
       }).join('');
     }
     function detailList(items, emptyText, renderItem){
@@ -1289,12 +1291,19 @@
       var activity=detailList(data.activity,'No admin activity yet.',function(item){
         return '<article><strong>'+escapeHtml(item.action||'Activity')+'</strong><span>'+escapeHtml(item.adminEmail||'Admin')+'</span><small>'+escapeHtml(item.createdAt||'')+'</small></article>';
       });
+      var lock=data.readinessLock||{};
+      var lockActive=lock.status&&lock.status!=='clear'&&!lock.admin_unlocked_at;
+      var readinessStatus='<div class="readiness-admin-card '+(lockActive?'locked':'clear')+'"><div><p class="kicker">Readiness lock</p><h3>'+(lockActive?'Advanced sections paused':'Advanced sections clear')+'</h3><p>'+escapeHtml(lock.message||lock.reason||'No active readiness lock for this member.')+'</p><small>Status: '+escapeHtml(lock.status||'clear')+(lock.unlock_after?' | Unlock after: '+escapeHtml(lock.unlock_after):'')+(lock.admin_unlocked_at?' | Admin unlocked: '+escapeHtml(lock.admin_unlocked_at):'')+'</small></div><div class="proof-actions"><button class="btn secondary" type="button" data-admin-action="unlock-readiness">Unlock advanced sections</button><button class="btn ghost" type="button" data-admin-action="lock-readiness">Require review</button></div></div>';
+      var accessEvents=detailList(data.accessEvents,'No recent page access recorded yet.',function(item){
+        return '<article><strong>'+escapeHtml(item.pagePath||'Page')+'</strong><span>'+escapeHtml(item.eventType||'page view')+'</span><small>'+escapeHtml(item.createdAt||'')+'</small></article>';
+      });
       var stripeLinks='';
       if(data.billingLinks&&data.billingLinks.stripeCustomer)stripeLinks+='<a class="btn secondary small" target="_blank" rel="noopener" href="'+escapeHtml(data.billingLinks.stripeCustomer)+'">Open Stripe customer</a>';
       if(data.billingLinks&&data.billingLinks.stripeSubscription)stripeLinks+='<a class="btn secondary small" target="_blank" rel="noopener" href="'+escapeHtml(data.billingLinks.stripeSubscription)+'">Open Stripe subscription</a>';
       detailBody.innerHTML='<div class="admin-detail-head"><div><strong>'+escapeHtml(m.name||'Member')+'</strong><span>'+escapeHtml(m.email||'')+'</span><small>'+escapeHtml(m.id||'')+'</small></div><span class="match-status ready">'+escapeHtml(m.membership_status||'none')+'</span></div>'+
         '<div class="admin-control-panel"><div><label>Status<select class="input" data-admin-status><option>pending</option><option>trial</option><option>active</option><option>lifetime</option><option>paused</option><option>canceled</option></select></label><label>Plan<input class="input" data-admin-plan placeholder="monthly, annual, lifetime" value="'+escapeHtml(m.plan||'')+'"></label><label>Period end<input class="input" data-admin-period placeholder="YYYY-MM-DD or ISO date" value="'+escapeHtml(m.current_period_end||'')+'"></label><button class="btn" type="button" data-admin-action="update-status">Save status</button></div><div><label>Extend trial days<input class="input" data-admin-trial-days type="number" min="1" max="365" value="30"></label><button class="btn secondary" type="button" data-admin-action="extend-trial">Extend trial</button><button class="btn secondary" type="button" data-admin-action="verify-email">Mark email verified</button><button class="btn secondary" type="button" data-admin-action="reset-password">Send reset email</button><button class="btn ghost" type="button" data-admin-action="clear-progress">Clear progress</button><button class="btn danger" type="button" data-admin-action="delete-member">Delete member</button></div></div>'+
         '<div class="admin-reset-output hide" data-admin-reset-output></div>'+
+        '<div class="admin-detail-section"><h3>Readiness safeguard</h3>'+readinessStatus+'<h4>Recent page movement</h4>'+accessEvents+'</div>'+
         '<div class="admin-detail-section"><h3>Email member</h3><form data-admin-email-form class="admin-email-form"><label>Template<select class="input" data-admin-email-template><option value="custom">Custom blank email</option><option value="test-drive-welcome">Welcome / test drive invite</option><option value="stalled-business-credit">Stalled business credit invite</option><option value="business-credit-game-changed">Business credit game changed</option><option value="potential-affiliate-full-access">Potential affiliate full access</option></select></label><input class="input" name="subject" placeholder="Subject" value=""><textarea class="input" name="message" rows="12" placeholder="Write your custom message or load a template for '+escapeHtml(m.email||'this member')+'"></textarea><p class="legal" data-admin-email-edit-note>Templates only fill this draft. Review and edit before sending. The affiliate access template labels the member as a potential affiliate and grants full platform access when sent.</p><div class="proof-actions"><button class="btn" type="submit">Send email</button><button class="btn secondary" type="button" data-admin-load-template="test-drive-welcome">Load welcome template</button><button class="btn secondary" type="button" data-admin-load-template="stalled-business-credit">Load test drive invite</button><button class="btn secondary" type="button" data-admin-load-template="business-credit-game-changed">Load game changed email</button><button class="btn secondary" type="button" data-admin-load-template="potential-affiliate-full-access">Load affiliate access email</button><a class="btn secondary" href="mailto:'+encodeURIComponent(m.email||'')+'">Open email app</a></div><p class="legal" data-admin-email-status></p></form></div>'+
         '<div class="admin-detail-section"><h3>Billing</h3><p class="legal">Customer: '+escapeHtml(m.stripe_customer_id||'Not connected')+'<br>Subscription: '+escapeHtml(m.stripe_subscription_id||'Not connected')+'</p><div class="proof-actions">'+(stripeLinks||'<span class="legal">No Stripe links available for this member.</span>')+'</div></div>'+
         '<div class="admin-detail-section"><h3>Admin notes</h3><form data-admin-note-form class="admin-note-form"><textarea class="input" name="note" rows="3" placeholder="Add an internal note for this member"></textarea><button class="btn" type="submit">Add note</button></form>'+notes+'</div>'+
@@ -1352,6 +1361,11 @@
         payload.currentPeriodEnd=(detailBody.querySelector('[data-admin-period]')||{}).value||'';
       }
       if(action==='extend-trial')payload.days=(detailBody.querySelector('[data-admin-trial-days]')||{}).value||30;
+      if(action==='lock-readiness'){
+        var lockMessage=prompt('Message to show internally for this readiness review:', 'Advanced sections require admin review before they reopen.');
+        if(lockMessage===null)return;
+        payload.message=lockMessage;
+      }
       if(action==='delete-member')payload.confirm='DELETE';
       postAdminAction(payload).then(function(data){
         adminMessage(action==='delete-member'?'Member deleted.':'Member updated.');
@@ -1621,6 +1635,22 @@
       return res.json();
     });
   }
+  function renderReadinessLockBanner(summary){
+    var params=new URL(location.href).searchParams;
+    var lock=summary&&summary.lock||{};
+    var locked=summary&&summary.locked;
+    var redirected=params.get('readiness')==='locked';
+    if(!locked&&!redirected)return;
+    var main=document.querySelector('.member-dashboard main')||document.querySelector('.member-main')||document.querySelector('main');
+    if(!main||document.querySelector('[data-readiness-lock-banner]'))return;
+    var message=params.get('message')||lock.message||'Advanced sections are paused while your business profile has time to settle and verify.';
+    var unlockAfter=lock.unlock_after||'';
+    var banner=document.createElement('section');
+    banner.className='content-block readiness-lock-banner';
+    banner.setAttribute('data-readiness-lock-banner','');
+    banner.innerHTML="<div class='audit-alert-mark'>!</div><div><p class='kicker'>Readiness checkpoint</p><h2>Some sections open after your business signals settle.</h2><p>"+escapeHtml(message)+"</p><p class='legal'>This keeps the platform aligned with the approval process: scan the business, make the foundation changes, give public records time to update, then move into vendors, cards, reports, and funding when the profile is ready.</p>"+(unlockAfter?"<p class='legal'><strong>Estimated unlock:</strong> "+escapeHtml(unlockAfter)+"</p>":"")+"</div><div class='proof-actions'><a class='btn dark' href='/business-visibility-audit/'>Run or review scan</a><a class='btn secondary' href='/start-here/'>Continue foundation</a></div>";
+    main.insertBefore(banner,main.firstChild);
+  }
   function saveMemberProgress(payload){
     memberApi('PUT','/api/member/progress',payload).catch(function(){});
   }
@@ -1670,6 +1700,7 @@
     try{saved=JSON.parse(localStorage.getItem('vf-last-location')||'null')}catch(e){}
     renderResumePanel(saved);
     memberApi('GET','/api/member/progress').then(function(data){
+      renderReadinessLockBanner(data.readinessLock);
       if(!data||!data.resume||!data.resume.page_path)return;
       var remote={path:data.resume.page_path,title:data.resume.page_title||'Continue your Verge Five buildout.',crumb:data.resume.breadcrumb||'Member area',time:data.resume.updated_at};
       try{localStorage.setItem('vf-last-location',JSON.stringify(remote))}catch(e){}

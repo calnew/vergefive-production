@@ -2,6 +2,7 @@ import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, re
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { createPasswordReset, sendAdminEmail } from '../../_lib/security.js';
 import { stripeGet, stripeRequest } from '../../_lib/stripe.js';
+import { adminRequireReadinessReview, adminUnlockReadiness } from '../../_lib/readiness-locks.js';
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
@@ -44,6 +45,8 @@ async function deleteMemberData(env, userId) {
     'resume_locations',
     'report_snapshots',
     'visibility_audits',
+    'member_access_events',
+    'member_readiness_locks',
     'member_preferences',
     'affiliate_commissions',
     'affiliate_referrals',
@@ -191,6 +194,19 @@ export async function onRequestPost(context) {
     await context.env.DB.prepare('delete from readiness_signals where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from resume_locations where user_id = ?').bind(memberId).run();
     await logAdminAction(context.env, auth, 'clear-progress', memberId, {});
+    return json({ ok: true });
+  }
+
+  if (action === 'unlock-readiness') {
+    await adminUnlockReadiness(context.env, auth, memberId);
+    await logAdminAction(context.env, auth, 'unlock-readiness', memberId, { email: member.email });
+    return json({ ok: true });
+  }
+
+  if (action === 'lock-readiness') {
+    const message = cleanLimited(input.message, 600) || 'Advanced sections require admin review before they reopen.';
+    await adminRequireReadinessReview(context.env, memberId, message);
+    await logAdminAction(context.env, auth, 'lock-readiness', memberId, { email: member.email, message });
     return json({ ok: true });
   }
 

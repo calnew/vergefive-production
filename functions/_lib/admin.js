@@ -1,4 +1,5 @@
 import { cleanLimited } from './auth.js';
+import { ensureReadinessLockSchema } from './readiness-locks.js';
 
 export async function ensureAdminSchema(env) {
   if (!env.DB) return;
@@ -22,6 +23,7 @@ export async function ensureAdminSchema(env) {
   await env.DB.prepare('create index if not exists idx_admin_activity_admin on admin_activity_log(admin_email, created_at)').run();
   await addColumn(env, 'memberships', 'plan', 'text');
   await addColumn(env, 'memberships', 'stripe_price_id', 'text');
+  await ensureReadinessLockSchema(env);
 }
 
 async function addColumn(env, table, column, type) {

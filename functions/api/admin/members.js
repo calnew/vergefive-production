@@ -23,6 +23,10 @@ export async function onRequestGet(context) {
       coalesce(m.status, 'none') as membership_status,
       m.current_period_end,
       m.plan,
+      coalesce(rl.status, 'clear') as readiness_lock_status,
+      rl.reason as readiness_lock_reason,
+      rl.unlock_after as readiness_unlock_after,
+      rl.admin_unlocked_at as readiness_admin_unlocked_at,
       count(distinct lp.page_path) as progress_pages,
       count(distinct rs.signal_type) as signal_groups,
       count(distinct rp.id) as reports
@@ -31,6 +35,7 @@ export async function onRequestGet(context) {
     left join lesson_progress lp on lp.user_id = u.id
     left join readiness_signals rs on rs.user_id = u.id
     left join report_snapshots rp on rp.user_id = u.id
+    left join member_readiness_locks rl on rl.user_id = u.id
     group by u.id
     order by u.created_at desc
     limit 500`
@@ -47,7 +52,7 @@ export async function onRequestGet(context) {
 
   const members = rows.results || [];
   if (url.searchParams.get('format') === 'csv') {
-    const headers = ['name','email','membership_status','plan','created_at','last_login_at','verified','progress_pages','signal_groups','reports'];
+    const headers = ['name','email','membership_status','plan','readiness_lock_status','readiness_lock_reason','readiness_unlock_after','created_at','last_login_at','verified','progress_pages','signal_groups','reports'];
     const lines = [headers.join(',')].concat(members.map((m) => headers.map((key) => {
       const value = key === 'verified' ? (m.email_verified_at ? 'yes' : 'no') : m[key];
       return csvCell(value);
