@@ -1,6 +1,7 @@
 import { cleanLimited, createSession, hashPassword, json, normalizeEmail, rateLimit, readJson, requireDb, requireSameOrigin, validatePasswordPolicy } from '../../_lib/auth.js';
 import { createEmailVerification } from '../../_lib/security.js';
 import { attachReferralToUser, normalizeAffiliateCode } from '../../_lib/affiliates.js';
+import { ensureAdminSchema } from '../../_lib/admin.js';
 
 export async function onRequestPost(context) {
   try {
@@ -34,6 +35,32 @@ export async function onRequestPost(context) {
       `insert into memberships (user_id, status, current_period_end, created_at, updated_at)
        values (?, 'trial', ?, datetime("now"), datetime("now"))`
     ).bind(id, trialEndsAt).run();
+    const legacyToken = cleanLimited(input.legacyToken || input.legacy || '', 120);
+    if (legacyToken) {
+      await ensureAdminSchema(context.env);
+      await context.env.DB.prepare(
+        `update legacy_leads
+         set registered_at = datetime('now'),
+             user_id = ?,
+             status = 'registered',
+             updated_at = datetime('now')
+         where token = ? and registered_at is null`
+      ).bind(id, legacyToken).run();
+    } else {
+      try {
+        await ensureAdminSchema(context.env);
+        await context.env.DB.prepare(
+          `update legacy_leads
+           set registered_at = datetime('now'),
+               user_id = ?,
+               status = 'registered',
+               updated_at = datetime('now')
+           where email = ? and registered_at is null`
+        ).bind(id, email).run();
+      } catch (error) {
+        if (!/no such table/i.test(String(error && error.message || error))) throw error;
+      }
+    }
     const affiliateCode = normalizeAffiliateCode(input.affiliateCode || input.ref || '');
     if (affiliateCode) await attachReferralToUser(context.env, id, affiliateCode, context.request);
     const verification = await createEmailVerification(context.env, id, email, context.request);

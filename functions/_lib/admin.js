@@ -22,6 +22,37 @@ export async function ensureAdminSchema(env) {
   await env.DB.prepare('create index if not exists idx_admin_activity_admin on admin_activity_log(admin_email, created_at)').run();
   await addColumn(env, 'memberships', 'plan', 'text');
   await addColumn(env, 'memberships', 'stripe_price_id', 'text');
+  await env.DB.prepare(`create table if not exists legacy_campaigns (
+    id text primary key,
+    name text not null,
+    subject text not null,
+    message text not null,
+    created_at text not null default (datetime('now')),
+    updated_at text not null default (datetime('now'))
+  )`).run();
+  await env.DB.prepare(`create table if not exists legacy_leads (
+    id text primary key,
+    campaign_id text not null references legacy_campaigns(id) on delete cascade,
+    first_name text,
+    last_name text,
+    email text not null,
+    source text,
+    status text not null default 'imported',
+    token text not null unique,
+    email_sent_at text,
+    email_send_count integer not null default 0,
+    clicked_at text,
+    click_count integer not null default 0,
+    registered_at text,
+    user_id text references users(id) on delete set null,
+    do_not_contact integer not null default 0,
+    created_at text not null default (datetime('now')),
+    updated_at text not null default (datetime('now'))
+  )`).run();
+  await env.DB.prepare('create index if not exists idx_legacy_leads_campaign on legacy_leads(campaign_id, created_at)').run();
+  await env.DB.prepare('create index if not exists idx_legacy_leads_email on legacy_leads(email)').run();
+  await env.DB.prepare('create index if not exists idx_legacy_leads_status on legacy_leads(status)').run();
+  await env.DB.prepare('create index if not exists idx_legacy_leads_token on legacy_leads(token)').run();
 }
 
 async function addColumn(env, table, column, type) {
