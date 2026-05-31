@@ -420,6 +420,20 @@
       if(cards[0]){cards[0].classList.add('membership-plan','intro-monthly-plan');cards[0].innerHTML="<span class='plan-eyebrow'>Intro monthly offer</span><h3>Monthly access</h3><div class='price'>$7<small>first month</small></div><p><strong>Then $49/month.</strong> Use the 7-module buildout, readiness checklist, vendor matcher, credit card matcher, funding readiness, and member reports.</p><ul><li>Unlock the full platform after the free preview</li><li>Save profile progress and reports</li><li>Use member-only readiness tools</li></ul><a class='btn secondary' href='/membership/?plan=monthly'>Start for $7</a>";}
       if(cards[1]){cards[1].classList.add('membership-plan','featured-plan');cards[1].innerHTML="<span class='plan-eyebrow'>Full-year buildout</span><h3>Annual access</h3><div class='price'>$597<small>/yr</small></div><p>Full-year buildout access for owners who want time to clean records, build banking history, and move through vendors, cards, and funding in order.</p><ul><li>Full-year access to the platform</li><li>Better fit for 90-day readiness timing</li><li>Same tools with more room to execute</li></ul><a class='btn' href='/membership/?plan=annual'>Choose annual</a>";}
     }
+    if(hero&&!document.querySelector('.mobile-home-conversion')){
+      document.body.classList.add('home-mobile-optimized');
+      var mobileFlow=document.createElement('section');
+      mobileFlow.className='mobile-home-conversion';
+      mobileFlow.innerHTML="<div class='mobile-home-card mobile-home-priority'><p class='kicker'>Start here</p><h2>Run the scan before you apply.</h2><p>Verge Five checks the public-facing business signals automated approval systems look at first: name, phone, address, website, records, banking, timing, and consistency.</p><div class='mobile-home-actions'><a class='btn' href='#home-visibility-scan'>Run free scan</a><a class='btn secondary' href='/signup/?trial=start'>Test drive</a></div></div><div class='mobile-home-steps' aria-label='Mobile path'><article><span>1</span><strong>Get the baseline</strong><small>See what the outside world can verify.</small></article><article><span>2</span><strong>Fix the gaps</strong><small>Build phone, address, website, legal, banking, and readiness in order.</small></article><article><span>3</span><strong>Apply when ready</strong><small>Use matchers and reports before vendors, cards, or funding.</small></article></div><div class='mobile-home-card mobile-home-why'><h2>Why this matters now</h2><p>If the business identifiers do not match, the application can look weak before a person reviews it. The platform is built from The Hidden Gatekeepers framework: clean the signals first, then move.</p></div><div class='mobile-home-accordions'><details open><summary>What do I get?</summary><p>A guided 7-module buildout, business visibility scans, readiness checks, reports, vendor/card matching, and protected application order.</p></details><details><summary>What is the test drive?</summary><p>A free preview where you create an account, run the starting scan, and experience the first identity path before unlocking the full platform.</p></details><details><summary>What does membership cost?</summary><p>Monthly starts at $7 for the first month, then $49/month. Annual access is $597/year for the full buildout.</p></details></div><div class='mobile-home-final'><a class='btn dark' href='#pricing'>See pricing</a><a class='btn secondary' href='/whats-inside/'>What's inside</a></div>";
+      hero.insertAdjacentElement('afterend',mobileFlow);
+    }
+    if(hero&&!document.querySelector('.mobile-home-sticky')){
+      var mobileBar=document.createElement('nav');
+      mobileBar.className='mobile-home-sticky';
+      mobileBar.setAttribute('aria-label','Mobile homepage actions');
+      mobileBar.innerHTML="<a class='btn' href='#home-visibility-scan'>Run Scan</a><a class='btn secondary' href='/signup/?trial=start'>Test Drive</a>";
+      document.body.appendChild(mobileBar);
+    }
   }
   upgradeHomepageConversion();
 
