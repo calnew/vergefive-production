@@ -35,10 +35,15 @@ Verge Five should be framed as the business credit readiness and approval-prepar
 
 ## Next High-Leverage Work
 
-1. Build a public Hidden Gatekeepers framework page and link it from Home, What's Inside, Answers, and Blog.
-2. Add `Book`, `Product`, `Offer`, `WebSite`, and stronger `Organization` schema where appropriate.
-3. Expand the Answers hub into short standalone AEO pages for high-intent questions.
-4. Add concise "direct answer" blocks near the top of key blog articles.
-5. Submit the cleaned sitemap in Google Search Console and Bing Webmaster Tools.
-6. Track scan starts, test drive starts, checkout starts, purchases, and AI/search referral traffic.
+1. Expand the Answers hub into short standalone AEO pages for high-intent questions.
+2. Add concise "direct answer" blocks near the top of key blog articles.
+3. Submit the cleaned sitemap in Google Search Console and Bing Webmaster Tools.
+4. Track scan starts, test drive starts, checkout starts, purchases, and AI/search referral traffic.
 
+## Phase 2 Completed In Dev
+
+- Added `/hidden-gatekeepers/` as the public framework page for the book and platform positioning.
+- Added `Book`, `Product`, `Offer`, `FAQPage`, `BreadcrumbList`, and stronger `Organization` schema to the framework page.
+- Added stronger homepage `Organization`, `WebSite`, `Product`, and `Offer` schema.
+- Linked the framework page from Home, What's Inside, Answers, Blog, `llms.txt`, and `sitemap.xml`.
+- Added an AEO answer card for "What are the hidden gatekeepers of business approval?"
