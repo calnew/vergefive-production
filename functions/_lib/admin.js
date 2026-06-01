@@ -53,6 +53,7 @@ export async function ensureAdminSchema(env) {
     updated_at text not null default (datetime('now'))
   )`).run();
   await addColumn(env, 'legacy_leads', 'phone', 'text');
+  await addColumn(env, 'legacy_leads', 'business_name', 'text');
   await addColumn(env, 'legacy_leads', 'email_last_provider_id', 'text');
   await addColumn(env, 'legacy_leads', 'email_last_result', 'text');
   await addColumn(env, 'legacy_campaigns', 'preview_text', 'text');

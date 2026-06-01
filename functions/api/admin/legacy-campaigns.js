@@ -2,11 +2,11 @@ import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, re
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
-const DEFAULT_SUBJECT = 'Is [Phone Number] still attached to your business?';
+const DEFAULT_SUBJECT = 'Is [Phone Number] still attached to [Business Name]?';
 const DEFAULT_PREVIEW = "You didn't fail the process before — you just couldn't see it. AI actually made it more predictable.";
 const DEFAULT_MESSAGE = `Hi [First Name],
 
-I was going back through the old Verge Five records and found your business. This is the number we had on file:
+I was going back through the old Verge Five records and found [Business Name]. This is the number we had on file:
 
 [Phone Number]
 
@@ -34,7 +34,7 @@ I'm only reopening this for people who were part of the original Verge Five.
 [Test Drive Link]
 
 — The Verge Five Team`;
-const OLD_DEFAULT_SUBJECTS = ['Your Verge Five test drive is ready', 'Is your business still showing up correctly?'];
+const OLD_DEFAULT_SUBJECTS = ['Your Verge Five test drive is ready', 'Is your business still showing up correctly?', 'Is [Phone Number] still attached to your business?'];
 const OLD_DEFAULT_MARKERS = [
   'The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.',
   'You were part of the original Verge Five',
@@ -74,7 +74,7 @@ function parseContacts(text) {
     const parts = splitCsvLine(line);
     if (parts.length === 1) return { email: normalizeEmail(parts[0]) };
     if (parts.length === 2) return { firstName: cleanLimited(parts[0], 80), email: normalizeEmail(parts[1]) };
-    return { firstName: cleanLimited(parts[0], 80), lastName: cleanLimited(parts[1], 80), email: normalizeEmail(parts[2]), phone: cleanLimited(parts[3] || '', 40) };
+    return { firstName: cleanLimited(parts[0], 80), lastName: cleanLimited(parts[1], 80), email: normalizeEmail(parts[2]), phone: cleanLimited(parts[3] || '', 40), businessName: cleanLimited(parts[4] || '', 160) };
   }).filter((item) => item.email && item.email.includes('@'));
 }
 
@@ -85,10 +85,14 @@ function testDriveUrl(context, token) {
 
 function personalize(message, lead, link) {
   const firstName = lead.first_name || lead.firstName || 'there';
+  const lastName = lead.last_name || lead.lastName || '';
   const phone = lead.phone || 'the number we have on file';
+  const businessName = lead.business_name || lead.businessName || 'your business';
   return String(message || DEFAULT_MESSAGE)
     .replace(/\[First Name\]/g, firstName)
+    .replace(/\[Last Name\]/g, lastName)
     .replace(/\[Phone Number\]/g, phone)
+    .replace(/\[Business Name\]/g, businessName)
     .replace(/\[Test Drive Link\]/g, link);
 }
 
@@ -181,9 +185,9 @@ export async function onRequestPost(context) {
         continue;
       }
       await context.env.DB.prepare(
-        `insert into legacy_leads (id, campaign_id, first_name, last_name, email, phone, source, token, status, created_at, updated_at)
-         values (?, ?, ?, ?, ?, ?, ?, ?, 'imported', datetime('now'), datetime('now'))`
-      ).bind(crypto.randomUUID(), campaignId, contact.firstName || '', contact.lastName || '', contact.email, contact.phone || '', source, crypto.randomUUID()).run();
+        `insert into legacy_leads (id, campaign_id, first_name, last_name, email, phone, business_name, source, token, status, created_at, updated_at)
+         values (?, ?, ?, ?, ?, ?, ?, ?, ?, 'imported', datetime('now'), datetime('now'))`
+      ).bind(crypto.randomUUID(), campaignId, contact.firstName || '', contact.lastName || '', contact.email, contact.phone || '', contact.businessName || '', source, crypto.randomUUID()).run();
       imported += 1;
     }
     await logAdminAction(context.env, auth, 'import-legacy-leads', null, { campaignId, imported, skipped, source });
