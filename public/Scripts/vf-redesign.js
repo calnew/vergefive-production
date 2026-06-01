@@ -1284,7 +1284,7 @@
       var section=document.createElement('section');
       section.className='content-block legacy-campaign-panel';
       section.setAttribute('data-legacy-campaign-panel','');
-      section.innerHTML='<div class="block-head"><div><p class="kicker">Legacy client campaigns</p><h2>Import previous-platform clients without mixing them into members.</h2><p>These contacts stay separate as campaign leads until they click the tracked link and register for the Verge Five test drive.</p></div><button class="btn secondary" type="button" data-legacy-refresh>Refresh</button></div><div class="legacy-campaign-metrics" data-legacy-metrics><article><strong>0</strong><span>Imported</span></article><article><strong>0</strong><span>Sent</span></article><article><strong>0</strong><span>Clicked</span></article><article><strong>0</strong><span>Registered</span></article></div><form class="legacy-campaign-form" data-legacy-campaign-form><div class="legacy-manual-entry"><div><p class="kicker">Campaign email</p><h3>Choose a template or write a custom email.</h3><p class="legal">Choose a saved legacy template, then edit it before sending if needed. Custom starts blank. Supported fields: [First Name], [Last Name], [Phone Number], [Business Name], and [Test Drive Link].</p></div><label>Email type<select class="input" name="emailType" data-legacy-email-type><option value="old-verge-five">Old Verge Five phone number template</option><option value="visibility-scan">Business Visibility Scan template</option><option value="business-name-subject">Business name subject scan template</option><option value="business-active">Is business still active template</option><option value="custom">Custom email</option></select></label></div><div class="scan-two"><label>Campaign name<input class="input" name="name" placeholder="Legacy Verge Five clients"></label><label>Email subject<input class="input" name="subject" placeholder="Is [Phone Number] still attached to [Business Name]?"></label></div><label>Preview text<input class="input" name="previewText" placeholder="You did not fail the process before - you just could not see it."></label><label>Email body<textarea class="input" name="message" rows="12" placeholder="Use [First Name], [Phone Number], [Business Name], and [Test Drive Link]"></textarea></label><div class="legacy-manual-entry"><div><p class="kicker">Add one user</p><h3>Input a legacy lead manually.</h3><p class="legal">Use this when you only need to add one client without uploading a spreadsheet.</p></div><div class="legacy-manual-grid"><label>First name<input class="input" name="manualFirstName" placeholder="First name"></label><label>Last name<input class="input" name="manualLastName" placeholder="Last name"></label><label>Email<input class="input" name="manualEmail" type="email" placeholder="name@example.com"></label><label>Phone<input class="input" name="manualPhone" placeholder="Business phone"></label><label>Business name <small class="legal">(optional)</small><input class="input" name="manualBusinessName" placeholder="Business name"></label></div><button class="btn secondary" type="button" data-legacy-add-user>Add user to campaign</button></div><label>Import Excel or CSV file<input class="input" type="file" accept=".csv,.txt,.xlsx,.xls" data-legacy-file-import><small class="legal">Upload a spreadsheet with email, first name, last name, phone, and optional business name columns. Excel files are read in the browser before import.</small></label><label>Import contacts<textarea class="input" name="contacts" rows="5" placeholder="First name, Last name, email@example.com, phone number, business name&#10;First name, email@example.com"></textarea><small class="legal">Paste one contact per line. Accepted formats include first,last,email,phone,business name. Business name is optional.</small></label><div class="proof-actions"><button class="btn" type="submit" data-legacy-save-import>Save and import contacts</button><button class="btn secondary" type="button" data-legacy-send-selected>Send selected</button><button class="btn secondary" type="button" data-legacy-send-next>Send next 100 unsent</button></div><p class="auth-message" data-legacy-message></p></form><div class="vendor-library-tools"><input class="input" data-legacy-search placeholder="Search legacy leads"></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th><input type="checkbox" data-legacy-check-all></th><th>Contact</th><th>Status</th><th>Sent</th><th>Clicked</th><th>Registered</th><th>Link</th><th>Action</th></tr></thead><tbody data-legacy-leads><tr><td colspan="8">Loading legacy campaign leads...</td></tr></tbody></table></div>';
+      section.innerHTML='<div class="block-head"><div><p class="kicker">Legacy client campaigns</p><h2>Import, preview, and send previous-platform client emails.</h2><p>Leads stay separate from members until they click the tracked link and register for the Verge Five test drive.</p></div><button class="btn secondary" type="button" data-legacy-refresh>Refresh</button></div><div class="legacy-campaign-metrics" data-legacy-metrics><article><strong>0</strong><span>Imported</span></article><article><strong>0</strong><span>Sent</span></article><article><strong>0</strong><span>Clicked</span></article><article><strong>0</strong><span>Registered</span></article></div><form class="legacy-campaign-form" data-legacy-campaign-form><div class="legacy-workflow-grid"><div class="legacy-editor-card"><div class="legacy-step-label"><span>1</span><div><p class="kicker">Choose email</p><h3>Template and draft</h3></div></div><label>Email template<select class="input" name="emailType" data-legacy-email-type><option value="old-verge-five">Old Verge Five phone number template</option><option value="visibility-scan">Business Visibility Scan template</option><option value="business-name-subject">Business name subject scan template</option><option value="business-active">Is business still active template</option><option value="custom">Custom email</option></select></label><div class="scan-two"><label>Campaign name<input class="input" name="name" placeholder="Legacy Verge Five clients"></label><label>Email subject<input class="input" name="subject" placeholder="Is [Phone Number] still attached to [Business Name]?"></label></div><label>Preview text<input class="input" name="previewText" placeholder="You did not fail the process before - you just could not see it."></label><label>Email body<textarea class="input" name="message" rows="12" placeholder="Use [First Name], [Last Name], [Phone Number], [Business Name], and [Test Drive Link]"></textarea></label><p class="legacy-safe-note">Nothing sends from this editor. Save the draft, then choose recipients below.</p></div><aside class="legacy-preview-card"><div class="legacy-step-label"><span>2</span><div><p class="kicker">Review email</p><h3>What this lead will receive</h3></div></div><div class="legacy-preview-status" data-legacy-preview-status>Template loaded</div><div class="legacy-preview-lead" data-legacy-preview-lead>Previewing a sample lead.</div><div class="legacy-preview-email" data-legacy-email-preview><strong>Subject will appear here</strong><small>Preview text will appear here</small><pre>Email body preview will appear here.</pre></div></aside></div><div class="legacy-import-grid"><div class="legacy-manual-entry"><div><p class="kicker">Add one user</p><h3>Input a legacy lead manually.</h3><p class="legal">Use this when you only need to add one client without uploading a spreadsheet.</p></div><div class="legacy-manual-grid"><label>First name<input class="input" name="manualFirstName" placeholder="First name"></label><label>Last name<input class="input" name="manualLastName" placeholder="Last name"></label><label>Email<input class="input" name="manualEmail" type="email" placeholder="name@example.com"></label><label>Phone<input class="input" name="manualPhone" placeholder="Business phone"></label><label>Business name <small class="legal">(optional)</small><input class="input" name="manualBusinessName" placeholder="Business name"></label></div><button class="btn secondary" type="button" data-legacy-add-user>Add user to campaign</button></div><div class="legacy-manual-entry"><div><p class="kicker">Import leads</p><h3>Upload or paste contacts.</h3><p class="legal">Accepted fields: email, first name, last name, phone, and optional business name.</p></div><label>Excel or CSV file<input class="input" type="file" accept=".csv,.txt,.xlsx,.xls" data-legacy-file-import></label><label>Paste contacts<textarea class="input" name="contacts" rows="5" placeholder="First name, Last name, email@example.com, phone number, business name&#10;First name, email@example.com"></textarea></label></div></div><div class="legacy-send-bar"><div><div class="legacy-step-label compact"><span>3</span><div><p class="kicker">Select recipients</p><strong data-legacy-selected-count>0 selected</strong></div></div><small>Use the table below to pick who gets the email. Selected rows can span pages.</small></div><div class="proof-actions"><button class="btn" type="submit" data-legacy-save-import>Save draft / import</button><button class="btn secondary" type="button" data-legacy-send-selected>Send selected recipients</button><button class="btn secondary" type="button" data-legacy-send-next>Send next 100 unsent</button></div></div><p class="auth-message" data-legacy-message></p></form><div class="legacy-table-panel"><div class="legacy-table-toolbar"><input class="input" data-legacy-search placeholder="Search by name, email, phone, business, or status"><label>Sort<select class="input" data-legacy-sort><option value="business">Business A-Z</option><option value="contact">Contact A-Z</option><option value="unsent">Unsent first</option><option value="clicked">Clicked first</option><option value="registered">Registered first</option><option value="newest">Newest imported</option></select></label><label>Show<select class="input" data-legacy-page-size><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select></label></div><div class="legacy-table-summary"><span data-legacy-page-info>Loading leads...</span><div class="legacy-pagination"><button class="btn secondary small" type="button" data-legacy-prev>Previous</button><button class="btn secondary small" type="button" data-legacy-next>Next</button></div></div><div class="admin-table-wrap"><table class="admin-table legacy-admin-table"><thead><tr><th><input type="checkbox" data-legacy-check-all title="Select visible rows"></th><th>Lead</th><th>Status</th><th>Activity</th><th>Tracking link</th><th>Actions</th></tr></thead><tbody data-legacy-leads><tr><td colspan="6">Loading legacy campaign leads...</td></tr></tbody></table></div></div>';
       adminShell.appendChild(section);
       var form=section.querySelector('[data-legacy-campaign-form]');
       var msg=section.querySelector('[data-legacy-message]');
@@ -1293,8 +1293,20 @@
       var searchInput=section.querySelector('[data-legacy-search]');
       var checkAll=section.querySelector('[data-legacy-check-all]');
       var fileInput=section.querySelector('[data-legacy-file-import]');
+      var sortSelect=section.querySelector('[data-legacy-sort]');
+      var pageSizeSelect=section.querySelector('[data-legacy-page-size]');
+      var pageInfo=section.querySelector('[data-legacy-page-info]');
+      var previewBox=section.querySelector('[data-legacy-email-preview]');
+      var previewStatus=section.querySelector('[data-legacy-preview-status]');
+      var previewLeadLabel=section.querySelector('[data-legacy-preview-lead]');
+      var selectedCount=section.querySelector('[data-legacy-selected-count]');
       var campaign=null;
       var leads=[];
+      var selectedLegacyLeadIds={};
+      var legacyPage=1;
+      var legacyPageSize=50;
+      var legacySort='business';
+      var lastAppliedTemplate='old-verge-five';
       var legacyTemplateSubject='Is [Phone Number] still attached to [Business Name]?';
       var legacyTemplatePreview="You didn't fail the process before - you just couldn't see it. AI actually made it more predictable.";
       var legacyTemplateMessage="Hi [First Name],\n\nI was going back through the old Verge Five records and found [Business Name]. This is the number we had on file:\n\n[Phone Number]\n\nIs it still ringing to you?\n\nLet me be honest about something. When you were part of Verge Five the first time, the hard part probably wasn't the work - it was not fully understanding the process. Get the address right. Get the website right. Make the phone and the email line up. It felt like a checklist nobody fully explained, and it was easy to walk away frustrated, not sure what any of it actually did.\n\nI get it. That confusion is the reason a lot of people quietly gave up.\n\nSo here's what might surprise you.\n\nNow that AI and automated systems run these reviews, it's actually easier - not harder. Most people assume AI makes everything more complicated. It's the opposite. Automated systems are predictable. They follow patterns. When the right signals are in place, the right doors open - almost like a formula. Line up A, B, and C, and D opens up.\n\nThe guesswork that frustrated you the first time is mostly gone. The system isn't a mystery anymore. It's a pattern you can actually see and follow.\n\nThat's exactly what I rebuilt the new Verge Five around. Instead of handing you a checklist and wishing you luck, the platform runs a Business Visibility Scan and shows you, in plain language, which signals are working for you and which ones are holding you back.\n\nNo more wondering what they're looking at. You see it.\n\nTake the free test drive. Run the scan, see where your business stands right now, and look around. No card, no commitment - just take a peek.\n\nI'm only reopening this for people who were part of the original Verge Five.\n\n[Take my free test drive ->]\n[Test Drive Link]\n\nThe Verge Five Team";
@@ -1305,36 +1317,98 @@
       var businessNameScanMessage="Hi [First Name],\n\nI was going back through some of the old Verge Five records and your business came up:\n\n[Business Name]\n\nI wanted to reach out because if you started building business credit before and stepped away, you may not have been as far off as it felt.\n\nA lot of business owners got stuck for the same reason. They were trying to follow the steps, but they could not clearly see what was helping them, what was missing, or what was quietly holding the business back.\n\nWas it the website?\n\nWas it the phone number?\n\nWas it the business address?\n\nWas something not reporting correctly?\n\nBack then, those answers were not easy to find.\n\nThat is exactly why Verge Five was rebuilt.\n\nAI has changed how business information gets reviewed. The good news is, it can now show you what used to be hard to see.\n\nWith one Business Visibility Scan, you can see how [Business Name] shows up today, what may be missing, and what could be getting in the way of building business credit.\n\nSo before you start over or give up on it completely, I wanted to give you a simple way to take another look.\n\nNo card. No pressure. Just run the scan and see where your business stands today.\n\n[Run my visibility scan ->]\n[Test Drive Link]\n\nThe Verge Five Team";
       function applyLegacyEmailType(type){
         if(!form)return;
+        lastAppliedTemplate=type||'old-verge-five';
         if(type==='custom'){
           if(form.elements.subject)form.elements.subject.value='';
           if(form.elements.previewText)form.elements.previewText.value='';
           if(form.elements.message)form.elements.message.value='';
+          updateLegacyPreview();
           return;
         }
         if(type==='visibility-scan'){
           if(form.elements.subject)form.elements.subject.value=visibilityScanTemplateSubject;
           if(form.elements.previewText)form.elements.previewText.value=visibilityScanTemplatePreview;
           if(form.elements.message)form.elements.message.value=visibilityScanTemplateMessage;
+          updateLegacyPreview();
           return;
         }
         if(type==='business-name-subject'||type==='business-active'){
           if(form.elements.subject)form.elements.subject.value=type==='business-name-subject'?'[Business Name]':'Is [Business Name] still active?';
           if(form.elements.previewText)form.elements.previewText.value=businessNamePreview;
           if(form.elements.message)form.elements.message.value=businessNameScanMessage;
+          updateLegacyPreview();
           return;
         }
         if(form.elements.subject)form.elements.subject.value=legacyTemplateSubject;
         if(form.elements.previewText)form.elements.previewText.value=legacyTemplatePreview;
         if(form.elements.message)form.elements.message.value=legacyTemplateMessage;
+        updateLegacyPreview();
       }
       function legacyMessage(text,danger){if(msg){msg.textContent=text||'';msg.classList.toggle('danger',!!danger)}}
       function postLegacy(payload){
         return fetch('/api/admin/legacy-campaigns',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload||{})})
           .then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Unable to update legacy campaign');return data})});
       }
+      function saveCurrentLegacyCampaign(){
+        var campaignId=campaign&&campaign.id||'';
+        return postLegacy({action:'save-campaign',campaignId:campaignId,name:form.elements.name.value,subject:form.elements.subject.value,previewText:form.elements.previewText.value,message:form.elements.message.value}).then(function(saved){
+          if(!campaign)campaign={};
+          campaign.id=saved.campaignId;
+          campaign.name=form.elements.name.value;
+          campaign.subject=form.elements.subject.value;
+          campaign.preview_text=form.elements.previewText.value;
+          campaign.message=form.elements.message.value;
+          return saved;
+        });
+      }
       function leadFullName(lead){return [lead.first_name,lead.last_name].filter(Boolean).join(' ')||'Legacy contact'}
       function leadStatusClass(status){status=String(status||'').toLowerCase();return status==='registered'?'ready':status==='clicked'?'almost':status==='sent'?'wait':'wait'}
-      function selectedLeadIds(){return [].slice.call(section.querySelectorAll('[data-legacy-lead-check]:checked')).map(function(input){return input.value});}
+      function selectedLeadIds(){return Object.keys(selectedLegacyLeadIds);}
+      function selectedLeadCount(){return selectedLeadIds().length;}
+      function findLeadById(id){return leads.find(function(lead){return String(lead.id)===String(id)})||null;}
+      function previewLead(){
+        var ids=selectedLeadIds();
+        if(ids.length)return findLeadById(ids[0])||leads[0]||{};
+        return leads[0]||{first_name:'there',last_name:'',email:'sample@example.com',phone:'the phone number on file',business_name:'your business',token:'sample-token',source:'Sample preview'};
+      }
+      function personalizeLegacyText(value,lead){
+        lead=lead||{};
+        var link=location.origin+'/api/legacy/track?token='+encodeURIComponent(lead.token||'sample-token');
+        return String(value||'')
+          .replace(/\[First Name\]/g,lead.first_name||'there')
+          .replace(/\[Last Name\]/g,lead.last_name||'')
+          .replace(/\[Phone Number\]/g,lead.phone||'the phone number on file')
+          .replace(/\[Business Name\]/g,lead.business_name||'your business')
+          .replace(/\[Test Drive Link\]/g,link);
+      }
+      function updateSelectedCount(){
+        if(selectedCount)selectedCount.textContent=selectedLeadCount()+' selected';
+      }
+      function updateLegacyPreview(){
+        if(!previewBox||!form)return;
+        var lead=previewLead();
+        var subject=personalizeLegacyText((form.elements.subject||{}).value||'',lead);
+        var preheader=personalizeLegacyText((form.elements.previewText||{}).value||'',lead);
+        var body=personalizeLegacyText((form.elements.message||{}).value||'',lead);
+        var templateLabel=lastAppliedTemplate==='custom'?'Custom draft':lastAppliedTemplate==='edited'?'Edited draft':'Template loaded';
+        if(previewStatus)previewStatus.textContent=templateLabel+(selectedLeadCount()?' - selected lead preview':' - sample preview');
+        if(previewLeadLabel)previewLeadLabel.textContent='Preview lead: '+leadFullName(lead)+' | '+(lead.email||'no email')+(lead.business_name?' | '+lead.business_name:'');
+        previewBox.innerHTML='<strong>'+escapeHtml(subject||'No subject yet')+'</strong><small>'+escapeHtml(preheader||'No preview text yet')+'</small><pre>'+escapeHtml(body||'No body text yet')+'</pre>';
+        updateSelectedCount();
+      }
+      function leadSearchText(lead){return (lead.email+' '+leadFullName(lead)+' '+(lead.phone||'')+' '+(lead.business_name||'')+' '+(lead.status||'')+' '+(lead.source||'')).toLowerCase();}
+      function sortedLegacyLeads(items){
+        var sorted=items.slice();
+        sorted.sort(function(a,b){
+          if(legacySort==='unsent')return (a.email_sent_at?1:0)-(b.email_sent_at?1:0)||String(a.business_name||leadFullName(a)).localeCompare(String(b.business_name||leadFullName(b)));
+          if(legacySort==='clicked')return (b.clicked_at?1:0)-(a.clicked_at?1:0)||String(b.clicked_at||'').localeCompare(String(a.clicked_at||''));
+          if(legacySort==='registered')return (b.registered_at?1:0)-(a.registered_at?1:0)||String(b.registered_at||'').localeCompare(String(a.registered_at||''));
+          if(legacySort==='newest')return String(b.created_at||'').localeCompare(String(a.created_at||''));
+          if(legacySort==='contact')return leadFullName(a).localeCompare(leadFullName(b));
+          return String(a.business_name||leadFullName(a)||a.email||'').localeCompare(String(b.business_name||leadFullName(b)||b.email||''));
+        });
+        return sorted;
+      }
       function csvEscape(value){
         value=String(value||'').trim();
         return /[",\n]/.test(value)?'"'+value.replace(/"/g,'""')+'"':value;
@@ -1400,7 +1474,13 @@
       }
       function renderLegacy(){
         var q=(searchInput&&searchInput.value||'').toLowerCase();
-        var filtered=leads.filter(function(lead){return !q||(lead.email+' '+leadFullName(lead)+' '+(lead.phone||'')+' '+(lead.business_name||'')+' '+(lead.status||'')).toLowerCase().indexOf(q)>-1});
+        var filtered=leads.filter(function(lead){return !q||leadSearchText(lead).indexOf(q)>-1});
+        var sorted=sortedLegacyLeads(filtered);
+        var totalPages=Math.max(1,Math.ceil(sorted.length/legacyPageSize));
+        if(legacyPage>totalPages)legacyPage=totalPages;
+        if(legacyPage<1)legacyPage=1;
+        var start=(legacyPage-1)*legacyPageSize;
+        var pageRows=sorted.slice(start,start+legacyPageSize);
         if(metrics){
           var total=leads.length;
           var sent=leads.filter(function(lead){return !!lead.email_sent_at}).length;
@@ -1408,17 +1488,27 @@
           var registered=leads.filter(function(lead){return !!lead.registered_at}).length;
           metrics.innerHTML='<article><strong>'+total+'</strong><span>Imported</span></article><article><strong>'+sent+'</strong><span>Sent</span></article><article><strong>'+clicked+'</strong><span>Clicked</span></article><article><strong>'+registered+'</strong><span>Registered</span></article>';
         }
-        if(!filtered.length){tbody.innerHTML='<tr><td colspan="8">No legacy leads found yet.</td></tr>';return;}
-        tbody.innerHTML=filtered.map(function(lead){
+        if(pageInfo)pageInfo.textContent=filtered.length?('Showing '+(start+1)+'-'+(start+pageRows.length)+' of '+filtered.length+' leads | Page '+legacyPage+' of '+totalPages):'No matching leads';
+        if(checkAll){
+          var visibleSelectable=pageRows.filter(function(lead){return !lead.registered_at&&!lead.do_not_contact});
+          checkAll.checked=!!visibleSelectable.length&&visibleSelectable.every(function(lead){return !!selectedLegacyLeadIds[lead.id]});
+          checkAll.indeterminate=visibleSelectable.some(function(lead){return !!selectedLegacyLeadIds[lead.id]})&&!checkAll.checked;
+        }
+        updateSelectedCount();
+        updateLegacyPreview();
+        if(!filtered.length){tbody.innerHTML='<tr><td colspan="6">No legacy leads found yet.</td></tr>';return;}
+        tbody.innerHTML=pageRows.map(function(lead){
           var link=location.origin+'/api/legacy/track?token='+encodeURIComponent(lead.token||'');
           var checkedDisabled=lead.registered_at||lead.do_not_contact?'disabled':'';
-          return '<tr><td><input type="checkbox" data-legacy-lead-check value="'+escapeHtml(lead.id)+'" '+checkedDisabled+'></td><td><strong>'+escapeHtml(leadFullName(lead))+'</strong><small>'+escapeHtml(lead.email||'')+'</small><small>'+escapeHtml(lead.phone||'')+'</small><small>'+escapeHtml(lead.business_name||'')+'</small><small>'+escapeHtml(lead.source||'')+'</small></td><td><span class="match-status '+leadStatusClass(lead.status)+'">'+escapeHtml(lead.status||'imported')+'</span>'+(lead.do_not_contact?'<small>Do not contact</small>':'')+'</td><td>'+fmtDateTime(lead.email_sent_at)+'<small>'+Number(lead.email_send_count||0)+' sends</small><small>'+escapeHtml(lead.email_last_provider_id||lead.email_last_result||'')+'</small></td><td>'+fmtDateTime(lead.clicked_at)+'<small>'+Number(lead.click_count||0)+' clicks</small></td><td>'+fmtDateTime(lead.registered_at)+'<small>'+escapeHtml(lead.member_email||lead.user_id||'')+'</small></td><td><input class="input legacy-link-input" readonly value="'+escapeHtml(link)+'"></td><td><button class="btn secondary small" type="button" data-copy-legacy-link="'+escapeHtml(link)+'">Copy link</button><button class="btn ghost small" type="button" data-legacy-dnc="'+escapeHtml(lead.id)+'">Do not contact</button><button class="btn danger small" type="button" data-legacy-delete="'+escapeHtml(lead.id)+'">Delete</button></td></tr>';
+          var checked=selectedLegacyLeadIds[lead.id]?'checked':'';
+          return '<tr><td><input type="checkbox" data-legacy-lead-check value="'+escapeHtml(lead.id)+'" '+checked+' '+checkedDisabled+'></td><td><strong>'+escapeHtml(lead.business_name||leadFullName(lead))+'</strong><small>'+escapeHtml(leadFullName(lead))+'</small><small>'+escapeHtml(lead.email||'')+'</small><small>'+escapeHtml(lead.phone||'')+'</small><small>'+escapeHtml(lead.source||'')+'</small></td><td><span class="match-status '+leadStatusClass(lead.status)+'">'+escapeHtml(lead.status||'imported')+'</span>'+(lead.do_not_contact?'<small>Do not contact</small>':'')+'</td><td><strong>Sent: '+fmtDateTime(lead.email_sent_at)+'</strong><small>'+Number(lead.email_send_count||0)+' sends</small><small>Clicked: '+fmtDateTime(lead.clicked_at)+' | '+Number(lead.click_count||0)+' clicks</small><small>Registered: '+fmtDateTime(lead.registered_at)+'</small><small>'+escapeHtml(lead.member_email||lead.email_last_provider_id||lead.email_last_result||'')+'</small></td><td><input class="input legacy-link-input" readonly value="'+escapeHtml(link)+'"></td><td><button class="btn secondary small" type="button" data-copy-legacy-link="'+escapeHtml(link)+'">Copy link</button><button class="btn ghost small" type="button" data-legacy-dnc="'+escapeHtml(lead.id)+'">Do not contact</button><button class="btn danger small" type="button" data-legacy-delete="'+escapeHtml(lead.id)+'">Delete</button></td></tr>';
         }).join('');
       }
       function loadLegacy(){
         return fetch('/api/admin/legacy-campaigns').then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'Unable to load legacy campaigns');return data})}).then(function(data){
           campaign=(data.campaigns||[]).find(function(item){return item.id===data.activeCampaignId})||(data.campaigns||[])[0]||null;
           leads=data.leads||[];
+          Object.keys(selectedLegacyLeadIds).forEach(function(id){if(!findLeadById(id))delete selectedLegacyLeadIds[id]});
           if(campaign&&form){
             form.elements.name.value=campaign.name||'';
             form.elements.subject.value=campaign.subject||'';
@@ -1433,7 +1523,7 @@
         e.preventDefault();
         legacyMessage('Saving campaign and importing contacts...');
         var campaignId=campaign&&campaign.id||'';
-        postLegacy({action:'save-campaign',campaignId:campaignId,name:form.elements.name.value,subject:form.elements.subject.value,previewText:form.elements.previewText.value,message:form.elements.message.value}).then(function(saved){
+        saveCurrentLegacyCampaign().then(function(saved){
           campaignId=saved.campaignId;
           var contacts=form.elements.contacts.value||'';
           if(!contacts.trim())return {ok:true,imported:0,skipped:0,campaignId:campaignId};
@@ -1445,6 +1535,7 @@
         }).catch(function(err){legacyMessage(err.message,true)});
       });
       if(form.elements.emailType)form.elements.emailType.addEventListener('change',function(){applyLegacyEmailType(form.elements.emailType.value)});
+      ['subject','previewText','message'].forEach(function(name){if(form.elements[name])form.elements[name].addEventListener('input',function(){if(form.elements.emailType&&form.elements.emailType.value!=='custom')lastAppliedTemplate='edited';updateLegacyPreview();});});
       section.querySelector('[data-legacy-add-user]').addEventListener('click',function(){
         var first=(form.elements.manualFirstName&&form.elements.manualFirstName.value||'').trim();
         var last=(form.elements.manualLastName&&form.elements.manualLastName.value||'').trim();
@@ -1455,7 +1546,7 @@
         legacyMessage('Adding user to legacy campaign...');
         var row=[first,last,email,phone,business].map(csvEscape).join(',');
         var campaignId=campaign&&campaign.id||'';
-        postLegacy({action:'save-campaign',campaignId:campaignId,name:form.elements.name.value,subject:form.elements.subject.value,previewText:form.elements.previewText.value,message:form.elements.message.value}).then(function(saved){
+        saveCurrentLegacyCampaign().then(function(saved){
           campaignId=saved.campaignId;
           return postLegacy({action:'import-leads',campaignId:campaignId,contacts:row,source:'Manual admin entry'});
         }).then(function(data){
@@ -1465,25 +1556,35 @@
         }).catch(function(err){legacyMessage(err.message,true)});
       });
       section.querySelector('[data-legacy-send-selected]').addEventListener('click',function(){
-        if(!campaign)return;
         var ids=selectedLeadIds();
-        legacyMessage('Sending selected legacy emails...');
-        postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'selected',leadIds:ids}).then(function(data){
+        if(!ids.length){legacyMessage('Select at least one recipient before sending.',true);return;}
+        legacyMessage('Saving draft, then sending selected legacy emails...');
+        saveCurrentLegacyCampaign().then(function(saved){
+          return postLegacy({action:'send-campaign',campaignId:saved.campaignId,mode:'selected',leadIds:ids});
+        }).then(function(data){
           legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
+          selectedLegacyLeadIds={};
           loadLegacy();
         }).catch(function(err){legacyMessage(err.message,true)});
       });
       section.querySelector('[data-legacy-send-next]').addEventListener('click',function(){
-        if(!campaign)return;
-        legacyMessage('Sending next 100 unsent legacy emails...');
-        postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'next-unsent'}).then(function(data){
+        legacyMessage('Saving draft, then sending next 100 unsent legacy emails...');
+        saveCurrentLegacyCampaign().then(function(saved){
+          return postLegacy({action:'send-campaign',campaignId:saved.campaignId,mode:'next-unsent'});
+        }).then(function(data){
           legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
           loadLegacy();
         }).catch(function(err){legacyMessage(err.message,true)});
       });
       section.querySelector('[data-legacy-refresh]').addEventListener('click',function(){legacyMessage('Refreshing...');loadLegacy().then(function(){legacyMessage('Legacy campaign refreshed.')})});
-      if(searchInput)searchInput.addEventListener('input',renderLegacy);
-      if(checkAll)checkAll.addEventListener('change',function(){section.querySelectorAll('[data-legacy-lead-check]:not(:disabled)').forEach(function(input){input.checked=checkAll.checked})});
+      if(searchInput)searchInput.addEventListener('input',function(){legacyPage=1;renderLegacy();});
+      if(sortSelect)sortSelect.addEventListener('change',function(){legacySort=sortSelect.value||'business';legacyPage=1;renderLegacy();});
+      if(pageSizeSelect)pageSizeSelect.addEventListener('change',function(){legacyPageSize=parseInt(pageSizeSelect.value,10)||50;legacyPage=1;renderLegacy();});
+      var prevBtn=section.querySelector('[data-legacy-prev]');
+      var nextBtn=section.querySelector('[data-legacy-next]');
+      if(prevBtn)prevBtn.addEventListener('click',function(){legacyPage=Math.max(1,legacyPage-1);renderLegacy();});
+      if(nextBtn)nextBtn.addEventListener('click',function(){legacyPage+=1;renderLegacy();});
+      if(checkAll)checkAll.addEventListener('change',function(){section.querySelectorAll('[data-legacy-lead-check]:not(:disabled)').forEach(function(input){if(checkAll.checked)selectedLegacyLeadIds[input.value]=true;else delete selectedLegacyLeadIds[input.value];input.checked=checkAll.checked;});updateLegacyPreview();renderLegacy();});
       if(fileInput)fileInput.addEventListener('change',function(){
         var file=fileInput.files&&fileInput.files[0];
         if(!file)return;
@@ -1511,7 +1612,13 @@
         var dnc=e.target.closest('[data-legacy-dnc]');
         if(dnc){postLegacy({action:'do-not-contact',leadId:dnc.getAttribute('data-legacy-dnc')}).then(loadLegacy).catch(function(err){legacyMessage(err.message,true)});return;}
         var del=e.target.closest('[data-legacy-delete]');
-        if(del&&confirm('Delete this legacy lead? Registered leads are not deleted here.')){postLegacy({action:'delete-lead',leadId:del.getAttribute('data-legacy-delete')}).then(loadLegacy).catch(function(err){legacyMessage(err.message,true)});}
+        if(del&&confirm('Delete this legacy lead? Registered leads are not deleted here.')){delete selectedLegacyLeadIds[del.getAttribute('data-legacy-delete')];postLegacy({action:'delete-lead',leadId:del.getAttribute('data-legacy-delete')}).then(loadLegacy).catch(function(err){legacyMessage(err.message,true)});}
+      });
+      tbody.addEventListener('change',function(e){
+        if(!e.target.matches('[data-legacy-lead-check]'))return;
+        if(e.target.checked)selectedLegacyLeadIds[e.target.value]=true;else delete selectedLegacyLeadIds[e.target.value];
+        updateLegacyPreview();
+        renderLegacy();
       });
       loadLegacy();
     }
