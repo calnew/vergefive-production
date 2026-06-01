@@ -197,21 +197,34 @@ export async function onRequestPost(context) {
     let sent = 0;
     let failed = 0;
     const errors = [];
+    const sentIds = [];
     for (const lead of rows) {
       const link = testDriveUrl(context, lead.token);
       const result = await sendAdminEmail(context.env, lead.email, campaign.subject, personalize(campaign.message, lead, link), auth.user.email);
       if (result.sent) {
         sent += 1;
+        if (result.id) sentIds.push(`${lead.email}: ${result.id}`.slice(0, 220));
         await context.env.DB.prepare(
-          `update legacy_leads set email_sent_at = datetime('now'), email_send_count = email_send_count + 1, status = case when status = 'imported' then 'sent' else status end, updated_at = datetime('now') where id = ?`
-        ).bind(lead.id).run();
+          `update legacy_leads
+           set email_sent_at = datetime('now'),
+               email_send_count = email_send_count + 1,
+               email_last_provider_id = ?,
+               email_last_result = ?,
+               status = case when status = 'imported' then 'sent' else status end,
+               updated_at = datetime('now')
+           where id = ?`
+        ).bind(result.id || '', `accepted ${result.status || ''}`.trim(), lead.id).run();
       } else {
         failed += 1;
-        errors.push(`${lead.email}: ${result.reason || 'not sent'}`.slice(0, 220));
+        const reason = result.reason || 'not sent';
+        await context.env.DB.prepare(
+          `update legacy_leads set email_last_result = ?, updated_at = datetime('now') where id = ?`
+        ).bind(reason.slice(0, 500), lead.id).run();
+        errors.push(`${lead.email}: ${reason}`.slice(0, 220));
       }
     }
-    await logAdminAction(context.env, auth, 'send-legacy-campaign', null, { campaignId, sent, failed });
-    return json({ ok: true, sent, failed, errors: errors.slice(0, 10) });
+    await logAdminAction(context.env, auth, 'send-legacy-campaign', null, { campaignId, sent, failed, sentIds: sentIds.slice(0, 10) });
+    return json({ ok: true, sent, failed, errors: errors.slice(0, 10), sentIds: sentIds.slice(0, 10) });
   }
 
   if (action === 'delete-lead') {

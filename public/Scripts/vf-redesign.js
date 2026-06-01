@@ -1378,7 +1378,7 @@
         tbody.innerHTML=filtered.map(function(lead){
           var link=location.origin+'/api/legacy/track?token='+encodeURIComponent(lead.token||'');
           var checkedDisabled=lead.registered_at||lead.do_not_contact?'disabled':'';
-          return '<tr><td><input type="checkbox" data-legacy-lead-check value="'+escapeHtml(lead.id)+'" '+checkedDisabled+'></td><td><strong>'+escapeHtml(leadFullName(lead))+'</strong><small>'+escapeHtml(lead.email||'')+'</small><small>'+escapeHtml(lead.phone||'')+'</small><small>'+escapeHtml(lead.source||'')+'</small></td><td><span class="match-status '+leadStatusClass(lead.status)+'">'+escapeHtml(lead.status||'imported')+'</span>'+(lead.do_not_contact?'<small>Do not contact</small>':'')+'</td><td>'+fmtDateTime(lead.email_sent_at)+'<small>'+Number(lead.email_send_count||0)+' sends</small></td><td>'+fmtDateTime(lead.clicked_at)+'<small>'+Number(lead.click_count||0)+' clicks</small></td><td>'+fmtDateTime(lead.registered_at)+'<small>'+escapeHtml(lead.member_email||lead.user_id||'')+'</small></td><td><input class="input legacy-link-input" readonly value="'+escapeHtml(link)+'"></td><td><button class="btn secondary small" type="button" data-copy-legacy-link="'+escapeHtml(link)+'">Copy link</button><button class="btn ghost small" type="button" data-legacy-dnc="'+escapeHtml(lead.id)+'">Do not contact</button><button class="btn danger small" type="button" data-legacy-delete="'+escapeHtml(lead.id)+'">Delete</button></td></tr>';
+          return '<tr><td><input type="checkbox" data-legacy-lead-check value="'+escapeHtml(lead.id)+'" '+checkedDisabled+'></td><td><strong>'+escapeHtml(leadFullName(lead))+'</strong><small>'+escapeHtml(lead.email||'')+'</small><small>'+escapeHtml(lead.phone||'')+'</small><small>'+escapeHtml(lead.source||'')+'</small></td><td><span class="match-status '+leadStatusClass(lead.status)+'">'+escapeHtml(lead.status||'imported')+'</span>'+(lead.do_not_contact?'<small>Do not contact</small>':'')+'</td><td>'+fmtDateTime(lead.email_sent_at)+'<small>'+Number(lead.email_send_count||0)+' sends</small><small>'+escapeHtml(lead.email_last_provider_id||lead.email_last_result||'')+'</small></td><td>'+fmtDateTime(lead.clicked_at)+'<small>'+Number(lead.click_count||0)+' clicks</small></td><td>'+fmtDateTime(lead.registered_at)+'<small>'+escapeHtml(lead.member_email||lead.user_id||'')+'</small></td><td><input class="input legacy-link-input" readonly value="'+escapeHtml(link)+'"></td><td><button class="btn secondary small" type="button" data-copy-legacy-link="'+escapeHtml(link)+'">Copy link</button><button class="btn ghost small" type="button" data-legacy-dnc="'+escapeHtml(lead.id)+'">Do not contact</button><button class="btn danger small" type="button" data-legacy-delete="'+escapeHtml(lead.id)+'">Delete</button></td></tr>';
         }).join('');
       }
       function loadLegacy(){
@@ -1431,7 +1431,7 @@
         var ids=selectedLeadIds();
         legacyMessage('Sending selected legacy emails...');
         postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'selected',leadIds:ids}).then(function(data){
-          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
+          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
           loadLegacy();
         }).catch(function(err){legacyMessage(err.message,true)});
       });
@@ -1439,7 +1439,7 @@
         if(!campaign)return;
         legacyMessage('Sending next 100 unsent legacy emails...');
         postLegacy({action:'send-campaign',campaignId:campaign.id,mode:'next-unsent'}).then(function(data){
-          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
+          legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
           loadLegacy();
         }).catch(function(err){legacyMessage(err.message,true)});
       });
