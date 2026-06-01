@@ -200,6 +200,15 @@ export async function onRequestPost(context) {
     const selectedIds = Array.isArray(input.leadIds) ? input.leadIds.map((id) => cleanLimited(id, 80)).filter(Boolean).slice(0, 100) : [];
     const campaign = await context.env.DB.prepare('select * from legacy_campaigns where id = ? limit 1').bind(campaignId).first();
     if (!campaign) return json({ error: 'Campaign not found.' }, 404);
+    const sendSubject = cleanLimited(input.subject, 180);
+    const sendPreviewText = cleanLimited(input.previewText, 240);
+    const sendMessage = String(input.message || '').trim().slice(0, 8000);
+    const campaignForSend = {
+      ...campaign,
+      subject: sendSubject || campaign.subject || DEFAULT_SUBJECT,
+      preview_text: sendPreviewText || campaign.preview_text || DEFAULT_PREVIEW,
+      message: sendMessage || campaign.message || DEFAULT_MESSAGE
+    };
     let leads;
     if (mode === 'next-unsent') {
       leads = await context.env.DB.prepare(
@@ -219,7 +228,7 @@ export async function onRequestPost(context) {
     const sentIds = [];
     for (const lead of rows) {
       const link = testDriveUrl(context, lead.token);
-      const result = await sendAdminEmail(context.env, lead.email, personalize(campaign.subject, lead, link), personalize(campaign.message, lead, link), auth.user.email, personalize(campaign.preview_text || DEFAULT_PREVIEW, lead, link));
+      const result = await sendAdminEmail(context.env, lead.email, personalize(campaignForSend.subject, lead, link), personalize(campaignForSend.message, lead, link), auth.user.email, personalize(campaignForSend.preview_text || DEFAULT_PREVIEW, lead, link));
       if (result.sent) {
         sent += 1;
         if (result.id) sentIds.push(`${lead.email}: ${result.id}`.slice(0, 220));
@@ -242,7 +251,7 @@ export async function onRequestPost(context) {
         errors.push(`${lead.email}: ${reason}`.slice(0, 220));
       }
     }
-    await logAdminAction(context.env, auth, 'send-legacy-campaign', null, { campaignId, sent, failed, sentIds: sentIds.slice(0, 10) });
+    await logAdminAction(context.env, auth, 'send-legacy-campaign', null, { campaignId, subject: campaignForSend.subject, sent, failed, sentIds: sentIds.slice(0, 10) });
     return json({ ok: true, sent, failed, errors: errors.slice(0, 10), sentIds: sentIds.slice(0, 10) });
   }
 

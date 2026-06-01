@@ -1361,6 +1361,9 @@
           return saved;
         });
       }
+      function currentLegacyEmailPayload(){
+        return {subject:(form.elements.subject||{}).value||'',previewText:(form.elements.previewText||{}).value||'',message:(form.elements.message||{}).value||''};
+      }
       function leadFullName(lead){return [lead.first_name,lead.last_name].filter(Boolean).join(' ')||'Legacy contact'}
       function leadStatusClass(status){status=String(status||'').toLowerCase();return status==='registered'?'ready':status==='clicked'?'almost':status==='sent'?'wait':'wait'}
       function selectedLeadIds(){return Object.keys(selectedLegacyLeadIds);}
@@ -1560,7 +1563,12 @@
         if(!ids.length){legacyMessage('Select at least one recipient before sending.',true);return;}
         legacyMessage('Saving draft, then sending selected legacy emails...');
         saveCurrentLegacyCampaign().then(function(saved){
-          return postLegacy({action:'send-campaign',campaignId:saved.campaignId,mode:'selected',leadIds:ids});
+          var emailPayload=currentLegacyEmailPayload();
+          emailPayload.action='send-campaign';
+          emailPayload.campaignId=saved.campaignId;
+          emailPayload.mode='selected';
+          emailPayload.leadIds=ids;
+          return postLegacy(emailPayload);
         }).then(function(data){
           legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
           selectedLegacyLeadIds={};
@@ -1570,7 +1578,11 @@
       section.querySelector('[data-legacy-send-next]').addEventListener('click',function(){
         legacyMessage('Saving draft, then sending next 100 unsent legacy emails...');
         saveCurrentLegacyCampaign().then(function(saved){
-          return postLegacy({action:'send-campaign',campaignId:saved.campaignId,mode:'next-unsent'});
+          var emailPayload=currentLegacyEmailPayload();
+          emailPayload.action='send-campaign';
+          emailPayload.campaignId=saved.campaignId;
+          emailPayload.mode='next-unsent';
+          return postLegacy(emailPayload);
         }).then(function(data){
           legacyMessage('Sent '+Number(data.sent||0)+' email(s). Failed '+Number(data.failed||0)+'.'+((data.sentIds||[]).length?' Resend ID: '+data.sentIds.join(' | '):'')+((data.errors||[]).length?' '+data.errors.join(' | '):''),!!data.failed);
           loadLegacy();
