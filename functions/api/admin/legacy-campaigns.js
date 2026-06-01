@@ -2,31 +2,45 @@ import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, re
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
-const DEFAULT_SUBJECT = 'Is your business still showing up correctly?';
+const DEFAULT_SUBJECT = 'Is [Phone Number] still attached to your business?';
 const DEFAULT_MESSAGE = `Hi [First Name],
 
-You were part of the original Verge Five, so I wanted to personally let you know the platform has been rebuilt.
-
-Is this still the main business number for your company?
+I was looking back through the old Verge Five records and saw this phone number connected to your business:
 
 [Phone Number]
 
-If it is, it may be worth running the free Verge Five visibility scan to see whether your business phone, address, website, email, legal records, and public listings are showing up correctly.
+Is this number still attached to the business?
 
-That matters more now than it used to.
+I am asking because the business credit game has changed. AI, automation, and data-matching systems are now involved in how vendors, lenders, credit card issuers, and funding platforms review a business.
 
-Business credit approvals are increasingly driven by automated checks, data matching, and AI-assisted underwriting. If your core business identifiers do not line up, the system can flag the business before a person ever reviews it.
+That means the basic business visibility signals matter more than ever:
 
-That is why the new Verge Five starts with a Business Visibility Scan.
+- Does the business phone still connect to the business?
+- Does the address match public records?
+- Does the website still exist?
+- Does the business name show up consistently?
+- Do the public records make the business look active and legitimate?
 
-Run the scan and take the test drive here:
+If any of those signals are missing, outdated, or inconsistent, the business can look weak before an application ever gets reviewed.
+
+I am not sure if this business is still active, but if it is, you may want to run a quick Business Visibility Scan inside the updated Verge Five platform and see what your business profile looks like now.
+
+The updated platform was rebuilt around the data points that automated systems and AI-assisted reviews look at before business credit, vendor credit, credit cards, or funding decisions are made.
+
+No pressure. I am extending this because you were part of the previous Verge Five platform.
+
+It is free to run the scan and take the 30-day test drive. See what the system finds, look around the updated platform, and decide whether the new Verge Five is a good fit for where your business is now.
+
+Run the visibility scan:
 [Test Drive Link]
 
-You do not have to guess what may have been missing before. Start with the scan and see what your business looks like now.
-
 Verge Five team`;
-const OLD_DEFAULT_SUBJECT = 'Your Verge Five test drive is ready';
-const OLD_DEFAULT_MARKER = 'The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.';
+const OLD_DEFAULT_SUBJECTS = ['Your Verge Five test drive is ready', 'Is your business still showing up correctly?'];
+const OLD_DEFAULT_MARKERS = [
+  'The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.',
+  'You were part of the original Verge Five',
+  'Is this still the main business number for your company?'
+];
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
@@ -101,7 +115,7 @@ async function loadDashboard(env) {
     return loadDashboard(env);
   }
   const activeCampaign = campaigns.results && campaigns.results[0];
-  if (activeCampaign && activeCampaign.subject === OLD_DEFAULT_SUBJECT && String(activeCampaign.message || '').includes(OLD_DEFAULT_MARKER)) {
+  if (activeCampaign && OLD_DEFAULT_SUBJECTS.includes(activeCampaign.subject) && OLD_DEFAULT_MARKERS.some((marker) => String(activeCampaign.message || '').includes(marker))) {
     await env.DB.prepare(
       `update legacy_campaigns set subject = ?, message = ?, updated_at = datetime('now') where id = ?`
     ).bind(DEFAULT_SUBJECT, DEFAULT_MESSAGE, activeCampaign.id).run();
@@ -200,7 +214,7 @@ export async function onRequestPost(context) {
     const sentIds = [];
     for (const lead of rows) {
       const link = testDriveUrl(context, lead.token);
-      const result = await sendAdminEmail(context.env, lead.email, campaign.subject, personalize(campaign.message, lead, link), auth.user.email);
+      const result = await sendAdminEmail(context.env, lead.email, personalize(campaign.subject, lead, link), personalize(campaign.message, lead, link), auth.user.email);
       if (result.sent) {
         sent += 1;
         if (result.id) sentIds.push(`${lead.email}: ${result.id}`.slice(0, 220));
