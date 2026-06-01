@@ -96,6 +96,22 @@ function personalize(message, lead, link) {
     .replace(/\[Test Drive Link\]/g, link);
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sendLegacyEmailWithPacing(env, lead, campaign, link, adminEmail) {
+  const subject = personalize(campaign.subject, lead, link);
+  const message = personalize(campaign.message, lead, link);
+  const preheader = personalize(campaign.preview_text || DEFAULT_PREVIEW, lead, link);
+  let result = await sendAdminEmail(env, lead.email, subject, message, adminEmail, preheader);
+  if (!result.sent && Number(result.status) === 429) {
+    await wait(1600);
+    result = await sendAdminEmail(env, lead.email, subject, message, adminEmail, preheader);
+  }
+  return result;
+}
+
 async function loadDashboard(env) {
   await ensureAdminSchema(env);
   const campaigns = await env.DB.prepare(
@@ -226,9 +242,11 @@ export async function onRequestPost(context) {
     let failed = 0;
     const errors = [];
     const sentIds = [];
-    for (const lead of rows) {
+    for (let index = 0; index < rows.length; index += 1) {
+      const lead = rows[index];
+      if (index > 0) await wait(350);
       const link = testDriveUrl(context, lead.token);
-      const result = await sendAdminEmail(context.env, lead.email, personalize(campaignForSend.subject, lead, link), personalize(campaignForSend.message, lead, link), auth.user.email, personalize(campaignForSend.preview_text || DEFAULT_PREVIEW, lead, link));
+      const result = await sendLegacyEmailWithPacing(context.env, lead, campaignForSend, link, auth.user.email);
       if (result.sent) {
         sent += 1;
         if (result.id) sentIds.push(`${lead.email}: ${result.id}`.slice(0, 220));
