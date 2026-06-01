@@ -3,43 +3,43 @@ import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
 const DEFAULT_SUBJECT = 'Is [Phone Number] still attached to your business?';
+const DEFAULT_PREVIEW = "You didn't fail the process before — you just couldn't see it. AI actually made it more predictable.";
 const DEFAULT_MESSAGE = `Hi [First Name],
 
-I was looking back through the old Verge Five records and saw this phone number connected to your business:
+I was going back through the old Verge Five records and found your business. This is the number we had on file:
 
 [Phone Number]
 
-Is this number still attached to the business?
+Is it still ringing to you?
 
-I am asking because the business credit game has changed. AI, automation, and data-matching systems are now involved in how vendors, lenders, credit card issuers, and funding platforms review a business.
+Let me be honest about something. When you were part of Verge Five the first time, the hard part probably wasn't the work — it was not fully understanding the process. Get the address right. Get the website right. Make the phone and the email line up. It felt like a checklist nobody fully explained, and it was easy to walk away frustrated, not sure what any of it actually did.
 
-That means the basic business visibility signals matter more than ever:
+I get it. That confusion is the reason a lot of people quietly gave up.
 
-- Does the business phone still connect to the business?
-- Does the address match public records?
-- Does the website still exist?
-- Does the business name show up consistently?
-- Do the public records make the business look active and legitimate?
+So here's what might surprise you.
 
-If any of those signals are missing, outdated, or inconsistent, the business can look weak before an application ever gets reviewed.
+Now that AI and automated systems run these reviews, it's actually easier — not harder. Most people assume AI makes everything more complicated. It's the opposite. Automated systems are predictable. They follow patterns. When the right signals are in place, the right doors open — almost like a formula. Line up A, B, and C, and D opens up.
 
-I am not sure if this business is still active, but if it is, you may want to run a quick Business Visibility Scan inside the updated Verge Five platform and see what your business profile looks like now.
+The guesswork that frustrated you the first time is mostly gone. The system isn't a mystery anymore. It's a pattern you can actually see and follow.
 
-The updated platform was rebuilt around the data points that automated systems and AI-assisted reviews look at before business credit, vendor credit, credit cards, or funding decisions are made.
+That's exactly what I rebuilt the new Verge Five around. Instead of handing you a checklist and wishing you luck, the platform runs a Business Visibility Scan and shows you, in plain language, which signals are working for you and which ones are holding you back.
 
-No pressure. I am extending this because you were part of the previous Verge Five platform.
+No more wondering what they're looking at. You see it.
 
-It is free to run the scan and take the 30-day test drive. See what the system finds, look around the updated platform, and decide whether the new Verge Five is a good fit for where your business is now.
+Take the free test drive. Run the scan, see where your business stands right now, and look around. No card, no commitment — just take a peek.
 
-Run the visibility scan:
+I'm only reopening this for people who were part of the original Verge Five.
+
+[Take my free test drive →]
 [Test Drive Link]
 
-Verge Five team`;
+— The Verge Five Team`;
 const OLD_DEFAULT_SUBJECTS = ['Your Verge Five test drive is ready', 'Is your business still showing up correctly?'];
 const OLD_DEFAULT_MARKERS = [
   'The new Verge Five platform is live, and I wanted to give you a direct way to see what has changed.',
   'You were part of the original Verge Five',
-  'Is this still the main business number for your company?'
+  'Is this still the main business number for your company?',
+  'I was looking back through the old Verge Five records'
 ];
 
 async function requireAdmin(context) {
@@ -109,16 +109,16 @@ async function loadDashboard(env) {
   if (!campaignId) {
     campaignId = crypto.randomUUID();
     await env.DB.prepare(
-      `insert into legacy_campaigns (id, name, subject, message, created_at, updated_at)
-       values (?, 'Legacy Verge Five clients', ?, ?, datetime('now'), datetime('now'))`
-    ).bind(campaignId, DEFAULT_SUBJECT, DEFAULT_MESSAGE).run();
+      `insert into legacy_campaigns (id, name, subject, preview_text, message, created_at, updated_at)
+       values (?, 'Legacy Verge Five clients', ?, ?, ?, datetime('now'), datetime('now'))`
+    ).bind(campaignId, DEFAULT_SUBJECT, DEFAULT_PREVIEW, DEFAULT_MESSAGE).run();
     return loadDashboard(env);
   }
   const activeCampaign = campaigns.results && campaigns.results[0];
   if (activeCampaign && OLD_DEFAULT_SUBJECTS.includes(activeCampaign.subject) && OLD_DEFAULT_MARKERS.some((marker) => String(activeCampaign.message || '').includes(marker))) {
     await env.DB.prepare(
-      `update legacy_campaigns set subject = ?, message = ?, updated_at = datetime('now') where id = ?`
-    ).bind(DEFAULT_SUBJECT, DEFAULT_MESSAGE, activeCampaign.id).run();
+      `update legacy_campaigns set subject = ?, preview_text = ?, message = ?, updated_at = datetime('now') where id = ?`
+    ).bind(DEFAULT_SUBJECT, DEFAULT_PREVIEW, DEFAULT_MESSAGE, activeCampaign.id).run();
     return loadDashboard(env);
   }
   const leads = await env.DB.prepare(
@@ -155,12 +155,13 @@ export async function onRequestPost(context) {
     const campaignId = cleanLimited(input.campaignId, 80) || crypto.randomUUID();
     const name = cleanLimited(input.name, 160) || 'Legacy Verge Five clients';
     const subject = cleanLimited(input.subject, 180) || DEFAULT_SUBJECT;
+    const previewText = cleanLimited(input.previewText, 240) || DEFAULT_PREVIEW;
     const message = String(input.message || DEFAULT_MESSAGE).trim().slice(0, 8000) || DEFAULT_MESSAGE;
     await context.env.DB.prepare(
-      `insert into legacy_campaigns (id, name, subject, message, created_at, updated_at)
-       values (?, ?, ?, ?, datetime('now'), datetime('now'))
-       on conflict(id) do update set name = excluded.name, subject = excluded.subject, message = excluded.message, updated_at = datetime('now')`
-    ).bind(campaignId, name, subject, message).run();
+      `insert into legacy_campaigns (id, name, subject, preview_text, message, created_at, updated_at)
+       values (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+       on conflict(id) do update set name = excluded.name, subject = excluded.subject, preview_text = excluded.preview_text, message = excluded.message, updated_at = datetime('now')`
+    ).bind(campaignId, name, subject, previewText, message).run();
     await logAdminAction(context.env, auth, 'save-legacy-campaign', null, { campaignId, name });
     return json({ ok: true, campaignId });
   }
@@ -214,7 +215,7 @@ export async function onRequestPost(context) {
     const sentIds = [];
     for (const lead of rows) {
       const link = testDriveUrl(context, lead.token);
-      const result = await sendAdminEmail(context.env, lead.email, personalize(campaign.subject, lead, link), personalize(campaign.message, lead, link), auth.user.email);
+      const result = await sendAdminEmail(context.env, lead.email, personalize(campaign.subject, lead, link), personalize(campaign.message, lead, link), auth.user.email, personalize(campaign.preview_text || DEFAULT_PREVIEW, lead, link));
       if (result.sent) {
         sent += 1;
         if (result.id) sentIds.push(`${lead.email}: ${result.id}`.slice(0, 220));

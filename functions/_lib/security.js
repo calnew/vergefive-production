@@ -61,15 +61,17 @@ export async function sendPasswordResetEmail(env, email, url) {
   });
 }
 
-export async function sendAdminEmail(env, email, subject, message, adminEmail = '') {
+export async function sendAdminEmail(env, email, subject, message, adminEmail = '', preheader = '') {
   const safeSubject = String(subject || '').trim().slice(0, 180) || 'Message from Verge Five';
   const safeMessage = String(message || '').trim().slice(0, 8000);
+  const safePreheader = String(preheader || '').trim().slice(0, 240);
+  const preheaderHtml = safePreheader ? `<div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;max-height:0;max-width:0;overflow:hidden;mso-hide:all">${escapeHtml(safePreheader)}</div>` : '';
   const paragraphs = safeMessage.split(/\n{2,}/).map((part) => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join('');
   return await sendResendEmail(env, {
     to: email,
     replyTo: adminEmail || undefined,
     subject: safeSubject,
-    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">${paragraphs}</div>`,
+    html: `${preheaderHtml}<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">${paragraphs}</div>`,
     text: safeMessage
   });
 }
