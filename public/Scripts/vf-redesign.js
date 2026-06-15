@@ -1930,10 +1930,13 @@
       if(missing.length){markMissingFields(missing.map(function(item){return item==='business phone'?'phone':item==='business address'?'address':item}));result.innerHTML=requiredScanMessage(missing);return}
       clearMissingMarks();
       result.innerHTML='<strong>Checking visibility...</strong><span>Looking for public-facing business signals.</span>';
-      fetch('/api/visibility-scan',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
+      var controller=window.AbortController?new AbortController():null;
+      var timeout=setTimeout(function(){if(controller)controller.abort()},9000);
+      fetch('/api/visibility-scan',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),signal:controller?controller.signal:undefined})
         .then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'scan failed');return data})})
         .catch(function(){return localScan(payload)})
         .then(function(data){
+          clearTimeout(timeout);
           var saved={mode:mode,businessName:name,state:payload.state,score:data.score,label:data.label,sourceMode:data.sourceMode,time:new Date().toISOString()};
           if(isMemberStartScan){memberApi('POST','/api/member/visibility-audits',{mode:mode,businessName:name,result:data}).catch(function(){});}
           renderScan(data);
