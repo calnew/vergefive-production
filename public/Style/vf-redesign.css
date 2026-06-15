@@ -530,8 +530,8 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
 .hero-scan-card .scan-result{font-size:13px}
 .hero-scan-card .scan-result strong{font-size:15px}
 .hero-scan-card .scan-score span{font-size:44px}
-.hero-scan-card .scan-list{max-height:120px;overflow:auto}
-.hero-scan-card .scan-result{max-height:440px;overflow:auto}
+.hero-scan-card .scan-list{max-height:none;overflow:visible}
+.hero-scan-card .scan-result{max-height:none;overflow:visible}
 .scan-locks{display:grid;gap:8px;border-top:1px solid #bfd8ed;margin-top:10px;padding-top:10px}
 .scan-locks>b{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#071733}
 .scan-lock{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;border:1px solid #d6e2ee;background:#fff;border-radius:8px;padding:9px 10px}
