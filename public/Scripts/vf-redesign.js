@@ -2150,7 +2150,7 @@
     return String(text||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);
   }
   function vfScanFirstDefaultState(){
-    return {fixStatus:{},selectedOptions:{},proofSaved:{}};
+    return {fixStatus:{},selectedOptions:{},proofSaved:{},visited:{}};
   }
   function vfScanFirstStateFromTokens(tokens){
     var state=vfScanFirstDefaultState();
@@ -2160,6 +2160,7 @@
       if(parts[0]==='status'&&parts[1])state.fixStatus[vfScanFirstNormalizeKey(parts[1])]=parts[2]||'progress';
       if(parts[0]==='option'&&parts[1])state.selectedOptions[vfScanFirstNormalizeKey(parts[1])]=parts.slice(2).join(':');
       if(parts[0]==='proof'&&parts[1])state.proofSaved[vfScanFirstNormalizeKey(parts[1])]=true;
+      if(parts[0]==='visit'&&parts[1])state.visited[parts[1]]=true;
     });
     return state;
   }
@@ -2169,6 +2170,7 @@
     Object.keys(state.fixStatus||{}).forEach(function(key){if(state.fixStatus[key])tokens.push('status:'+vfScanFirstNormalizeKey(key)+':'+state.fixStatus[key])});
     Object.keys(state.selectedOptions||{}).forEach(function(key){if(state.selectedOptions[key])tokens.push('option:'+vfScanFirstNormalizeKey(key)+':'+vfScanFirstSlug(state.selectedOptions[key]))});
     Object.keys(state.proofSaved||{}).forEach(function(key){if(state.proofSaved[key])tokens.push('proof:'+vfScanFirstNormalizeKey(key))});
+    Object.keys(state.visited||{}).forEach(function(key){if(state.visited[key])tokens.push('visit:'+vfScanFirstSlug(key))});
     return tokens.slice(0,100);
   }
   function mergeScanFirstState(base,extra){
@@ -2177,7 +2179,8 @@
     return {
       fixStatus:Object.assign({},base.fixStatus||{},extra.fixStatus||{}),
       selectedOptions:Object.assign({},base.selectedOptions||{},extra.selectedOptions||{}),
-      proofSaved:Object.assign({},base.proofSaved||{},extra.proofSaved||{})
+      proofSaved:Object.assign({},base.proofSaved||{},extra.proofSaved||{}),
+      visited:Object.assign({},base.visited||{},extra.visited||{})
     };
   }
   function readScanFirstState(){
@@ -2197,6 +2200,23 @@
     saveScanFirstState(state);
     return state;
   }
+  function scanFirstVisitKey(path){
+    path=path||location.pathname;
+    if(path==='/dashboard/')return 'dashboard';
+    if(path==='/ai-visibility-audit/')return 'scan';
+    if(path==='/start-here/')return 'fixlist';
+    if(path==='/about-net-30/'||path==='/office-and-cleaning/'||path==='/building-and-industrial/'||path==='/retail-and-wholesale/'||path==='/revolving-business-credit-cards/'||path==='/starter-cards/'||path==='/general-credit-cards/')return 'accounts';
+    if(path==='/full-buildout/')return 'buildout';
+    if(path==='/support/')return 'support';
+    var fix=vfScanFirstFixForRoute(path);
+    return fix?'fix_'+fix.key:vfScanFirstSlug(path||'page');
+  }
+  function markScanFirstVisited(path){
+    var state=readScanFirstState();
+    state.visited[scanFirstVisitKey(path)]=true;
+    saveScanFirstState(state);
+    return state;
+  }
   function scanFirstDoneCount(state){
     state=state||readScanFirstState();
     return vfScanFirstOrder.filter(function(key){return state.fixStatus&&state.fixStatus[key]==='done'}).length;
@@ -2211,15 +2231,29 @@
   function scanFirstDashboardReadiness(scanScore,state){
     state=state||readScanFirstState();
     var done=scanFirstDoneCount(state);
-    var score=scanScore!=null?Number(scanScore):Math.min(96,40+(done*6));
-    if(score<=10)score=Math.round(score*10);
+    var score=Math.round(done/vfScanFirstOrder.length*100);
     score=Math.max(0,Math.min(100,Math.round(score||0)));
     var path=score>=80?'Account Match Review':score>=65?'Credit Card Readiness':score>=50?'Visibility Cleanup':'Foundation Fixes';
     var label=score>=80?'Ready':score>=65?'Good':score>=50?'Fair':'Needs Work';
-    var copy=score>=80?'Your profile is stronger. Review vendor and card matches before applying.':score>=65?'Your profile is improving. Finish the remaining readiness items before stronger applications.':score>=50?'You have some blocks holding you back.':'Fix the core business signals before applying.';
+    var copy=score>=80?'Most scan signals are resolved. Review matched accounts before applying.':score>=65?'Several scan signals are clean, but the remaining fixes still matter.':score>=50?'Some scan signals are fixed and some still need attention.':'Resolve the core scan signals before applying.';
     return {score:score,label:label,path:path,copy:copy,doneCount:done};
   }
-  window.VF_SCAN_FIRST={fixes:vfScanFirstFixes,accounts:vfScanFirstAccounts,order:vfScanFirstOrder,readState:readScanFirstState,saveState:saveScanFirstState,accountStatus:scanFirstAccountStatus,readiness:scanFirstDashboardReadiness,routeForText:vfScanFirstRouteForText,fixForRoute:vfScanFirstFixForRoute};
+  function scanFirstPageProgress(state){
+    state=state||readScanFirstState();
+    var trackedPages=['dashboard','scan','fixlist','accounts','buildout','support'];
+    var pageVisited=trackedPages.filter(function(key){return state.visited&&state.visited[key]}).length;
+    var fixVisited=vfScanFirstOrder.filter(function(key){return state.visited&&state.visited['fix_'+key]}).length;
+    var pagePts=pageVisited+fixVisited;
+    var pagePtsMax=trackedPages.length+vfScanFirstOrder.length;
+    var touched=vfScanFirstOrder.filter(function(key){
+      return state.fixStatus[key]||state.selectedOptions[key]||state.proofSaved[key];
+    }).length;
+    var done=scanFirstDoneCount(state);
+    var actionPts=touched+done;
+    var actionPtsMax=vfScanFirstOrder.length*2;
+    return Math.max(0,Math.min(100,Math.round(((pagePts/pagePtsMax)*0.6+(actionPts/actionPtsMax)*0.4)*100)));
+  }
+  window.VF_SCAN_FIRST={fixes:vfScanFirstFixes,accounts:vfScanFirstAccounts,order:vfScanFirstOrder,readState:readScanFirstState,saveState:saveScanFirstState,accountStatus:scanFirstAccountStatus,readiness:scanFirstDashboardReadiness,pageProgress:scanFirstPageProgress,visit:markScanFirstVisited,routeForText:vfScanFirstRouteForText,fixForRoute:vfScanFirstFixForRoute};
   var scanRouteRules=[
     {key:'phone',test:/phone|call|mobile/i,href:'/phones-and-411/',title:'Fix Phone Signal',copy:'Add or verify a business phone number that matches public records.'},
     {key:'directory',test:/411|directory|listing/i,href:'/phones-and-411/',title:'Fix 411 Listing',copy:'Make sure the business can be found in the right phone and directory sources.'},
@@ -2310,25 +2344,7 @@
     return dashboardFirstValue(profile,['businessName','business_name','tradeName','trade_name','company','company_name','name'])||'Business Profile';
   }
   function dashboardProgressFromProfile(profile){
-    profile=profile||{};
-    var checks=[
-      ['businessName','business_name'],
-      ['entityType','entity_type'],
-      ['formationState','formation_state'],
-      ['phone'],
-      ['address'],
-      ['website'],
-      ['email'],
-      ['bank'],
-      ['directory411','directory_411']
-    ];
-    var done=checks.filter(function(keys){
-      return keys.some(function(key){
-        var value=profile[key];
-        return value===1||value===true||String(value||'').trim().length>0;
-      });
-    }).length;
-    return Math.max(0,Math.min(100,Math.round(done/checks.length*100)));
+    return scanFirstPageProgress(readScanFirstState());
   }
   function applyDashboardProfile(profile){
     if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
@@ -2338,7 +2354,9 @@
     var progress=dashboardProgressFromProfile(profile);
     var progressText=document.querySelector('[data-dashboard-progress]');
     var progressRing=document.querySelector('.vf-mini-ring');
+    var progressCard=document.querySelector('.vf-side-card p');
     if(progressText)progressText.textContent=progress+'%';
+    if(progressCard)progressCard.textContent='Platform activity, not approval readiness.';
     if(progressRing){
       progressRing.style.setProperty('--vf-progress',progress+'%');
       progressRing.setAttribute('aria-label',progress+' percent complete');
@@ -2428,6 +2446,7 @@
   }
   function initScanFirstDashboard(){
     if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
+    markScanFirstVisited('/dashboard/');
     initDashboardIdentity();
     updateDashboardFromScan(null);
     var complete=document.querySelector('[data-vf-complete]');
@@ -2445,14 +2464,13 @@
     memberApi('GET','/api/member/visibility-audits').then(function(data){
       var rows=data&&data.audits||data&&data.items||data&&data.rows||[];
       var parsed=rows.map(parseScanRow).filter(Boolean);
-      var latest=parsed[0]||null;
-      updateDashboardFromScan(latest);
+      updateDashboardFromScan(parsed[0]||null);
     }).catch(function(){});
   }
   function initMemberActionPanel(){
     var data=scanSectionTitles[location.pathname];
     if(!data||location.pathname==='/support/'||location.pathname==='/dashboard/')return;
-    if(location.pathname==='/phones-and-411/')return;
+    if(vfScanFirstFixForRoute(location.pathname))return;
     var main=document.querySelector('.member-main');
     if(!main||document.querySelector('[data-member-action-panel]'))return;
     var key='vf-fix-complete:'+location.pathname;
@@ -2481,18 +2499,21 @@
   }
   function renderScanFirstFixPage(){
     var fix=vfScanFirstFixForRoute(location.pathname);
-    if(!fix||location.pathname!=='/phones-and-411/')return;
+    if(!fix)return;
     var main=document.querySelector('.member-main');
     if(!main||document.querySelector('[data-scan-first-fix-page]'))return;
+    markScanFirstVisited(location.pathname);
     var nav=main.querySelector('.lesson-nav-strip');
     var workspace=document.createElement('section');
     workspace.className='vf-fix-workspace content-block';
     workspace.setAttribute('data-scan-first-fix-page','');
     if(nav&&nav.nextSibling)main.insertBefore(workspace,nav.nextSibling);
     else main.insertBefore(workspace,main.firstChild);
-    ['.module-section-overview','.phone-database-warning','.phone-options-section'].forEach(function(selector){
+    ['.module-section-overview','.phone-database-warning','.phone-options-section','.nap-optional-resources'].forEach(function(selector){
       main.querySelectorAll(selector).forEach(function(el){el.classList.add('vf-legacy-consolidated')});
     });
+    var compactVideo=main.querySelector('.lesson-video-section');
+    if(compactVideo)compactVideo.classList.add('vf-training-secondary');
     function state(){return readScanFirstState()}
     function currentStatus(){return (state().fixStatus||{})[fix.key]||'todo'}
     function saveStatus(status){setScanFirstFixStatus(fix.key,status)}
@@ -2501,24 +2522,38 @@
       var meta=scanFirstFixStatusMeta((st.fixStatus||{})[fix.key]);
       var selected=(st.selectedOptions||{})[fix.key]||'';
       var proof=!!((st.proofSaved||{})[fix.key]);
+      var issue=fix.issue||'Your scan is checking whether this business signal is complete, consistent, and ready before applications.';
+      var scanSource=fix.scanSource||('AI Visibility Audit - '+fix.title);
+      var steps=fix.steps||[
+        'Review what is currently in the business profile and public records.',
+        'Correct the mismatch or missing setup item before applying anywhere.',
+        'Save proof that the signal is complete and consistent.',
+        'Return to the dashboard or run the scan again after the fix is done.'
+      ];
+      var checklist=fix.checklist||fix.proof||[];
+      var nextKey=fix.next||vfScanFirstOrder[(vfScanFirstOrder.indexOf(fix.key)+1)%vfScanFirstOrder.length];
+      var nextFix=vfScanFirstFixes[nextKey]||vfScanFirstFixes.phones;
+      var videoTitle=fix.videoTitle||('Quick training for '+fix.title);
+      var videoDuration=fix.videoDuration||'4:00';
+      var videoBullets=fix.videoBullets||['What this signal means','What to fix first','What proof to save'];
       var supportHref='/support/?topic='+encodeURIComponent(fix.title)+'&route='+encodeURIComponent(fix.route)+(selected?'&option='+encodeURIComponent(selected):'');
       workspace.innerHTML=
         "<div class='vf-fix-hero'>"+
           "<div><p class='kicker'>Scan-driven fix</p><h2>"+escapeHtml(fix.title)+"</h2><p>"+escapeHtml(fix.tagline)+"</p><div class='vf-fix-badges'><span class='vf-fix-status "+meta.className+"'>"+escapeHtml(meta.label)+"</span><span>"+escapeHtml(fix.impact)+"</span><span>AI Visibility Audit</span></div></div>"+
           "<div class='vf-fix-hero-actions'><button class='btn' type='button' data-fix-do>Do It Myself</button><button class='btn secondary' type='button' data-fix-options>Choose Setup Option</button><a class='btn ghost' href='"+escapeHtml(supportHref)+"'>Get Help</a><a class='btn ghost' href='/dashboard/'>Back to Dashboard</a><button class='btn dark' type='button' data-fix-complete>"+(meta.className==='done'?'Marked Complete':'Mark Complete')+"</button></div>"+
         "</div>"+
-        "<div class='vf-scan-finding'><strong>Your scan is checking this signal:</strong><span>Business phone, caller ID, public directory/411 visibility, and whether the phone matches the legal business profile.</span></div>"+
+        "<div class='vf-scan-finding'><strong>"+escapeHtml(scanSource)+"</strong><span>"+escapeHtml(issue)+"</span></div>"+
         "<div class='vf-fix-grid'>"+
           "<div class='vf-fix-main'>"+
-            "<article class='vf-fix-card' id='vf-checklist'><div class='vf-card-title'><p class='kicker'>What to fix</p><h3>Complete these phone-signal requirements.</h3></div><div class='vf-fix-checks'>"+fix.proof.map(function(item,index){return "<span><b>"+(proof||meta.className==='done'?'✓':'')+"</b>"+escapeHtml(item)+"</span>"}).join('')+"</div></article>"+
-            "<article class='vf-fix-card'><div class='vf-card-title'><p class='kicker'>Do this first</p><h3>Set up the phone path before you apply anywhere.</h3></div><ol class='vf-fix-steps'><li>Choose a business phone option that can support a professional business identity.</li><li>Make sure the caller ID or account name matches the exact business name.</li><li>Add the number to the website and public records consistently.</li><li>Submit or verify the business 411 listing and save proof.</li></ol></article>"+
-            "<article class='vf-fix-card' id='vf-setup-options'><div class='vf-card-title'><p class='kicker'>Recommended setup options</p><h3>Choose the service path that fits how much you want handled.</h3></div><div class='vf-option-grid'>"+fix.options.map(function(option){var isSelected=selected===option.name;return "<button class='vf-option-card "+(isSelected?'selected':'')+"' type='button' data-select-fix-option='"+escapeHtml(option.name)+"'><span>"+escapeHtml(option.status)+"</span><strong>"+escapeHtml(option.name)+"</strong><small>"+escapeHtml(option.type)+"</small><p>"+escapeHtml(option.bestFor)+"</p><em>"+escapeHtml(option.cta)+"</em></button>"}).join('')+"</div>"+(selected?"<div class='vf-selected-option'>Selected option: <strong>"+escapeHtml(selected)+"</strong></div>":"")+"</article>"+
-            "<article class='vf-fix-card vf-training-compact'><div class='vf-video-thumb'><span>▶</span><strong>4:12</strong></div><div><p class='kicker'>Short training</p><h3>Watch if you need more context.</h3><ul><li>What a clean phone signal looks like</li><li>How 411 listings are checked</li><li>Common mismatch mistakes</li></ul><a class='btn secondary' href='#legacy-phone-training'>Open training lower on page</a></div></article>"+
+            "<article class='vf-fix-card' id='vf-checklist'><div class='vf-card-title'><p class='kicker'>What to fix</p><h3>Complete these requirements before applying.</h3></div><div class='vf-fix-checks'>"+checklist.map(function(item){return "<span><b>"+(proof||meta.className==='done'?'&#10003;':'')+"</b>"+escapeHtml(item)+"</span>"}).join('')+"</div></article>"+
+            "<article class='vf-fix-card'><div class='vf-card-title'><p class='kicker'>Do this first</p><h3>Take the shortest path to a clean signal.</h3></div><ol class='vf-fix-steps'>"+steps.map(function(step){return '<li>'+escapeHtml(step)+'</li>'}).join('')+"</ol></article>"+
+            "<article class='vf-fix-card' id='vf-setup-options'><div class='vf-card-title'><p class='kicker'>Recommended setup options</p><h3>Choose the service path that fits how much you want handled.</h3></div><div class='vf-option-grid'>"+fix.options.map(function(option){var isSelected=selected===option.name;return "<button class='vf-option-card "+(isSelected?'selected':'')+"' type='button' data-select-fix-option='"+escapeHtml(option.name)+"'><span>"+escapeHtml(option.status)+"</span><strong>"+escapeHtml(option.name)+"</strong><small>"+escapeHtml(option.type||option.tag||'Setup option')+"</small><p>"+escapeHtml(option.bestFor||option.desc||'Recommended for this fix area')+"</p><em>"+escapeHtml(option.price?option.price+' - '+(option.cta||'Select Option'):(option.cta||'Select Option'))+"</em></button>"}).join('')+"</div>"+(selected?"<div class='vf-selected-option'>Selected option: <strong>"+escapeHtml(selected)+"</strong></div>":"")+"</article>"+
+            "<article class='vf-fix-card vf-training-compact'><div class='vf-video-thumb'><span>&#9654;</span><strong>"+escapeHtml(videoDuration)+"</strong></div><div><p class='kicker'>Short training</p><h3>"+escapeHtml(videoTitle)+"</h3><ul>"+videoBullets.map(function(item){return '<li>'+escapeHtml(item)+'</li>'}).join('')+"</ul><a class='btn secondary' href='#legacy-phone-training'>Open training lower on page</a></div></article>"+
           "</div>"+
           "<aside class='vf-fix-rail'>"+
-            "<article class='vf-fix-card'><p class='kicker'>Proof to save</p><h3>"+(proof?'Proof saved':'Save proof for this fix')+"</h3><p>Save proof when the phone setup, caller ID, and 411 listing are ready.</p><button class='btn secondary' type='button' data-fix-proof>"+(proof?'Proof saved ✓':'Upload & save proof')+"</button></article>"+
-            "<article class='vf-fix-card vf-unlocks'><p class='kicker'>What this unlocks</p><h3>Why this matters</h3>"+fix.unlocks.map(function(item){return "<span>✓ "+escapeHtml(item)+"</span>"}).join('')+"</article>"+
-            "<article class='vf-fix-card'><p class='kicker'>Next step</p><h3>Business Address Fix</h3><p>Once phone and 411 are clean, make the address match the same business identity.</p><a class='btn' href='/business-address/'>Go to next fix →</a></article>"+
+            "<article class='vf-fix-card'><p class='kicker'>Proof to save</p><h3>"+(proof?'Proof saved':'Save proof for this fix')+"</h3><p>Save proof when this setup, public record, or account signal is ready.</p><button class='btn secondary' type='button' data-fix-proof>"+(proof?'Proof saved &#10003;':'Upload & save proof')+"</button></article>"+
+            "<article class='vf-fix-card vf-unlocks'><p class='kicker'>What this unlocks</p><h3>Why this matters</h3>"+fix.unlocks.map(function(item){return "<span>&#10003; "+escapeHtml(item)+"</span>"}).join('')+"</article>"+
+            "<article class='vf-fix-card'><p class='kicker'>Next step</p><h3>"+escapeHtml(nextFix.title)+"</h3><p>Move to the next highest-impact cleanup item after this one is complete.</p><a class='btn' href='"+escapeHtml(nextFix.route)+"'>Go to next fix &#8594;</a></article>"+
           "</aside>"+
         "</div>";
       var legacyVideo=main.querySelector('.lesson-video-section');
@@ -2527,22 +2562,24 @@
       var optionBtn=workspace.querySelector('[data-fix-options]');
       var proofBtn=workspace.querySelector('[data-fix-proof]');
       var completeBtn=workspace.querySelector('[data-fix-complete]');
-      if(doBtn)doBtn.addEventListener('click',function(){saveStatus(currentStatus()==='done'?'done':'progress');render();setTimeout(function(){var target=document.getElementById('vf-checklist');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},50)});
+      if(doBtn)doBtn.addEventListener('click',function(){saveStatus(currentStatus()==='done'?'done':'progress');markScanFirstVisited(location.pathname);render();setTimeout(function(){var target=document.getElementById('vf-checklist');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},50)});
       if(optionBtn)optionBtn.addEventListener('click',function(){saveStatus(currentStatus()==='done'?'done':'progress');setTimeout(function(){var target=document.getElementById('vf-setup-options');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},50)});
       if(proofBtn)proofBtn.addEventListener('click',function(){var next=state();next.proofSaved[fix.key]=true;if(next.fixStatus[fix.key]!=='done')next.fixStatus[fix.key]='progress';saveScanFirstState(next);render()});
       if(completeBtn)completeBtn.addEventListener('click',function(){
         var next=state();
         next.fixStatus[fix.key]='done';
         next.proofSaved[fix.key]=true;
+        next.visited[scanFirstVisitKey(location.pathname)]=true;
         saveScanFirstState(next);
         try{localStorage.setItem('vf-fix-complete:'+fix.route,'1');localStorage.setItem('vf-progress:'+fix.route,JSON.stringify([0,1,2,3]))}catch(e){}
-        saveMemberProgress({pagePath:fix.route,pageTitle:fix.title,breadcrumb:'Module 1 / Business Identity',completedIndexes:[0,1,2,3]});
+        saveMemberProgress({pagePath:fix.route,pageTitle:fix.title,breadcrumb:'Scan-first fix',completedIndexes:[0,1,2,3]});
         render();
       });
       workspace.querySelectorAll('[data-select-fix-option]').forEach(function(btn){
         btn.addEventListener('click',function(){
           var next=state();
           next.selectedOptions[fix.key]=btn.getAttribute('data-select-fix-option');
+          next.visited[scanFirstVisitKey(location.pathname)]=true;
           if(next.fixStatus[fix.key]!=='done')next.fixStatus[fix.key]='progress';
           saveScanFirstState(next);
           render();
@@ -2552,6 +2589,56 @@
     render();
   }
   renderScanFirstFixPage();
+  function renderScanFirstAccountPage(){
+    var accountRoutes={
+      '/about-net-30/':'all',
+      '/office-and-cleaning/':'vendor',
+      '/building-and-industrial/':'vendor',
+      '/retail-and-wholesale/':'vendor',
+      '/revolving-business-credit-cards/':'cards',
+      '/starter-cards/':'cards',
+      '/general-credit-cards/':'cards'
+    };
+    var mode=accountRoutes[location.pathname];
+    if(!mode)return;
+    var main=document.querySelector('.member-main');
+    if(!main||document.querySelector('[data-scan-first-account-page]'))return;
+    markScanFirstVisited(location.pathname);
+    var state=readScanFirstState();
+    var accounts=vfScanFirstAccounts.filter(function(account){
+      if(mode==='vendor')return account.type!=='Credit Card';
+      if(mode==='cards')return account.type==='Credit Card';
+      return true;
+    }).map(function(account){return Object.assign({},account,scanFirstAccountStatus(account,state))});
+    var available=accounts.filter(function(account){return account.status==='available'||account.status==='recommended'}).slice(0,6);
+    var locked=accounts.filter(function(account){return account.status!=='available'&&account.status!=='recommended'}).slice(0,6);
+    function accountCard(account){
+      var href=account.type==='Credit Card'?'/revolving-business-credit-cards/':'/about-net-30/';
+      var cls=account.type==='Credit Card'?'cards':'vendor';
+      return "<article class='vf-match-card "+cls+" "+escapeHtml(account.status)+"'>"+
+        "<div class='vf-match-card-face'><span>"+escapeHtml(account.category)+"</span><strong>"+escapeHtml(account.name)+"</strong><small>"+escapeHtml(account.type)+"</small></div>"+
+        "<div class='vf-match-card-body'><b>"+escapeHtml(account.label)+"</b><p>"+escapeHtml(account.timing||account.unlockReason)+"</p><small>"+escapeHtml(account.unlockReason)+"</small><a class='btn secondary' href='"+escapeHtml(href)+"'>"+(account.status==='locked'||account.status==='notready'?'Get Help to Unlock':'View Details')+"</a></div>"+
+      "</article>";
+    }
+    var panel=document.createElement('section');
+    panel.className='content-block vf-account-match-board';
+    panel.setAttribute('data-scan-first-account-page','');
+    panel.innerHTML=
+      "<div class='vf-account-board-head'><div><p class='kicker'>Account matches</p><h2>Apply only where the business profile fits.</h2><p>Account availability is derived from completed scan-first fixes. When a required signal is still open, the account stays in review or locked status.</p></div><div class='vf-account-board-actions'><a class='btn ghost' href='/dashboard/'>Back to Dashboard</a><a class='btn' href='/ai-visibility-audit/'>Run Scan</a></div></div>"+
+      "<div class='vf-match-section available'><div class='vf-match-label'>Currently available to you</div><div class='vf-match-grid'>"+(available.length?available.map(accountCard).join(''):"<p class='legal'>No accounts are currently available. Complete the next foundation fixes first.</p>")+"</div></div>"+
+      "<div class='vf-match-section locked'><div class='vf-match-label'>Unlock next</div><div class='vf-match-grid'>"+(locked.length?locked.map(accountCard).join(''):"<p class='legal'>No locked accounts remain in this category.</p>")+"</div></div>";
+    var nav=main.querySelector('.lesson-nav-strip');
+    if(nav&&nav.nextSibling)main.insertBefore(panel,nav.nextSibling);
+    else main.insertBefore(panel,main.firstChild);
+  }
+  renderScanFirstAccountPage();
+  function initScanFirstVisitTracking(){
+    if(!isMemberExperiencePath())return;
+    if(location.pathname==='/dashboard/')return;
+    if(location.pathname==='/feedback/'||location.pathname==='/admin/')return;
+    markScanFirstVisited(location.pathname);
+  }
+  initScanFirstVisitTracking();
   function initSupportRequestFlow(){
     if(location.pathname!=='/support/')return;
     var main=document.querySelector('.member-main')||document.querySelector('main')||document.querySelector('.page-hero + .section');
