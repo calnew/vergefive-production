@@ -11,11 +11,11 @@ export async function onRequestPost(context) {
     if (auth.user.emailVerifiedAt) return json({ ok: true, alreadyVerified: true });
     const limited = await rateLimit(context.env, `verify:${auth.user.id}`, { limit: 3, windowSeconds: 3600 });
     if (!limited.ok) return limited.response;
-    const verification = await createEmailVerification(context.env, auth.user.id, auth.user.email, context.request);
+    const url = await createEmailVerification(context.env, auth.user.id, auth.user.email, context.request);
     return json({
       ok: true,
       emailProviderConfigured: !!(context.env.RESEND_API_KEY && context.env.EMAIL_FROM),
-      verificationUrl: context.env.RESEND_API_KEY ? undefined : verification.url
+      verificationUrl: context.env.RESEND_API_KEY ? undefined : url
     });
   } catch (error) {
     console.error('resend verification failed', error && error.message ? error.message : error);

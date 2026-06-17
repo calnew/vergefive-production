@@ -23,25 +23,6 @@ export async function stripeRequest(env, path, body) {
   return data;
 }
 
-export async function stripeGet(env, path, query) {
-  if (!env.STRIPE_SECRET_KEY) {
-    return json({ error: 'Stripe secret key is not configured.' }, 500);
-  }
-  const qs = encodeForm(query || {});
-  const response = await fetch(`${STRIPE_API}${path}${qs ? `?${qs}` : ''}`, {
-    method: 'GET',
-    headers: {
-      authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'stripe-version': STRIPE_VERSION
-    }
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    return json({ error: data.error && data.error.message ? data.error.message : 'Stripe request failed.' }, response.status);
-  }
-  return data;
-}
-
 export function encodeForm(obj, prefix) {
   const pairs = [];
   Object.entries(obj || {}).forEach(([key, value]) => {

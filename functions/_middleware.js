@@ -1,11 +1,10 @@
 import { getAuth, isAdminEmail, isTrialExpired, isTrialMembership, redirect } from './_lib/auth.js';
-import { isAdvancedReadinessPath, readinessLockForPath, recordMemberPageAccess } from './_lib/readiness-locks.js';
 
 const PROTECTED_PREFIXES = [
   '/account/',
+  '/dashboard/',
+  '/full-buildout/',
   '/start-here/',
-  '/homeefe757a6/',
-  '/nap-overview/',
   '/phones-and-411/',
   '/business-address/',
   '/website-domain-email/',
@@ -18,13 +17,11 @@ const PROTECTED_PREFIXES = [
   '/bank-rating/',
   '/your-bank-rating/',
   '/business-plan/',
-  '/business-plan-report/',
   '/equifax-business/',
   '/comparable-credit/',
   '/business-credit-criteria/',
   '/newpagea5b34995/',
   '/about-net-30/',
-  '/nav-ecredable/',
   '/nav-boot/',
   '/revolving-business-credit-cards/',
   '/cd-business-loans/',
@@ -40,7 +37,6 @@ const PROTECTED_PREFIXES = [
   '/Resources/files/sample-restaurant-business-plan.pdf',
   '/Resources/files/sample-restaurant-business-plan.html',
   '/downloads/',
-  '/business-visibility-audit/',
   '/ai-visibility-audit/',
   '/conversational-ai-bot/',
   '/support/',
@@ -51,9 +47,7 @@ const PROTECTED_PREFIXES = [
 ];
 
 const LEGACY_ROUTE_MAP = {
-  '/demo/': '/whats-inside/',
-  '/ai-visibility-audit/': '/business-visibility-audit/',
-  '/nav-boot/': '/nav-ecredable/',
+  '/homeefe757a6/': '/dashboard/',
   '/newpage87229491/': '/website-domain-email/',
   '/newpage7c157847/': '/llc-vs-corporation/',
   '/newpagea5b34995/': '/business-credit-criteria/',
@@ -61,23 +55,16 @@ const LEGACY_ROUTE_MAP = {
   '/newpageed554e37/': '/business-assets-equipment/'
 };
 
-const TRIAL_ALLOWED_FULL_PREFIXES = [
+const TRIAL_ALLOWED_PREFIXES = [
   '/account/',
+  '/dashboard/',
+  '/full-buildout/',
   '/start-here/',
-  '/homeefe757a6/',
-  '/business-visibility-audit/',
   '/ai-visibility-audit/',
-  '/nap-overview/',
   '/phones-and-411/'
 ];
 
-const TRIAL_PREVIEW_PREFIXES = PROTECTED_PREFIXES.filter((prefix) => (
-  !prefix.startsWith('/Resources/files/') &&
-  prefix !== '/downloads/'
-));
-
 const TRIAL_ALLOWED_MEMBER_API_PREFIXES = [
-  '/api/member/guide',
   '/api/member/profile',
   '/api/member/progress',
   '/api/member/visibility-audits'
@@ -96,7 +83,7 @@ function isAdminPath(pathname) {
 }
 
 function isTrialAllowedPath(pathname) {
-  return TRIAL_PREVIEW_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
+  return TRIAL_ALLOWED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 }
 
 function isTrialAllowedMemberApi(pathname) {
@@ -114,9 +101,9 @@ export async function onRequest(context) {
 
   const auth = await getAuth(context.request, context.env);
   if (!auth) {
-    if (isMemberApi(url.pathname) || url.pathname.startsWith('/api/admin/')) {
-      return new Response(JSON.stringify({ error: isAdminPath(url.pathname) ? 'Admin access required.' : 'Login required.' }), {
-        status: isAdminPath(url.pathname) ? 403 : 401,
+    if (isMemberApi(url.pathname)) {
+      return new Response(JSON.stringify({ error: 'Login required.' }), {
+        status: 401,
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
       });
     }
@@ -161,15 +148,6 @@ export async function onRequest(context) {
     }
     if (isTrialAllowedPath(url.pathname) || isTrialAllowedMemberApi(url.pathname)) {
       context.data.auth = auth;
-      if (!isMemberApi(url.pathname)) await recordMemberPageAccess(context.env, auth.user.id, url.pathname).catch(() => null);
-      if (!isMemberApi(url.pathname) && isAdvancedReadinessPath(url.pathname)) {
-        const settleHours = Number(context.env.READINESS_SETTLE_HOURS || 72);
-        const readiness = await readinessLockForPath(context.env, auth.user.id, url.pathname, { settleHours }).catch(() => ({ locked: false }));
-        if (readiness.locked) {
-          const message = encodeURIComponent(readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.');
-          return redirect(`/homeefe757a6/?readiness=locked&reason=${encodeURIComponent(readiness.code || 'readiness_locked')}&message=${message}&next=${encodeURIComponent(url.pathname + url.search)}`);
-        }
-      }
       return context.next();
     }
     if (isMemberApi(url.pathname)) {
@@ -189,24 +167,6 @@ export async function onRequest(context) {
       });
     }
     return redirect(`/membership/?next=${encodeURIComponent(url.pathname + url.search)}`);
-  }
-
-  if (!isMemberApi(url.pathname)) {
-    await recordMemberPageAccess(context.env, auth.user.id, url.pathname).catch(() => null);
-  }
-  if (isAdvancedReadinessPath(url.pathname)) {
-    const settleHours = Number(context.env.READINESS_SETTLE_HOURS || 72);
-    const readiness = await readinessLockForPath(context.env, auth.user.id, url.pathname, { settleHours }).catch(() => ({ locked: false }));
-    if (readiness.locked) {
-      const message = encodeURIComponent(readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.');
-      if (isMemberApi(url.pathname)) {
-        return new Response(JSON.stringify({ error: readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.', code: readiness.code || 'readiness_locked' }), {
-          status: 423,
-          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
-        });
-      }
-      return redirect(`/homeefe757a6/?readiness=locked&reason=${encodeURIComponent(readiness.code || 'readiness_locked')}&message=${message}&next=${encodeURIComponent(url.pathname + url.search)}`);
-    }
   }
 
   context.data.auth = auth;

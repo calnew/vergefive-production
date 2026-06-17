@@ -15,10 +15,9 @@
     var target=document.querySelector('.member-main .module-section-overview');
     if(!target)return;
     var lessons=[
-      {path:'/nap-overview/',module:'Module 1',section:'Section 1',title:'NAP consistency overview'},
-      {path:'/phones-and-411/',module:'Module 1',section:'Section 2',title:'Business phone number and 411 listing'},
-      {path:'/business-address/',module:'Module 1',section:'Section 3',title:'Business address'},
-      {path:'/website-domain-email/',module:'Module 1',section:'Section 4',title:'Website and domain email'},
+      {path:'/phones-and-411/',module:'Module 1',section:'Section 1',title:'Business phone number and 411 listing'},
+      {path:'/business-address/',module:'Module 1',section:'Section 2',title:'Business address'},
+      {path:'/website-domain-email/',module:'Module 1',section:'Section 3',title:'Website and domain email'},
       {path:'/llc-vs-corporation/',module:'Module 2',section:'Section 1',title:'LLC vs Corporation'},
       {path:'/contact-list/',module:'Module 2',section:'Section 2',title:'Secretary of State contact list'},
       {path:'/ein/',module:'Module 2',section:'Section 3',title:'EIN from IRS'},
@@ -31,13 +30,12 @@
       {path:'/business-credit-criteria/',module:'Module 5',section:'Section 3',title:'12-point business credit criteria'},
       {path:'/about-net-30/',module:'Module 6',section:'Section 1',title:'Starter vendor credit readiness'},
       {path:'/revolving-business-credit-cards/',module:'Module 6',section:'Section 2',title:'Revolving business credit cards'},
-      {path:'/nav-ecredable/',module:'Module 6',section:'Section 3',title:'NAV.com and eCredable fast track'},
       {path:'/cd-business-loans/',module:'Module 7',section:'Section 1',title:'CD-secured business loans'}
     ];
     var index=lessons.findIndex(function(item){return location.pathname===item.path});
     if(index<0)return;
     var current=lessons[index];
-    var previous=index>0?lessons[index-1]:{path:'/homeefe757a6/',title:'Dashboard',module:'Dashboard'};
+    var previous=index>0?lessons[index-1]:{path:'/dashboard/',title:'Dashboard',module:'Dashboard'};
     var next=index<lessons.length-1?lessons[index+1]:{path:'/final-readiness-summary/',title:'Final readiness summary',module:'Final summary'};
     var previousLabel=index>0&&previous.module!==current.module?'Previous module':(index>0?'Previous section':'Back to dashboard');
     var nextLabel=index<lessons.length-1&&next.module!==current.module?'Next module':(index<lessons.length-1?'Next section':'Final summary');
@@ -306,23 +304,23 @@
       items.forEach(function(item){container.appendChild(makeLink(item.href,item.text))});
     }
     var memberLinks=[
-      {href:'/homeefe757a6/',text:'Dashboard'},
-      {href:'/start-here/',text:'Start Here'},
-      {href:'/homeefe757a6/#modules',text:'Modules'},
-      {href:'/about-net-30/',text:'Vendors'},
-      {href:'/business-plan-report/',text:'Report'},
-      {href:'/business-visibility-audit/',text:'Visibility scan'}
+      {href:'/dashboard/',text:'Dashboard'},
+      {href:'/ai-visibility-audit/',text:'Run Scan'},
+      {href:'/start-here/',text:'Fix List'},
+      {href:'/about-net-30/',text:'Account Matches'},
+      {href:'/full-buildout/',text:'Full Buildout'},
+      {href:'/support/',text:'Support'}
     ];
     var mobileLinks=memberLinks.concat([
       {href:'/account/',text:'Account'},
-      {href:'/homeefe757a6/',text:'Continue Buildout'}
+      {href:'/full-buildout/',text:'Continue Buildout'}
     ]);
     document.querySelectorAll('.nav-links').forEach(function(nav){resetLinks(nav,memberLinks)});
     document.querySelectorAll('.nav-actions').forEach(function(actions){
       actions.innerHTML='';
       var account=makeLink('/account/','Account');
       account.className='btn ghost';
-      var buildout=makeLink('/homeefe757a6/','Continue Buildout');
+      var buildout=makeLink('/full-buildout/','Full Buildout');
       buildout.className='btn';
       actions.appendChild(account);
       actions.appendChild(buildout);
@@ -499,7 +497,7 @@
       setText('.start-scan-context p:not(.kicker)','The Hidden Gatekeepers framework starts with how the business looks from the outside. This scan saves the business identifiers inside the member account and creates the baseline before the buildout starts.');
       setText('.start-member-scan-card .scan-card-head p:not(.kicker)','Enter the same core identifiers lenders, vendors, banks, directories, and public records use to recognize the business.');
     }
-    if(path==='/nap-overview/'){
+    if(path==='/nap-consistency-business-credit/'){
       setText('.lesson-hero .page-sub','Understand the first hidden gatekeeper: the business name, address, and phone must match before the rest of the buildout can be trusted.');
       setText('.module-section-overview > div > p:not(.kicker)','The identity signals the hidden approval systems read first: NAP, phone, 411, address, website, and domain email.');
       var napCopy=document.querySelector('.nap-overview-copy p:not(.kicker)');
@@ -629,7 +627,7 @@
     }
     function nextPath(fallback){
       var url=new URL(location.href);
-      return url.searchParams.get('next')||fallback||'/homeefe757a6/';
+      return url.searchParams.get('next')||fallback||'/dashboard/';
     }
     function selectedMembershipPlan(){
       var plan=new URL(location.href).searchParams.get('plan')||sessionStorage.getItem('vf-selected-plan')||'annual';
@@ -748,7 +746,7 @@
               if(msg)msg.innerHTML='Account created. Verification email provider is not configured yet.<br><a href="'+data.emailVerification.verificationUrl+'">Verify this test account</a>';
               return;
             }
-            location.href=nextPath(mode==='register'?'/start-here/?trial=started':(data.isAdmin?'/admin/':'/homeefe757a6/'));
+            location.href=nextPath(mode==='register'?'/dashboard/?trial=started':(data.isAdmin?'/admin/':'/dashboard/'));
           })
           .catch(function(err){message(err.message,true)});
       });
@@ -922,7 +920,7 @@
     fetch('/api/auth/me',{headers:{accept:'application/json'}}).then(function(res){return res.json()}).then(function(data){
       var status=data&&data.membership&&data.membership.status;
       if(!/^trial$/i.test(status||''))return;
-      var fullAccess=['/account/','/start-here/','/homeefe757a6/','/business-visibility-audit/','/ai-visibility-audit/','/nap-overview/','/phones-and-411/'];
+      var fullAccess=['/account/','/dashboard/','/full-buildout/','/start-here/','/ai-visibility-audit/','/nap-consistency-business-credit/','/phones-and-411/'];
       var path=location.pathname;
       var isFullAccess=fullAccess.some(function(prefix){return path===prefix||path.indexOf(prefix)===0});
       if(isFullAccess)return;
@@ -949,7 +947,7 @@
           frame.insertAdjacentHTML('beforeend',"<div class='trial-video-lock'><strong>Video locked</strong><span>Unlock full access to play this lesson.</span></div>");
         }
       });
-      var allowedLinks=['/membership/','/account/','/homeefe757a6/','/nap-overview/','/phones-and-411/','/whats-inside/'];
+      var allowedLinks=['/membership/','/account/','/dashboard/','/full-buildout/','/ai-visibility-audit/','/nap-consistency-business-credit/','/phones-and-411/','/whats-inside/'];
       document.querySelectorAll('.member-main a,.member-main button,.member-main input,.member-main select,.member-main textarea').forEach(function(el){
         if(el.matches('a')){
           var href=el.getAttribute('href')||'';
@@ -1019,6 +1017,7 @@
   initTrialModuleOneOutcomeModal();
   function initMemberGuideWalkthrough(){
     if(!isMemberExperiencePath())return;
+    if(document.body.classList.contains('vf-scan-dashboard-page')||document.body.classList.contains('vf-dashboard-demo-page'))return;
     if(location.pathname==='/login/'||location.pathname==='/signup/'||document.querySelector('[data-member-guide-modal]'))return;
     fetch('/api/auth/me',{headers:{accept:'application/json'}}).then(function(res){return res.json()}).then(function(data){
       if(!data||!data.user)return;
@@ -1040,7 +1039,7 @@
       var modal=document.createElement('div');
       modal.className='member-guide-modal';
       modal.setAttribute('data-member-guide-modal','');
-      modal.innerHTML="<div class='member-guide-backdrop' data-member-guide-close></div><article class='member-guide-card'><button type='button' class='vendor-detail-close' data-member-guide-close>Close</button><p class='kicker'>Platform guide</p><h2>"+(isTrial?'How your free test drive works.':'How to use Verge Five.')+"</h2><p>"+(isTrial?'Your test drive lets you start the foundation and see how the rest of the system unlocks. The deeper vendor, card, and funding areas stay preview-locked until full access is active.':'Verge Five is built to move in order: foundation first, then vendor credit, credit cards, and funding only when the business profile is ready.')+"</p><div class='member-guide-steps'>"+steps.map(function(step,index){return "<span><b>"+(index+1)+"</b><strong>"+escapeHtml(step[0])+"</strong><small>"+escapeHtml(step[1])+"</small></span>"}).join('')+"</div><div class='member-guide-note'><strong>The goal:</strong> build the business identifiers lenders and vendors expect, then use the matchers and report to avoid rushed applications.</div><div class='proof-actions'><a class='btn dark' href='/start-here/' data-member-guide-start>Start Here</a><a class='btn secondary' href='/business-visibility-audit/' data-member-guide-start>Run visibility audit</a><button class='btn ghost' type='button' data-member-guide-close>Keep working</button></div></article>";
+      modal.innerHTML="<div class='member-guide-backdrop' data-member-guide-close></div><article class='member-guide-card'><button type='button' class='vendor-detail-close' data-member-guide-close>Close</button><p class='kicker'>Platform guide</p><h2>"+(isTrial?'How your free test drive works.':'How to use Verge Five.')+"</h2><p>"+(isTrial?'Your test drive lets you start the foundation and see how the rest of the system unlocks. The deeper vendor, card, and funding areas stay preview-locked until full access is active.':'Verge Five is built to move in order: foundation first, then vendor credit, credit cards, and funding only when the business profile is ready.')+"</p><div class='member-guide-steps'>"+steps.map(function(step,index){return "<span><b>"+(index+1)+"</b><strong>"+escapeHtml(step[0])+"</strong><small>"+escapeHtml(step[1])+"</small></span>"}).join('')+"</div><div class='member-guide-note'><strong>The goal:</strong> build the business identifiers lenders and vendors expect, then use the matchers and report to avoid rushed applications.</div><div class='proof-actions'><a class='btn dark' href='/start-here/' data-member-guide-start>Start Here</a><a class='btn secondary' href='/ai-visibility-audit/' data-member-guide-start>Run visibility audit</a><button class='btn ghost' type='button' data-member-guide-close>Keep working</button></div></article>";
       document.body.appendChild(modal);
       function markGuideSeen(){
         accountGuideSeen=true;
@@ -1127,7 +1126,7 @@
   initFeedbackForm();
 
   function initFeedbackBugButton(){
-    if(!isMemberExperiencePath()||location.pathname==='/feedback/'||location.pathname==='/admin/'||location.pathname==='/start-here/')return;
+    if(!isMemberExperiencePath()||location.pathname==='/feedback/'||location.pathname==='/admin/'||location.pathname==='/start-here/'||document.body.classList.contains('vf-scan-dashboard-page')||document.body.classList.contains('vf-dashboard-demo-page'))return;
     if(document.querySelector('[data-feedback-trigger]'))return;
     var style=document.createElement('style');
     style.textContent='.feedback-trigger{position:fixed;right:18px;bottom:72px;z-index:1000;border:1px solid #7dd9e7;background:#071733;color:#fff;border-radius:999px;padding:11px 15px;font-size:13px;font-weight:900;text-decoration:none;box-shadow:0 14px 36px rgba(7,23,51,.24)}.feedback-trigger:hover{background:#0b3558}.feedback-inline-link{display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px auto}@media(max-width:760px){.feedback-trigger{right:12px;bottom:18px;padding:10px 12px;font-size:12px}.feedback-inline-link{width:100%;margin:0 0 12px 0}}';
@@ -1877,7 +1876,7 @@
       return missing;
     }
     function requiredScanMessage(missing){
-      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, that is the sign to go through Module 1 before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/nap-overview/">Start Module 1</a>';
+      return '<strong>Core business identifiers required.</strong><span>Enter the '+escapeHtml(missing.join(', '))+' before running this scan. If the business does not have these yet, start with the foundation fixes before using a visibility score as an application readiness signal.</span><a class="btn dark" href="/phones-and-411/">Start foundation fixes</a>';
     }    function localAdvice(score){
       if(score<=3)return 'The company may be hard for vendors, banks, or lenders to verify. Build the foundation before applying.';
       if(score<=5)return 'The company has limited visibility, but visibility is not the same as being ready for credit applications.';
@@ -1899,7 +1898,7 @@
     }
     function consistencyGate(score){
       var high=(Number(score)||0)>=7;
-      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>NAP consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/nap-overview/'>Start NAP cleanup</a></div>";
+      return "<div class='scan-consistency-gate"+(high?' high':'')+"'><b>Identifier consistency review "+(high?'required':'needed')+"</b><span>"+(high?'Your business is publicly visible. Before applying anywhere, verify that the legal name, address, phone, website, email, and listings match across the board.':'Visibility is only step one. The platform still checks whether the business identifiers match before applications.')+"</span><a href='/phones-and-411/'>Start phone and listing cleanup</a></div>";
     }
     function readinessLocks(score){
       var low=Number(score)||1;
@@ -1915,7 +1914,7 @@
       var evidence=(data.evidence||[]).slice(0,3).map(function(item){return "<li><a href='"+escapeHtml(item.url)+"' target='_blank' rel='noopener'>"+escapeHtml(item.title||item.domain||item.url)+"</a></li>"}).join('');
       var redFlags=(data.redFlags||[]).slice(0,4).map(function(item){return "<li>"+escapeHtml(item)+"</li>"}).join('');
       var findings=(data.findings||[]).slice(0,4).map(function(item){return "<li>"+escapeHtml(item)+"</li>"}).join('');
-      var cta=isMemberStartScan?"<a class='btn dark' href='/nap-overview/'>Continue to Module 1</a>":"<a class='btn dark' href='/start-here/'>Start the full readiness path</a>";
+      var cta=isMemberStartScan?"<a class='btn dark' href='/phones-and-411/'>Continue to foundation fixes</a>":"<a class='btn dark' href='/start-here/'>Start the full readiness path</a>";
       var scanNote=isMemberStartScan?"<em>This member scan saves the profile to the account and becomes the starting baseline. Public homepage scan entries are only previews.</em>":"<em>Visibility is only the surface check. It does not confirm full vendor, credit card, funding, or NAP consistency readiness.</em>";
       result.innerHTML="<div class='scan-source'>"+escapeHtml(source)+"</div><div class='scan-score'><span>"+escapeHtml(data.score)+"</span><small>/ 10</small></div><strong>"+escapeHtml(data.label)+"</strong><span>"+escapeHtml(data.aiRecommendation||localAdvice(Number(data.score)||1))+"</span>"+scanNote+consistencyGate(data.score)+readinessLocks(data.score)+(findings?"<div class='scan-list'><b>What we found</b><ul>"+findings+"</ul></div>":"")+(redFlags?"<div class='scan-list danger'><b>What may need work</b><ul>"+redFlags+"</ul></div>":"")+(evidence?"<div class='scan-list'><b>Public evidence</b><ul>"+evidence+"</ul></div>":"<em>"+(data.sourceMode==='public-search'?'No evidence links returned.':'Live public lookup is not configured yet; this score uses entered signals.')+"</em>")+cta;
     }
@@ -1964,11 +1963,11 @@
   initCopyPromptButtons();
 
   function addAuditToolLinks(){
-    if(location.pathname==='/homeefe757a6/'){
+    if(location.pathname==='/full-buildout/'){
       var tools=Array.prototype.find.call(document.querySelectorAll('.side .content-block'),function(block){return /Platform tools/.test(block.textContent)});
-      if(tools&&!tools.querySelector('[href="/business-visibility-audit/"]')){
+      if(tools&&!tools.querySelector('[href="/ai-visibility-audit/"]')){
         var p=document.createElement('p');
-        p.innerHTML="<a href='/business-visibility-audit/'>Business Visibility Audit</a>";
+        p.innerHTML="<a href='/ai-visibility-audit/'>Business Visibility Audit</a>";
         tools.insertBefore(p,tools.firstElementChild.nextSibling);
       }
       var grid=document.querySelector('.module-grid');
@@ -1976,7 +1975,7 @@
         var card=document.createElement('div');
         card.className='content-block dashboard-audit-tool';
         card.setAttribute('data-audit-card','');
-        card.innerHTML="<div class='audit-alert-mark'>!</div><div><span class='module-step'>Pay attention before Module 1</span><h3>Business Visibility Audit</h3><p><strong>Run this scan before you start, then run it again after the core modules are cleaned up.</strong> This gives the member a before-and-after record of public-facing business signals.</p><div class='audit-alert-badges'><span>Before scan</span><span>After scan</span><span>Saved to account</span></div></div><a class='btn dark' href='/business-visibility-audit/'>Run audit</a>";
+        card.innerHTML="<div class='audit-alert-mark'>!</div><div><span class='module-step'>Pay attention before Module 1</span><h3>Business Visibility Audit</h3><p><strong>Run this scan before you start, then run it again after the core modules are cleaned up.</strong> This gives the member a before-and-after record of public-facing business signals.</p><div class='audit-alert-badges'><span>Before scan</span><span>After scan</span><span>Saved to account</span></div></div><a class='btn dark' href='/ai-visibility-audit/'>Run audit</a>";
         grid.parentNode.insertBefore(card,grid);
       }
     }
@@ -1986,7 +1985,7 @@
         var alert=document.createElement('div');
         alert.className='content-block start-audit-alert';
         alert.setAttribute('data-start-audit-alert','');
-        alert.innerHTML="<div class='audit-alert-mark'>!</div><div><p class='kicker'>Before Module 1 checkpoint</p><h2>Run the Business Visibility Audit before you begin the buildout.</h2><p>This is the baseline. It shows what the public business profile looks like before the phone, address, website, banking, and readiness modules clean things up.</p><div class='start-audit-steps'><span><strong>1</strong> Run before scan</span><span><strong>2</strong> Complete core modules</span><span><strong>3</strong> Run after scan</span></div></div><a class='btn dark' href='/business-visibility-audit/'>Run Business Visibility Audit</a>";
+        alert.innerHTML="<div class='audit-alert-mark'>!</div><div><p class='kicker'>Before Module 1 checkpoint</p><h2>Run the Business Visibility Audit before you begin the buildout.</h2><p>This is the baseline. It shows what the public business profile looks like before the phone, address, website, banking, and readiness modules clean things up.</p><div class='start-audit-steps'><span><strong>1</strong> Run before scan</span><span><strong>2</strong> Complete core modules</span><span><strong>3</strong> Run after scan</span></div></div><a class='btn dark' href='/ai-visibility-audit/'>Run Business Visibility Audit</a>";
         lead.insertAdjacentElement('afterend',alert);
       }
     }    if(location.pathname==='/downloads/'){
@@ -1995,7 +1994,7 @@
         var tool=document.createElement('div');
         tool.className='card';
         tool.setAttribute('data-audit-download-card','');
-        tool.innerHTML="<h3>Business Visibility Audit</h3><p>Run and compare before-and-after public visibility scans inside the platform.</p><p><a class='btn secondary' href='/business-visibility-audit/'>Open audit</a></p>";
+        tool.innerHTML="<h3>Business Visibility Audit</h3><p>Run and compare before-and-after public visibility scans inside the platform.</p><p><a class='btn secondary' href='/ai-visibility-audit/'>Open audit</a></p>";
         grid3.appendChild(tool);
       }
     }
@@ -2008,7 +2007,7 @@
     return {path:location.pathname,title:title.trim(),crumb:crumb.trim(),time:new Date().toISOString()};
   }
   function isMemberExperiencePath(){
-    return ['/account/','/start-here/','/homeefe757a6/','/nap-overview/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/general-credit-cards/','/starter-cards/','/cd-business-loans/','/business-plan-report/','/final-readiness-summary/','/downloads/','/business-visibility-audit/','/conversational-ai-bot/','/support/'].some(function(prefix){return location.pathname===prefix||location.pathname.indexOf(prefix)===0});
+    return ['/account/','/dashboard/','/full-buildout/','/start-here/','/ai-visibility-audit/','/nap-consistency-business-credit/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/nav-boot/','/revolving-business-credit-cards/','/general-credit-cards/','/starter-cards/','/starter-net-30-vendors/','/office-and-cleaning/','/building-and-industrial/','/retail-and-wholesale/','/retail-and-fleet/','/gas-fleet-and-auto/','/cd-business-loans/','/business-plan-report/','/final-readiness-summary/','/downloads/','/ai-visibility-audit/','/conversational-ai-bot/','/support/','/high-tech-auto-vendors/','/business-assets-equipment/'].some(function(prefix){return location.pathname===prefix||location.pathname.indexOf(prefix)===0});
   }
   function memberApi(method,url,payload){
     return fetch(url,{
@@ -2019,6 +2018,565 @@
     }).then(function(res){
       if(!res.ok)throw new Error('member api '+res.status);
       return res.json();
+    });
+  }
+  var vfScanFirstFixes={
+    phones:{key:'phones',route:'/phones-and-411/',title:'Phone and 411 Fix',actionTitle:'Fix Phone and 411 Signal',impact:'High Impact',tagline:'Clean up the business phone signal, caller ID, and 411 listing.',test:/phone|call|mobile|411|directory|listing|caller id/i,
+      options:[
+        {name:'TurnCom360 Business Phone Setup',type:'Business phone service',bestFor:'Members who need a real business phone system',status:'recommended',cta:'Select Option / Get Help'},
+        {name:'Grasshopper Business Line',type:'Phone provider option',bestFor:'Simple small-business phone line setup',status:'available',cta:'Select Option / Learn More'},
+        {name:'Business VoIP Setup Review',type:'Review service',bestFor:'Members who already have VoIP but need review',status:'review',cta:'Get Help'},
+        {name:'Caller ID / Business Name Match',type:'Fix service',bestFor:'Caller ID mismatch',status:'recommended',cta:'Select Option'},
+        {name:'411 Listing Support',type:'Listing service',bestFor:'Missing directory listing',status:'recommended',cta:'Select Option / Get Help'},
+        {name:'Done-For-You Phone Signal Fix',type:'Concierge',bestFor:'Hands-off members',status:'review',cta:'Request Help'}
+      ],
+      proof:['Business phone account screenshot','Caller ID/business name confirmation','411 listing confirmation','Phone number visible on website/contact page'],
+      unlocks:['Stronger business identity','Vendor application consistency','Fewer automated mismatch flags','Net 30/vendor readiness']},
+    address:{key:'address',route:'/business-address/',title:'Business Address Fix',actionTitle:'Fix Business Address',impact:'High Impact',tagline:'Make the business address consistent across records, listings, bank records, and applications.',test:/address|location|suite|mail/i,
+      options:[
+        {name:'Business Address Review',type:'Review',bestFor:'Member already has an address but consistency is unclear',status:'recommended',cta:'Select Option'},
+        {name:'Address Consistency Cleanup',type:'Fix service',bestFor:'State, bank, site, or listing mismatch',status:'recommended',cta:'Get Help'},
+        {name:'Business Address Setup Guidance',type:'Setup',bestFor:'Member needs a proper address path',status:'available',cta:'Learn More'},
+        {name:'Records Match Review',type:'Review',bestFor:'Address needs to match state, bank, website, and listings',status:'review',cta:'Select Option'},
+        {name:'Done-For-You Address Cleanup',type:'Concierge',bestFor:'Hands-off members',status:'review',cta:'Request Help'}
+      ],
+      proof:['State record screenshot','Bank profile address screenshot','Website contact/footer screenshot','Listing/address source confirmation'],
+      unlocks:['Bank profile consistency','Vendor application consistency','Card readiness','Stronger automated review signals']},
+    website:{key:'website',route:'/website-domain-email/',title:'Website and Domain Email Fix',actionTitle:'Fix Website and Domain Email',impact:'High Impact',tagline:'Establish a credible business website and domain email that match the company profile.',test:/website|domain|email|web presence/i,
+      options:[
+        {name:'Website Setup',type:'Setup',bestFor:'Member has no business website',status:'recommended',cta:'Select Option'},
+        {name:'Domain Email Setup',type:'Setup',bestFor:'Member uses Gmail, Yahoo, or personal email',status:'recommended',cta:'Select Option'},
+        {name:'Website Credibility Review',type:'Review',bestFor:'Member has a site but it may lack business signals',status:'review',cta:'Get Help'},
+        {name:'Business Profile Cleanup',type:'Fix service',bestFor:'Website, phone, address, or legal-name mismatch',status:'recommended',cta:'Select Option'},
+        {name:'Done-For-You Web Presence Setup',type:'Concierge',bestFor:'Hands-off members',status:'review',cta:'Request Help'}
+      ],
+      proof:['Domain registration/domain email proof','Website homepage screenshot','Contact page screenshot','Email account/domain screenshot'],
+      unlocks:['Legitimacy signal','Stronger vendor/card readiness','Better scan score','Fewer automated review flags']},
+    llc:{key:'llc',route:'/llc-vs-corporation/',title:'Legal Entity Fix',actionTitle:'Verify Legal Entity',impact:'Medium Impact',tagline:'Confirm the legal name, entity type, and state record are active and consistent.',test:/legal|entity|llc|corporation|state|name match/i,
+      options:[
+        {name:'Entity Type Review',type:'Review',bestFor:'Member is unsure whether LLC/corp record is correct',status:'available',cta:'Select Option'},
+        {name:'State Filing Check',type:'Review',bestFor:'Entity exists but record must be verified',status:'recommended',cta:'Get Help'},
+        {name:'Business Name Match Review',type:'Fix service',bestFor:'Legal name does not match profile/application records',status:'recommended',cta:'Select Option'},
+        {name:'Entity Setup Guidance',type:'Setup',bestFor:'New business or incomplete setup',status:'review',cta:'Learn More'}
+      ],
+      proof:['Secretary of State record','Articles/registration confirmation','Legal business name screenshot'],
+      unlocks:['EIN consistency','Bank account setup','Vendor trust']},
+    ein:{key:'ein',route:'/ein/',title:'EIN Fix',actionTitle:'Verify EIN',impact:'Medium Impact',tagline:'Confirm the EIN foundation matches the legal business identity.',test:/ein|irs|tax/i,
+      options:[
+        {name:'EIN Verification Checklist',type:'Checklist',bestFor:'Member has EIN but needs verification',status:'available',cta:'Do It Myself'},
+        {name:'IRS Letter Proof Save',type:'Proof',bestFor:'Member has CP575/147C letter',status:'recommended',cta:'Save Proof'},
+        {name:'EIN Identity Match Review',type:'Review',bestFor:'Legal name/EIN mismatch concern',status:'review',cta:'Get Help'},
+        {name:'EIN Setup Guidance',type:'Setup',bestFor:'Member does not have EIN',status:'available',cta:'Learn More'}
+      ],
+      proof:['EIN confirmation letter','IRS record proof','Business name/EIN match note'],
+      unlocks:['Business bank account','Starter Net 30 accounts','Card applications']},
+    bank:{key:'bank',route:'/bank-account/',title:'Business Bank Account Fix',actionTitle:'Build Banking Foundation',impact:'High Impact',tagline:'Open and maintain a business bank account under the same company profile.',test:/bank account|banking foundation|deposit/i,
+      options:[
+        {name:'Business Bank Account Checklist',type:'Checklist',bestFor:'Member needs to open account',status:'available',cta:'Do It Myself'},
+        {name:'Bank Profile Match Review',type:'Review',bestFor:'Bank record must match legal business details',status:'recommended',cta:'Get Help'},
+        {name:'Banking Setup Guidance',type:'Setup',bestFor:'Member unsure what records bank needs',status:'available',cta:'Learn More'},
+        {name:'Bank Account Proof Save',type:'Proof',bestFor:'Member already has account',status:'recommended',cta:'Save Proof'}
+      ],
+      proof:['Bank account opening confirmation','Business name on bank profile','Address and phone match proof'],
+      unlocks:['Bank rating','Credit card readiness','Stronger vendor credibility']},
+    bankrating:{key:'bankrating',route:'/bank-rating/',title:'Bank Rating Fix',actionTitle:'Improve Bank Rating',impact:'Medium Impact',tagline:'Improve banking behavior, balance strength, and review timing.',test:/bank rating|average balance|nsf|overdraft/i,
+      options:[
+        {name:'Bank Rating Review',type:'Review',bestFor:'Member has banking but low/unknown rating',status:'recommended',cta:'Get Help'},
+        {name:'Balance/Activity Checklist',type:'Checklist',bestFor:'Member needs behavior guidance',status:'available',cta:'Do It Myself'},
+        {name:'Bank Statement Proof Save',type:'Proof',bestFor:'Member needs to document balance/activity',status:'available',cta:'Save Proof'},
+        {name:'Readiness Timing Review',type:'Review',bestFor:'Member wants to apply soon',status:'review',cta:'Get Help'}
+      ],
+      proof:['Bank statement snapshot','Average balance note','Account age note'],
+      unlocks:['Stronger card readiness','Better lender/vendor confidence','Next-stage account matches']},
+    criteria:{key:'criteria',route:'/business-credit-criteria/',title:'Business Credit Criteria Fix',actionTitle:'Review Readiness Criteria',impact:'Medium Impact',tagline:'Confirm the business meets baseline readiness signals before applying.',test:/readiness|criteria|approval|application/i,
+      options:[
+        {name:'Readiness Criteria Checklist',type:'Checklist',bestFor:'Member needs baseline review',status:'recommended',cta:'Do It Myself'},
+        {name:'Application Timing Review',type:'Review',bestFor:'Member wants to apply now',status:'review',cta:'Get Help'},
+        {name:'Bureau Profile Review',type:'Review',bestFor:'Business credit file uncertainty',status:'available',cta:'Select Option'},
+        {name:'Criteria Proof Save',type:'Proof',bestFor:'Member has completed requirements',status:'available',cta:'Save Proof'}
+      ],
+      proof:['Bureau/profile screenshots if available','Completed criteria checklist','Vendor/card readiness note'],
+      unlocks:['Net 30 readiness','Account match review','Card readiness']},
+    net30:{key:'net30',route:'/about-net-30/',title:'Net 30 Readiness Fix',actionTitle:'Check Net 30 Readiness',impact:'Medium Impact',tagline:'Prepare to open reporting vendor accounts in the right order.',test:/net 30|vendor|tradeline/i,
+      options:[
+        {name:'Starter Net 30 Match List',type:'Account match',bestFor:'Member ready for first vendor accounts',status:'recommended',cta:'View Matches'},
+        {name:'Net 30 Application Order',type:'Strategy',bestFor:'Member needs sequence',status:'available',cta:'Learn More'},
+        {name:'Reporting Vendor Review',type:'Review',bestFor:'Member unsure which accounts report',status:'available',cta:'Get Help'},
+        {name:'Net 30 Done-For-You Support',type:'Concierge',bestFor:'Hands-off members',status:'review',cta:'Request Help'}
+      ],
+      proof:['Vendor account approval','Invoice/payment terms screenshot','Reporting/account confirmation where available'],
+      unlocks:['Reporting tradelines','Revolving card readiness','Stronger account access']}
+  };
+  var vfScanFirstOrder=['phones','address','website','llc','ein','bank','bankrating','criteria','net30'];
+  var vfScanFirstRouteMap={};
+  vfScanFirstOrder.forEach(function(key){vfScanFirstRouteMap[vfScanFirstFixes[key].route]=key});
+  var vfScanFirstAccounts=[
+    {key:'uline',name:'Uline',category:'Starter Net 30',type:'Net 30',requires:['ein'],preferred:true,timing:'Apply when EIN and basic profile are clean'},
+    {key:'quill',name:'Quill',category:'Starter Net 30',type:'Net 30',requires:['ein','website'],timing:'After EIN + website/domain email'},
+    {key:'grainger',name:'Grainger',category:'Building & Industrial',type:'Vendor',requires:['ein','address','bank'],timing:'After address and banking foundation'},
+    {key:'office-supplies',name:'Office Supplies Vendor',category:'Office & Cleaning',type:'Net 30',requires:['ein','address'],timing:'After address consistency'},
+    {key:'fuelman',name:'Fuelman Fleet',category:'Retail/Fleet',type:'Vendor',requires:['ein','address'],preferred:true,timing:'After address consistency'},
+    {key:'staples',name:'Staples',category:'Office & Cleaning',type:'Vendor',requires:['ein','website','address'],timing:'Unlock after foundation fixes'},
+    {key:'best-buy',name:'Best Buy Business',category:'Retail & Wholesale',type:'Vendor',requires:['ein','website','criteria'],timing:'Review after criteria'},
+    {key:'home-depot',name:'Home Depot Commercial',category:'Building & Industrial',type:'Vendor',requires:['ein','address','bank'],timing:'After banking foundation'},
+    {key:'lowes',name:"Lowe's Business",category:'Building & Industrial',type:'Vendor',requires:['ein','address','bank'],timing:'After banking foundation'},
+    {key:'capital-starter',name:'Capital Starter',category:'Starter Cards',type:'Credit Card',requires:['bank','criteria'],timing:'After bank account + readiness criteria'},
+    {key:'navy-federal',name:'Navy Federal Business',category:'Starter Cards',type:'Credit Card',requires:['bank','criteria'],timing:'After banking foundation'},
+    {key:'capital-one-spark',name:'Capital One Spark',category:'Revolving Cards',type:'Credit Card',requires:['bank','bankrating','criteria'],timing:'After bank rating review'},
+    {key:'brex',name:'Brex Card',category:'Revolving Cards',type:'Credit Card',requires:['bank','bankrating','net30'],timing:'After banking and vendor foundation'},
+    {key:'chase-ink',name:'Chase Ink',category:'General Cards',type:'Credit Card',requires:['bank','bankrating','net30','criteria'],timing:'Later-stage review'},
+    {key:'amex-business',name:'American Express Business',category:'General Cards',type:'Credit Card',requires:['bank','bankrating','net30','criteria'],timing:'Later-stage review'},
+    {key:'boa-business',name:'Bank of America Business',category:'General Cards',type:'Credit Card',requires:['bank','bankrating','criteria'],timing:'After banking strength'},
+    {key:'ramp',name:'Ramp Card',category:'General Cards',type:'Credit Card',requires:['bank','bankrating','net30','criteria'],timing:'Later-stage review'}
+  ];
+  function vfScanFirstNormalizeKey(key){
+    var map={phone:'phones',directory:'phones','411':'phones',entity:'llc','bank-rating':'bankrating',cards:'criteria',card:'criteria',office:'net30',industrial:'net30',retail:'net30',start:'phones'};
+    return map[key]||key;
+  }
+  function vfScanFirstFixForRoute(path){
+    return vfScanFirstFixes[vfScanFirstRouteMap[path||location.pathname]]||null;
+  }
+  function vfScanFirstRouteForText(text){
+    text=String(text||'');
+    for(var i=0;i<vfScanFirstOrder.length;i++){
+      var fix=vfScanFirstFixes[vfScanFirstOrder[i]];
+      if(fix.test.test(text))return fix;
+    }
+    if(/office|cleaning|uline|quill|staples|building|industrial|grainger|home depot|lowe|retail|wholesale|best buy|store/i.test(text))return vfScanFirstFixes.net30;
+    if(/credit card|revolving|card/i.test(text))return vfScanFirstFixes.criteria;
+    return vfScanFirstFixes.phones;
+  }
+  function vfScanFirstSlug(text){
+    return String(text||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);
+  }
+  function vfScanFirstDefaultState(){
+    return {fixStatus:{},selectedOptions:{},proofSaved:{}};
+  }
+  function vfScanFirstStateFromTokens(tokens){
+    var state=vfScanFirstDefaultState();
+    (tokens||[]).forEach(function(token){
+      token=String(token||'');
+      var parts=token.split(':');
+      if(parts[0]==='status'&&parts[1])state.fixStatus[vfScanFirstNormalizeKey(parts[1])]=parts[2]||'progress';
+      if(parts[0]==='option'&&parts[1])state.selectedOptions[vfScanFirstNormalizeKey(parts[1])]=parts.slice(2).join(':');
+      if(parts[0]==='proof'&&parts[1])state.proofSaved[vfScanFirstNormalizeKey(parts[1])]=true;
+    });
+    return state;
+  }
+  function vfScanFirstTokensFromState(state){
+    state=state||vfScanFirstDefaultState();
+    var tokens=[];
+    Object.keys(state.fixStatus||{}).forEach(function(key){if(state.fixStatus[key])tokens.push('status:'+vfScanFirstNormalizeKey(key)+':'+state.fixStatus[key])});
+    Object.keys(state.selectedOptions||{}).forEach(function(key){if(state.selectedOptions[key])tokens.push('option:'+vfScanFirstNormalizeKey(key)+':'+vfScanFirstSlug(state.selectedOptions[key]))});
+    Object.keys(state.proofSaved||{}).forEach(function(key){if(state.proofSaved[key])tokens.push('proof:'+vfScanFirstNormalizeKey(key))});
+    return tokens.slice(0,100);
+  }
+  function mergeScanFirstState(base,extra){
+    base=base||vfScanFirstDefaultState();
+    extra=extra||vfScanFirstDefaultState();
+    return {
+      fixStatus:Object.assign({},base.fixStatus||{},extra.fixStatus||{}),
+      selectedOptions:Object.assign({},base.selectedOptions||{},extra.selectedOptions||{}),
+      proofSaved:Object.assign({},base.proofSaved||{},extra.proofSaved||{})
+    };
+  }
+  function readScanFirstState(){
+    var state=vfScanFirstDefaultState();
+    try{state=mergeScanFirstState(state,JSON.parse(localStorage.getItem('vf-scan-first-state')||'{}'))}catch(e){}
+    getStoredCompletedFixes().forEach(function(key){state.fixStatus[vfScanFirstNormalizeKey(key)]='done'});
+    return state;
+  }
+  function saveScanFirstState(state){
+    state=state||vfScanFirstDefaultState();
+    try{localStorage.setItem('vf-scan-first-state',JSON.stringify(state));localStorage.setItem('vf-scan-first-tokens',JSON.stringify(vfScanFirstTokensFromState(state)))}catch(e){}
+    saveMemberSignal('scan-first-state',vfScanFirstTokensFromState(state));
+  }
+  function setScanFirstFixStatus(key,status){
+    var state=readScanFirstState();
+    state.fixStatus[vfScanFirstNormalizeKey(key)]=status||'progress';
+    saveScanFirstState(state);
+    return state;
+  }
+  function scanFirstDoneCount(state){
+    state=state||readScanFirstState();
+    return vfScanFirstOrder.filter(function(key){return state.fixStatus&&state.fixStatus[key]==='done'}).length;
+  }
+  function scanFirstAccountStatus(account,state){
+    state=state||readScanFirstState();
+    var missing=(account.requires||[]).filter(function(key){return !(state.fixStatus&&state.fixStatus[key]==='done')});
+    var status=missing.length===0?(account.preferred?'recommended':'available'):missing.length===1?'review':account.type==='Credit Card'?'notready':'locked';
+    var labels={recommended:'Recommended Match',available:'Available Now',review:'Review First',locked:'Locked Until Fixes',notready:'Not Ready Yet'};
+    return {status:status,label:labels[status],missing:missing,unlockReason:missing.length?'Complete '+missing.map(function(key){return vfScanFirstFixes[key]?vfScanFirstFixes[key].title.replace(' Fix',''):key}).join(' + ')+' to unlock.':'Ready to review.'};
+  }
+  function scanFirstDashboardReadiness(scanScore,state){
+    state=state||readScanFirstState();
+    var done=scanFirstDoneCount(state);
+    var score=scanScore!=null?Number(scanScore):Math.min(96,40+(done*6));
+    if(score<=10)score=Math.round(score*10);
+    score=Math.max(0,Math.min(100,Math.round(score||0)));
+    var path=score>=80?'Account Match Review':score>=65?'Credit Card Readiness':score>=50?'Visibility Cleanup':'Foundation Fixes';
+    var label=score>=80?'Ready':score>=65?'Good':score>=50?'Fair':'Needs Work';
+    var copy=score>=80?'Your profile is stronger. Review vendor and card matches before applying.':score>=65?'Your profile is improving. Finish the remaining readiness items before stronger applications.':score>=50?'You have some blocks holding you back.':'Fix the core business signals before applying.';
+    return {score:score,label:label,path:path,copy:copy,doneCount:done};
+  }
+  window.VF_SCAN_FIRST={fixes:vfScanFirstFixes,accounts:vfScanFirstAccounts,order:vfScanFirstOrder,readState:readScanFirstState,saveState:saveScanFirstState,accountStatus:scanFirstAccountStatus,readiness:scanFirstDashboardReadiness,routeForText:vfScanFirstRouteForText,fixForRoute:vfScanFirstFixForRoute};
+  var scanRouteRules=[
+    {key:'phone',test:/phone|call|mobile/i,href:'/phones-and-411/',title:'Fix Phone Signal',copy:'Add or verify a business phone number that matches public records.'},
+    {key:'directory',test:/411|directory|listing/i,href:'/phones-and-411/',title:'Fix 411 Listing',copy:'Make sure the business can be found in the right phone and directory sources.'},
+    {key:'address',test:/address|location|suite|mail/i,href:'/business-address/',title:'Fix Business Address',copy:'Use a business address that is consistent across records, listings, and applications.'},
+    {key:'website',test:/website|domain|email/i,href:'/website-domain-email/',title:'Fix Website and Email',copy:'Use a business website and domain email that match the company profile.'},
+    {key:'entity',test:/legal|entity|llc|corporation|state|name match/i,href:'/llc-vs-corporation/',title:'Verify Legal Entity',copy:'Confirm the legal name, entity type, and state record are clean before applications.'},
+    {key:'ein',test:/ein|irs|tax/i,href:'/ein/',title:'Verify EIN',copy:'Make sure the EIN and IRS business identity match the company exactly.'},
+    {key:'bank',test:/bank account|banking foundation|deposit/i,href:'/bank-account/',title:'Build Banking Foundation',copy:'Open and maintain the right business bank account before stronger approvals.'},
+    {key:'bank-rating',test:/bank rating|average balance|nsf|overdraft/i,href:'/bank-rating/',title:'Improve Bank Rating',copy:'Build cleaner account activity, balances, and bank relationship signals.'},
+    {key:'criteria',test:/readiness|criteria|approval|application/i,href:'/business-credit-criteria/',title:'Review Readiness Criteria',copy:'Check the approval criteria before applying for vendors, cards, or funding.'},
+    {key:'net30',test:/net 30|vendor|tradeline/i,href:'/about-net-30/',title:'Check Net 30 Readiness',copy:'Confirm the business is ready before opening vendor tradelines.'},
+    {key:'office',test:/office|cleaning|uline|quill|staples/i,href:'/office-and-cleaning/',title:'Review Office and Cleaning Vendors',copy:'Match the business to starter vendor categories after the foundation is ready.'},
+    {key:'industrial',test:/building|industrial|grainger|home depot|lowe|supply/i,href:'/building-and-industrial/',title:'Review Building and Industrial Vendors',copy:'Use industrial vendor accounts only when profile signals support the application.'},
+    {key:'retail',test:/retail|wholesale|best buy|store/i,href:'/retail-and-wholesale/',title:'Review Retail and Wholesale Vendors',copy:'Choose retail and wholesale accounts that match the business stage.'},
+    {key:'cards',test:/credit card|revolving|card/i,href:'/revolving-business-credit-cards/',title:'Review Credit Card Readiness',copy:'Compare starter, general, and revolving card paths before applying.'},
+    {key:'support',test:/help|support|done for you|coach/i,href:'/support/',title:'Ask For Help',copy:'Send the request so the team knows exactly what fix is blocking progress.'}
+  ];
+  var scanSectionTitles={
+    '/phones-and-411/':{title:'Phone and 411 Fix',copy:'Set up a business phone signal and directory listing that match public records.'},
+    '/business-address/':{title:'Business Address Fix',copy:'Clean up the address signal before vendors, cards, or lenders review the business.'},
+    '/website-domain-email/':{title:'Website and Domain Email Fix',copy:'Make the web and email presence look consistent, active, and business-ready.'},
+    '/llc-vs-corporation/':{title:'Legal Entity Fix',copy:'Confirm the entity type, legal name, and state record before moving forward.'},
+    '/ein/':{title:'EIN Fix',copy:'Verify the EIN foundation and keep IRS identity details consistent.'},
+    '/bank-account/':{title:'Banking Foundation Fix',copy:'Build the bank account foundation before stronger credit applications.'},
+    '/bank-rating/':{title:'Bank Rating Fix',copy:'Improve banking behavior, balance strength, and review timing.'},
+    '/business-credit-criteria/':{title:'Readiness Criteria Fix',copy:'Check approval-readiness criteria before applying anywhere.'},
+    '/about-net-30/':{title:'Net 30 Readiness',copy:'Use vendor accounts only after the profile can support them.'},
+    '/office-and-cleaning/':{title:'Office and Cleaning Vendors',copy:'Review this vendor category when the scan says the profile is ready.'},
+    '/building-and-industrial/':{title:'Building and Industrial Vendors',copy:'Match industrial accounts to the business type and current readiness stage.'},
+    '/retail-and-wholesale/':{title:'Retail and Wholesale Vendors',copy:'Compare retail vendor paths after the business profile is cleaned up.'},
+    '/revolving-business-credit-cards/':{title:'Credit Card Readiness',copy:'Choose the right card path after vendor and readiness signals are stronger.'},
+    '/starter-cards/':{title:'Starter Card Readiness',copy:'Use starter card options when the business is ready for a safer first card path.'},
+    '/general-credit-cards/':{title:'General Card Readiness',copy:'Review traditional card options only after the foundation is complete.'},
+    '/support/':{title:'Get Help',copy:'Send the team what you need handled so the next fix can move forward.'}
+  };
+  function scanRouteForText(text){
+    var fix=vfScanFirstRouteForText(text);
+    return {key:fix.key,href:fix.route,title:fix.actionTitle,copy:fix.tagline};
+  }
+  function issueFromScanText(text,index){
+    var rule=scanRouteForText(text);
+    return {title:rule.title,copy:rule.copy,href:rule.href,impact:index<2?'High Impact':'Medium Impact',key:rule.key};
+  }
+  function parseScanRow(row){
+    if(!row)return null;
+    try{
+      var result=typeof row.result_json==='string'?JSON.parse(row.result_json):row.result_json;
+      result.createdAt=row.created_at||result.generatedAt||'';
+      return result;
+    }catch(e){return null}
+  }
+  function scoreToReadiness(score){
+    return scanFirstDashboardReadiness(score,readScanFirstState());
+  }
+  function getStoredCompletedFixes(){
+    try{return JSON.parse(localStorage.getItem('vf-completed-fixes')||'[]')}catch(e){return []}
+  }
+  function saveStoredCompletedFixes(items){
+    try{localStorage.setItem('vf-completed-fixes',JSON.stringify(items||[]))}catch(e){}
+  }
+  function dashboardFirstValue(source,keys){
+    source=source||{};
+    for(var i=0;i<keys.length;i++){
+      var value=source[keys[i]];
+      if(value!==undefined&&value!==null&&String(value).trim())return String(value).trim();
+    }
+    return '';
+  }
+  function dashboardNameFromUser(user){
+    user=user||{};
+    var name=dashboardFirstValue(user,['name','fullName','displayName']);
+    if(name)return name;
+    var email=dashboardFirstValue(user,['email']);
+    if(!email)return 'Member';
+    var handle=email.split('@')[0].replace(/[._-]+/g,' ').trim();
+    return handle?handle.replace(/\b\w/g,function(char){return char.toUpperCase()}):'Member';
+  }
+  function dashboardInitials(name,email){
+    var source=String(name||'').trim();
+    if(source){
+      var parts=source.split(/\s+/).filter(Boolean);
+      if(parts.length>1)return (parts[0].charAt(0)+parts[parts.length-1].charAt(0)).toUpperCase();
+      return parts[0].slice(0,2).toUpperCase();
+    }
+    return String(email||'MB').replace(/[^a-z0-9]/ig,'').slice(0,2).toUpperCase()||'MB';
+  }
+  function dashboardBusinessName(profile){
+    return dashboardFirstValue(profile,['businessName','business_name','tradeName','trade_name','company','company_name','name'])||'Business Profile';
+  }
+  function dashboardProgressFromProfile(profile){
+    profile=profile||{};
+    var checks=[
+      ['businessName','business_name'],
+      ['entityType','entity_type'],
+      ['formationState','formation_state'],
+      ['phone'],
+      ['address'],
+      ['website'],
+      ['email'],
+      ['bank'],
+      ['directory411','directory_411']
+    ];
+    var done=checks.filter(function(keys){
+      return keys.some(function(key){
+        var value=profile[key];
+        return value===1||value===true||String(value||'').trim().length>0;
+      });
+    }).length;
+    return Math.max(0,Math.min(100,Math.round(done/checks.length*100)));
+  }
+  function applyDashboardProfile(profile){
+    if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
+    var name=dashboardBusinessName(profile);
+    var businessEl=document.querySelector('[data-dashboard-business]');
+    if(businessEl)businessEl.textContent=name;
+    var progress=dashboardProgressFromProfile(profile);
+    var progressText=document.querySelector('[data-dashboard-progress]');
+    var progressRing=document.querySelector('.vf-mini-ring');
+    if(progressText)progressText.textContent=progress+'%';
+    if(progressRing){
+      progressRing.style.setProperty('--vf-progress',progress+'%');
+      progressRing.setAttribute('aria-label',progress+' percent complete');
+    }
+  }
+  function initDashboardIdentity(){
+    if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
+    memberApi('GET','/api/auth/me').then(function(data){
+      var user=data&&data.user;
+      if(!user)return;
+      var name=dashboardNameFromUser(user);
+      var userEl=document.querySelector('[data-dashboard-user]');
+      var initialsEl=document.querySelector('[data-dashboard-user-initials]');
+      if(userEl)userEl.textContent=name;
+      if(initialsEl)initialsEl.textContent=dashboardInitials(name,user.email);
+    }).catch(function(){});
+    try{
+      var local=loadProfile();
+      if(local&&Object.keys(local).length)applyDashboardProfile(local);
+    }catch(e){}
+    memberApi('GET','/api/member/profile').then(function(data){
+      applyDashboardProfile(remoteProfileToLocal(data&&data.profile));
+    }).catch(function(){});
+  }
+  function actionArticleHtml(action,index){
+    var impactClass=/medium/i.test(action.impact||'')?'medium':'high';
+    var supportHref='/support/?topic='+encodeURIComponent(action.title||'Fix request')+'&route='+encodeURIComponent(action.href||'/dashboard/');
+    return "<article data-dashboard-action='"+escapeHtml(action.key||('fix-'+index))+"'>"+
+      "<span class='vf-action-num'>"+(index+1)+"</span>"+
+      "<span class='vf-action-icon'>"+(index===0?'&#9743;':index===1?'&#8982;':'&#9678;')+"</span>"+
+      "<div><strong>"+escapeHtml(action.title)+"</strong><p>"+escapeHtml(action.copy)+"</p></div>"+
+      "<b class='vf-impact "+impactClass+"'>"+escapeHtml(action.impact||'High Impact')+"</b>"+
+      "<a class='vf-outline-btn' href='"+escapeHtml(action.href)+"'>Do It Myself</a>"+
+      "<a class='vf-small-blue-btn' href='"+escapeHtml(supportHref)+"'>Get Help</a>"+
+    "</article>";
+  }
+  function defaultDashboardActions(){
+    return ['phones','address','website'].map(function(key){
+      var fix=vfScanFirstFixes[key];
+      return {key:fix.key,title:fix.actionTitle,copy:fix.tagline,href:fix.route,impact:fix.impact};
+    });
+  }
+  function actionsFromScan(result){
+    var source=[].concat(result&&result.redFlags||[],result&&result.findings||[]);
+    var actions=[];
+    source.forEach(function(item){
+      var action=issueFromScanText(item,actions.length);
+      if(actions.some(function(existing){return existing.href===action.href}))return;
+      actions.push(action);
+    });
+    return actions.length?actions.slice(0,3):defaultDashboardActions();
+  }
+  function updateDashboardFromScan(result){
+    if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
+    var readiness=scoreToReadiness(result&&result.score!=null?result.score:54);
+    var scoreShell=document.querySelector('.vf-score-ring');
+    var scoreRing=document.querySelector('.vf-score-ring strong');
+    var scoreText=document.querySelector('.vf-score-copy strong');
+    var scoreCopy=document.querySelector('.vf-score-copy p');
+    var pathCopy=document.querySelector('.vf-path-copy strong');
+    var pathNote=document.querySelector('.vf-path-copy p');
+    if(scoreShell){
+      scoreShell.style.setProperty('--vf-score',readiness.score+'%');
+      scoreShell.setAttribute('aria-label',readiness.score+' out of 100 business readiness score');
+    }
+    if(scoreRing)scoreRing.textContent=readiness.score;
+    if(scoreText)scoreText.innerHTML=readiness.score+'<small>/100</small>';
+    if(scoreCopy)scoreCopy.innerHTML='<b>'+escapeHtml(readiness.label)+'</b> - '+escapeHtml(readiness.copy);
+    if(pathCopy)pathCopy.innerHTML=readiness.path.replace(' ','<br>');
+    if(pathNote)pathNote.textContent=readiness.path==='Account Match Review'?'Review matched accounts, then apply only where the business profile fits.':'Start here to build a solid foundation and improve your approvals.';
+    var list=document.querySelector('.vf-action-list');
+    if(list){
+      var state=readScanFirstState();
+      var actions=actionsFromScan(result).filter(function(action){return state.fixStatus[vfScanFirstNormalizeKey(action.key)]!=='done'});
+      if(actions.length<3){
+        vfScanFirstOrder.forEach(function(key){
+          if(actions.length>=3)return;
+          if(state.fixStatus[key]==='done')return;
+          if(actions.some(function(action){return action.key===key}))return;
+          var fix=vfScanFirstFixes[key];
+          actions.push({key:fix.key,title:fix.actionTitle,copy:fix.tagline,href:fix.route,impact:fix.impact});
+        });
+      }
+      if(!actions.length)actions=defaultDashboardActions();
+      list.innerHTML=actions.slice(0,3).map(actionArticleHtml).join('');
+    }
+  }
+  function initScanFirstDashboard(){
+    if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
+    initDashboardIdentity();
+    updateDashboardFromScan(null);
+    var complete=document.querySelector('[data-vf-complete]');
+    if(complete){
+      complete.addEventListener('click',function(){
+        var keys=[].slice.call(document.querySelectorAll('[data-dashboard-action]')).map(function(el){return el.getAttribute('data-dashboard-action')});
+        var state=readScanFirstState();
+        keys.forEach(function(key){state.fixStatus[vfScanFirstNormalizeKey(key)]='done'});
+        saveScanFirstState(state);
+        saveStoredCompletedFixes(keys);
+        complete.innerHTML='Fix list marked complete <span>&#10003;</span>';
+        updateDashboardFromScan(null);
+      });
+    }
+    memberApi('GET','/api/member/visibility-audits').then(function(data){
+      var rows=data&&data.audits||data&&data.items||data&&data.rows||[];
+      var parsed=rows.map(parseScanRow).filter(Boolean);
+      var latest=parsed[0]||null;
+      updateDashboardFromScan(latest);
+    }).catch(function(){});
+  }
+  function initMemberActionPanel(){
+    var data=scanSectionTitles[location.pathname];
+    if(!data||location.pathname==='/support/'||location.pathname==='/dashboard/')return;
+    if(location.pathname==='/phones-and-411/')return;
+    var main=document.querySelector('.member-main');
+    if(!main||document.querySelector('[data-member-action-panel]'))return;
+    var key='vf-fix-complete:'+location.pathname;
+    var complete=false;
+    try{complete=localStorage.getItem(key)==='1'}catch(e){}
+    var panel=document.createElement('section');
+    panel.className='content-block member-action-panel'+(complete?' complete':'');
+    panel.setAttribute('data-member-action-panel','');
+    panel.innerHTML="<div><p class='kicker'>Do this first</p><h2>"+escapeHtml(data.title)+"</h2><p>"+escapeHtml(data.copy)+"</p></div><div class='member-action-buttons'><a class='btn ghost' href='/dashboard/'>Back to dashboard</a><a class='btn secondary' href='/ai-visibility-audit/'>Run scan</a><a class='btn' href='/support/?topic="+encodeURIComponent(data.title)+"&route="+encodeURIComponent(location.pathname)+"'>Get help</a><button class='btn dark' type='button' data-mark-fix-complete>"+(complete?'Marked complete':'Mark fix complete')+"</button></div>";
+    main.insertBefore(panel,main.firstChild);
+    var btn=panel.querySelector('[data-mark-fix-complete]');
+    if(btn)btn.addEventListener('click',function(){
+      try{localStorage.setItem(key,'1')}catch(e){}
+      var fix=vfScanFirstFixForRoute(location.pathname);
+      if(fix)setScanFirstFixStatus(fix.key,'done');
+      panel.classList.add('complete');
+      btn.textContent='Marked complete';
+      saveMemberProgress({pagePath:location.pathname,pageTitle:data.title,completedIndexes:['manual-complete']});
+    });
+  }
+  function scanFirstFixStatusMeta(status){
+    status=status||'todo';
+    if(status==='done')return {label:'Complete',className:'done'};
+    if(status==='progress')return {label:'In Progress',className:'progress'};
+    return {label:'Not Started',className:'todo'};
+  }
+  function renderScanFirstFixPage(){
+    var fix=vfScanFirstFixForRoute(location.pathname);
+    if(!fix||location.pathname!=='/phones-and-411/')return;
+    var main=document.querySelector('.member-main');
+    if(!main||document.querySelector('[data-scan-first-fix-page]'))return;
+    var nav=main.querySelector('.lesson-nav-strip');
+    var workspace=document.createElement('section');
+    workspace.className='vf-fix-workspace content-block';
+    workspace.setAttribute('data-scan-first-fix-page','');
+    if(nav&&nav.nextSibling)main.insertBefore(workspace,nav.nextSibling);
+    else main.insertBefore(workspace,main.firstChild);
+    ['.module-section-overview','.phone-database-warning','.phone-options-section'].forEach(function(selector){
+      main.querySelectorAll(selector).forEach(function(el){el.classList.add('vf-legacy-consolidated')});
+    });
+    function state(){return readScanFirstState()}
+    function currentStatus(){return (state().fixStatus||{})[fix.key]||'todo'}
+    function saveStatus(status){setScanFirstFixStatus(fix.key,status)}
+    function render(){
+      var st=state();
+      var meta=scanFirstFixStatusMeta((st.fixStatus||{})[fix.key]);
+      var selected=(st.selectedOptions||{})[fix.key]||'';
+      var proof=!!((st.proofSaved||{})[fix.key]);
+      var supportHref='/support/?topic='+encodeURIComponent(fix.title)+'&route='+encodeURIComponent(fix.route)+(selected?'&option='+encodeURIComponent(selected):'');
+      workspace.innerHTML=
+        "<div class='vf-fix-hero'>"+
+          "<div><p class='kicker'>Scan-driven fix</p><h2>"+escapeHtml(fix.title)+"</h2><p>"+escapeHtml(fix.tagline)+"</p><div class='vf-fix-badges'><span class='vf-fix-status "+meta.className+"'>"+escapeHtml(meta.label)+"</span><span>"+escapeHtml(fix.impact)+"</span><span>AI Visibility Audit</span></div></div>"+
+          "<div class='vf-fix-hero-actions'><button class='btn' type='button' data-fix-do>Do It Myself</button><button class='btn secondary' type='button' data-fix-options>Choose Setup Option</button><a class='btn ghost' href='"+escapeHtml(supportHref)+"'>Get Help</a><a class='btn ghost' href='/dashboard/'>Back to Dashboard</a><button class='btn dark' type='button' data-fix-complete>"+(meta.className==='done'?'Marked Complete':'Mark Complete')+"</button></div>"+
+        "</div>"+
+        "<div class='vf-scan-finding'><strong>Your scan is checking this signal:</strong><span>Business phone, caller ID, public directory/411 visibility, and whether the phone matches the legal business profile.</span></div>"+
+        "<div class='vf-fix-grid'>"+
+          "<div class='vf-fix-main'>"+
+            "<article class='vf-fix-card' id='vf-checklist'><div class='vf-card-title'><p class='kicker'>What to fix</p><h3>Complete these phone-signal requirements.</h3></div><div class='vf-fix-checks'>"+fix.proof.map(function(item,index){return "<span><b>"+(proof||meta.className==='done'?'✓':'')+"</b>"+escapeHtml(item)+"</span>"}).join('')+"</div></article>"+
+            "<article class='vf-fix-card'><div class='vf-card-title'><p class='kicker'>Do this first</p><h3>Set up the phone path before you apply anywhere.</h3></div><ol class='vf-fix-steps'><li>Choose a business phone option that can support a professional business identity.</li><li>Make sure the caller ID or account name matches the exact business name.</li><li>Add the number to the website and public records consistently.</li><li>Submit or verify the business 411 listing and save proof.</li></ol></article>"+
+            "<article class='vf-fix-card' id='vf-setup-options'><div class='vf-card-title'><p class='kicker'>Recommended setup options</p><h3>Choose the service path that fits how much you want handled.</h3></div><div class='vf-option-grid'>"+fix.options.map(function(option){var isSelected=selected===option.name;return "<button class='vf-option-card "+(isSelected?'selected':'')+"' type='button' data-select-fix-option='"+escapeHtml(option.name)+"'><span>"+escapeHtml(option.status)+"</span><strong>"+escapeHtml(option.name)+"</strong><small>"+escapeHtml(option.type)+"</small><p>"+escapeHtml(option.bestFor)+"</p><em>"+escapeHtml(option.cta)+"</em></button>"}).join('')+"</div>"+(selected?"<div class='vf-selected-option'>Selected option: <strong>"+escapeHtml(selected)+"</strong></div>":"")+"</article>"+
+            "<article class='vf-fix-card vf-training-compact'><div class='vf-video-thumb'><span>▶</span><strong>4:12</strong></div><div><p class='kicker'>Short training</p><h3>Watch if you need more context.</h3><ul><li>What a clean phone signal looks like</li><li>How 411 listings are checked</li><li>Common mismatch mistakes</li></ul><a class='btn secondary' href='#legacy-phone-training'>Open training lower on page</a></div></article>"+
+          "</div>"+
+          "<aside class='vf-fix-rail'>"+
+            "<article class='vf-fix-card'><p class='kicker'>Proof to save</p><h3>"+(proof?'Proof saved':'Save proof for this fix')+"</h3><p>Save proof when the phone setup, caller ID, and 411 listing are ready.</p><button class='btn secondary' type='button' data-fix-proof>"+(proof?'Proof saved ✓':'Upload & save proof')+"</button></article>"+
+            "<article class='vf-fix-card vf-unlocks'><p class='kicker'>What this unlocks</p><h3>Why this matters</h3>"+fix.unlocks.map(function(item){return "<span>✓ "+escapeHtml(item)+"</span>"}).join('')+"</article>"+
+            "<article class='vf-fix-card'><p class='kicker'>Next step</p><h3>Business Address Fix</h3><p>Once phone and 411 are clean, make the address match the same business identity.</p><a class='btn' href='/business-address/'>Go to next fix →</a></article>"+
+          "</aside>"+
+        "</div>";
+      var legacyVideo=main.querySelector('.lesson-video-section');
+      if(legacyVideo)legacyVideo.id='legacy-phone-training';
+      var doBtn=workspace.querySelector('[data-fix-do]');
+      var optionBtn=workspace.querySelector('[data-fix-options]');
+      var proofBtn=workspace.querySelector('[data-fix-proof]');
+      var completeBtn=workspace.querySelector('[data-fix-complete]');
+      if(doBtn)doBtn.addEventListener('click',function(){saveStatus(currentStatus()==='done'?'done':'progress');render();setTimeout(function(){var target=document.getElementById('vf-checklist');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},50)});
+      if(optionBtn)optionBtn.addEventListener('click',function(){saveStatus(currentStatus()==='done'?'done':'progress');setTimeout(function(){var target=document.getElementById('vf-setup-options');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},50)});
+      if(proofBtn)proofBtn.addEventListener('click',function(){var next=state();next.proofSaved[fix.key]=true;if(next.fixStatus[fix.key]!=='done')next.fixStatus[fix.key]='progress';saveScanFirstState(next);render()});
+      if(completeBtn)completeBtn.addEventListener('click',function(){
+        var next=state();
+        next.fixStatus[fix.key]='done';
+        next.proofSaved[fix.key]=true;
+        saveScanFirstState(next);
+        try{localStorage.setItem('vf-fix-complete:'+fix.route,'1');localStorage.setItem('vf-progress:'+fix.route,JSON.stringify([0,1,2,3]))}catch(e){}
+        saveMemberProgress({pagePath:fix.route,pageTitle:fix.title,breadcrumb:'Module 1 / Business Identity',completedIndexes:[0,1,2,3]});
+        render();
+      });
+      workspace.querySelectorAll('[data-select-fix-option]').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var next=state();
+          next.selectedOptions[fix.key]=btn.getAttribute('data-select-fix-option');
+          if(next.fixStatus[fix.key]!=='done')next.fixStatus[fix.key]='progress';
+          saveScanFirstState(next);
+          render();
+        });
+      });
+    }
+    render();
+  }
+  renderScanFirstFixPage();
+  function initSupportRequestFlow(){
+    if(location.pathname!=='/support/')return;
+    var main=document.querySelector('.member-main')||document.querySelector('main')||document.querySelector('.page-hero + .section');
+    if(!main||document.querySelector('[data-support-request-flow]'))return;
+    var params=new URL(location.href).searchParams;
+    var topic=params.get('topic')||'Business credit fix request';
+    var route=params.get('route')||'/dashboard/';
+    var panel=document.createElement('section');
+    panel.className='content-block support-request-flow';
+    panel.setAttribute('data-support-request-flow','');
+    panel.innerHTML="<p class='kicker'>Request help</p><h2>Tell us what you want handled.</h2><p>This starts a simple support request tied to the fix you were working on. Saved proof and checklist progress can plug into this same flow later.</p><form data-support-request-form><label>Fix area<input class='input' name='topic' value='"+escapeHtml(topic)+"'></label><label>Where you came from<input class='input' name='route' value='"+escapeHtml(route)+"'></label><label>What do you need help with?<textarea class='input' name='details' rows='4' placeholder='Tell us what is blocking you.'></textarea></label><label>Priority<select class='input' name='priority'><option>Normal</option><option>Urgent</option><option>Question only</option></select></label><button class='btn' type='submit'>Send request</button><a class='btn ghost' href='/dashboard/'>Back to dashboard</a></form><div class='auth-message' data-support-request-message></div>";
+    main.insertBefore(panel,main.firstChild);
+    var form=panel.querySelector('[data-support-request-form]');
+    var msg=panel.querySelector('[data-support-request-message]');
+    if(form)form.addEventListener('submit',function(e){
+      e.preventDefault();
+      var entry={topic:form.elements.topic.value,route:form.elements.route.value,details:form.elements.details.value,priority:form.elements.priority.value,createdAt:new Date().toISOString()};
+      var saved=[];
+      try{saved=JSON.parse(localStorage.getItem('vf-support-requests')||'[]')}catch(err){saved=[]}
+      saved.unshift(entry);
+      try{localStorage.setItem('vf-support-requests',JSON.stringify(saved.slice(0,20)))}catch(err){}
+      if(msg){msg.textContent='Request saved. The next step is for support to review this fix area with you.';msg.classList.remove('error')}
+      form.reset();
+      form.elements.topic.value=entry.topic;
+      form.elements.route.value=entry.route;
     });
   }
   function renderReadinessLockBanner(summary){
@@ -2034,7 +2592,7 @@
     var banner=document.createElement('section');
     banner.className='content-block readiness-lock-banner';
     banner.setAttribute('data-readiness-lock-banner','');
-    banner.innerHTML="<div class='audit-alert-mark'>!</div><div><p class='kicker'>Readiness checkpoint</p><h2>Some sections open after your business signals settle.</h2><p>"+escapeHtml(message)+"</p><p class='legal'>This keeps the platform aligned with the approval process: scan the business, make the foundation changes, give public records time to update, then move into vendors, cards, reports, and funding when the profile is ready.</p>"+(unlockAfter?"<p class='legal'><strong>Estimated unlock:</strong> "+escapeHtml(unlockAfter)+"</p>":"")+"</div><div class='proof-actions'><a class='btn dark' href='/business-visibility-audit/'>Run or review scan</a><a class='btn secondary' href='/start-here/'>Continue foundation</a></div>";
+    banner.innerHTML="<div class='audit-alert-mark'>!</div><div><p class='kicker'>Readiness checkpoint</p><h2>Some sections open after your business signals settle.</h2><p>"+escapeHtml(message)+"</p><p class='legal'>This keeps the platform aligned with the approval process: scan the business, make the foundation changes, give public records time to update, then move into vendors, cards, reports, and funding when the profile is ready.</p>"+(unlockAfter?"<p class='legal'><strong>Estimated unlock:</strong> "+escapeHtml(unlockAfter)+"</p>":"")+"</div><div class='proof-actions'><a class='btn dark' href='/ai-visibility-audit/'>Run or review scan</a><a class='btn secondary' href='/start-here/'>Continue foundation</a></div>";
     main.insertBefore(banner,main.firstChild);
   }
   function saveMemberProgress(payload){
@@ -2044,7 +2602,7 @@
     memberApi('PUT','/api/member/progress',{signalType:signalType,selectedKeys:selectedKeys||[]}).catch(function(){});
   }
   function signalStorageKey(signalType){
-    return signalType==='vendor'?'vf-vendor-signals':signalType==='card'?'vf-card-signals':signalType==='funding'?'vf-funding-signals':'';
+    return signalType==='vendor'?'vf-vendor-signals':signalType==='card'?'vf-card-signals':signalType==='funding'?'vf-funding-signals':signalType==='scan-first-state'?'vf-scan-first-tokens':'';
   }
   function signalSelector(signalType){
     return signalType==='vendor'?'data-vendor-signal':signalType==='card'?'data-card-signal':signalType==='funding'?'data-funding-signal':'';
@@ -2059,13 +2617,13 @@
   }
   function rememberCurrentLocation(){
     if(!isMemberExperiencePath())return;
-    if(location.pathname==='/'||location.pathname==='/homeefe757a6/'||location.pathname.indexOf('/whats-inside/')===0||location.pathname.indexOf('/demo/')===0||location.pathname.indexOf('/trial-roadmap/')===0||location.pathname.indexOf('/blog/')===0||location.pathname.indexOf('/membership/')===0||location.pathname.indexOf('/login/')===0||location.pathname.indexOf('/signup/')===0)return;
+    if(location.pathname==='/'||location.pathname==='/dashboard/'||location.pathname.indexOf('/whats-inside/')===0||location.pathname.indexOf('/demo/')===0||location.pathname.indexOf('/trial-roadmap/')===0||location.pathname.indexOf('/blog/')===0||location.pathname.indexOf('/membership/')===0||location.pathname.indexOf('/login/')===0||location.pathname.indexOf('/signup/')===0)return;
     var saved=currentResumeLocation();
     try{localStorage.setItem('vf-last-location',JSON.stringify(saved))}catch(e){}
     saveMemberProgress({pagePath:saved.path,pageTitle:saved.title,breadcrumb:saved.crumb,completedIndexes:readArray('vf-progress:'+saved.path)});
   }
   function renderResumePanel(saved){
-    if(!saved||!saved.path||saved.path==='/homeefe757a6/')return;
+    if(!saved||!saved.path||saved.path==='/dashboard/')return;
     var main=document.querySelector('.member-dashboard main');
     if(!main)return;
     var panel=document.querySelector('[data-resume-panel]');
@@ -2079,7 +2637,7 @@
     panel.innerHTML="<div><p class='kicker'>Pick up where you left off</p><h2>"+escapeHtml(saved.title||'Continue your Verge Five buildout.')+"</h2><p>"+escapeHtml(saved.crumb||'Member area')+" &middot; Last opened "+escapeHtml(when)+"</p></div><a class='btn' href='"+escapeHtml(saved.path)+"'>Continue Buildout</a>";
   }
   function initResumePanel(){
-    if(location.pathname!=='/homeefe757a6/')return;
+    if(location.pathname!=='/dashboard/')return;
     var main=document.querySelector('.member-dashboard main');
     if(!main||document.querySelector('[data-resume-panel]'))return;
     var saved=null;
@@ -2134,6 +2692,12 @@
     var completedIndexes=Array.prototype.map.call(checks,function(el,i){return el.classList.contains('checked')?i:null}).filter(function(v){return v!==null});
     checks.forEach(function(el){el.setAttribute('aria-pressed',el.classList.contains('checked')?'true':'false')});
     try{localStorage.setItem(pageKey,JSON.stringify(completedIndexes))}catch(e){}
+    var scanFix=vfScanFirstFixForRoute(location.pathname);
+    if(scanFix&&done===checks.length){
+      setScanFirstFixStatus(scanFix.key,'done');
+    }else if(scanFix&&done>0&&readScanFirstState().fixStatus[scanFix.key]!=='done'){
+      setScanFirstFixStatus(scanFix.key,'progress');
+    }
     var resume=currentResumeLocation();
     saveMemberProgress({pagePath:resume.path,pageTitle:resume.title,breadcrumb:resume.crumb,completedIndexes:completedIndexes});
   }
@@ -2295,14 +2859,17 @@
         if(!key)return;
         var merged=mergeArrays(readArray(key),parseStoredArray(row.selected_keys));
         try{localStorage.setItem(key,JSON.stringify(merged))}catch(e){}
-        saveMemberSignal(row.signal_type,merged);
-        applySignalsToPage(row.signal_type,merged);
+        if(row.signal_type==='scan-first-state'){
+          try{localStorage.setItem('vf-scan-first-state',JSON.stringify(mergeScanFirstState(readScanFirstState(),vfScanFirstStateFromTokens(merged))))}catch(e){}
+        }else{
+          saveMemberSignal(row.signal_type,merged);
+          applySignalsToPage(row.signal_type,merged);
+        }
       });
     }).catch(function(){});
   }
   function progressCompletionMap(){
     return {
-      '/nap-overview/':3,
       '/phones-and-411/':4,
       '/business-address/':4,
       '/website-domain-email/':5,
@@ -2316,8 +2883,9 @@
       '/comparable-credit/':4,
       '/business-credit-criteria/':4,
       '/about-net-30/':4,
-      '/nav-ecredable/':4,
       '/revolving-business-credit-cards/':4,
+      '/starter-cards/':4,
+      '/general-credit-cards/':4,
       '/cd-business-loans/':4
     };
   }
@@ -2356,7 +2924,7 @@
     }
     if(isProgressPageComplete('/bank-account/'))derived.bank=true;
     if(isProgressPageComplete('/equifax-business/'))derived.bureauProfile=true;
-    if(isProgressPageComplete('/comparable-credit/')||isProgressPageComplete('/about-net-30/')||isProgressPageComplete('/nav-ecredable/'))derived.vendorTradelines=true;
+    if(isProgressPageComplete('/comparable-credit/')||isProgressPageComplete('/about-net-30/')||isProgressPageComplete('/starter-net-30-vendors/'))derived.vendorTradelines=true;
     if(isProgressPageComplete('/cd-business-loans/'))derived.fundingReserve=true;
     return mergeProfiles(profile,derived);
   }
@@ -2371,7 +2939,7 @@
     try{return JSON.parse(localStorage.getItem(key)||'[]')||[]}catch(e){return []}
   }
   function knownProgressPages(){
-    return ['/nap-overview/','/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/nav-ecredable/','/revolving-business-credit-cards/','/cd-business-loans/'];
+    return ['/phones-and-411/','/business-address/','/website-domain-email/','/llc-vs-corporation/','/contact-list/','/ein/','/bank-account/','/bank-rating/','/business-plan/','/equifax-business/','/comparable-credit/','/business-credit-criteria/','/about-net-30/','/starter-net-30-vendors/','/office-and-cleaning/','/building-and-industrial/','/retail-and-wholesale/','/revolving-business-credit-cards/','/starter-cards/','/general-credit-cards/','/cd-business-loans/'];
   }
   function finalSummaryData(){
     var profile=derivedProfileFromProgress(loadProfile()), labels=profileSchema();
@@ -2736,7 +3304,7 @@
       if(!result)return '';
       var high=(Number(result.score)||0)>=7;
       var copy=high?'This business has public visibility, but that does not prove the name, address, phone, website, email, and listings match across the board. Complete the NAP consistency review before applications.':'Use the NAP consistency review to make sure the business identifiers match before vendor, card, or funding applications.';
-      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>NAP consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/nap-overview/'>Start NAP cleanup</a></div>";
+      return "<div class='audit-consistency-result"+(high?' high':'')+"'><strong>Identifier consistency review "+(high?'required':'needed')+"</strong><span>"+escapeHtml(copy)+"</span><a href='/phones-and-411/'>Start phone and listing cleanup</a></div>";
     }    function renderCard(mode,result){
       var card=root.querySelector('[data-audit-card="'+mode+'"]');
       if(!card)return;
@@ -2956,7 +3524,7 @@
     var vendorData=window.vfVendorLibrary||[
       {name:'Quill',category:'Starter Net 30',reports:'Business bureaus vary',url:'/about-net-30/',level:'Starter friendly',requires:['entity','ein','phone','address','bank'],recommended:['website','email','411'],notes:'Office supplies. Best after the basic identity and banking foundation are clean.'},
       {name:'Uline',category:'Starter Net 30',reports:'Business bureaus vary',url:'/about-net-30/',level:'Starter friendly',requires:['entity','ein','phone','address','bank'],recommended:['website','email','411'],notes:'Shipping and operational supplies. Track invoice dates and pay cleanly.'},
-      {name:'Nav Business Boost',category:'Credit profile tool',reports:'D&B and Experian reporting may apply by plan',url:'/nav-ecredable/',level:'Starter friendly',requires:['entity','ein','address','bank'],recommended:['phone','website','email','duns'],notes:'Optional visibility tool. It does not replace proper company setup.'},
+      {name:'Nav Business Boost',category:'Credit profile tool',reports:'D&B and Experian reporting may apply by plan',url:'/nav-boot/',level:'Starter friendly',requires:['entity','ein','address','bank'],recommended:['phone','website','email','duns'],notes:'Optional visibility tool. It does not replace proper company setup.'},
       {name:'Grainger',category:'Industrial / Net 30',reports:'Business bureaus vary',url:'/building-and-industrial/',level:'Foundation first',requires:['entity','ein','phone','address','bank','website'],recommended:['email','411','duns','time'],notes:'Better when the business has a real industrial or supply purchasing need.'},
       {name:'Crown Office Supplies',category:'Office supplies',reports:'Business bureaus vary',url:'/office-and-cleaning/',level:'Starter friendly',requires:['entity','ein','phone','address'],recommended:['bank','website','email'],notes:'Use only if the purchase fits the business and payment can be tracked.'},
       {name:'Betty Mills',category:'Office and cleaning',reports:'Business bureaus vary',url:'/office-and-cleaning/',level:'Foundation first',requires:['entity','ein','phone','address','bank'],recommended:['website','email','411'],notes:'Useful for office, cleaning, and facility supplies.'},
@@ -3290,16 +3858,16 @@
     if(!target)return;
     target.className='content-block vendor-match-tool funding-match-tool';
     target.setAttribute('data-funding-match-tool','');
-    target.innerHTML="<div class='proof-actions funding-back-nav' data-funding-back-nav><a class='btn secondary' href='/cd-business-loans/'>Back to Module 7 lesson</a><a class='btn ghost' href='/about-net-30/'>Back to Module 6</a><a class='btn ghost' href='/homeefe757a6/'>Dashboard</a></div><div class='vendor-match-head'><div><p class='kicker'>Funding readiness matcher</p><h2>Match the business to realistic bank funding paths before applying.</h2><p>Check what the company already has. This tool compares the member profile against CD-secured loans, secured lines, SBA-backed options, community lenders, and equipment or receivables financing.</p></div><div class='vendor-score-card'><span data-funding-score>0%</span><strong>Funding readiness</strong><small data-funding-count>0 of 16 signals ready</small></div></div><div class='vendor-intake-grid'><label><input type='checkbox' data-funding-signal='entity'> Legal entity formed</label><label><input type='checkbox' data-funding-signal='ein'> EIN issued by IRS</label><label><input type='checkbox' data-funding-signal='address'> Valid business address</label><label><input type='checkbox' data-funding-signal='bank'> Business bank account</label><label><input type='checkbox' data-funding-signal='relationship'> Bank relationship started</label><label><input type='checkbox' data-funding-signal='statements'> 3-6 months bank statements</label><label><input type='checkbox' data-funding-signal='reserve'> Cash reserve / CD funds</label><label><input type='checkbox' data-funding-signal='revenue'> Revenue / cash flow showing</label><label><input type='checkbox' data-funding-signal='time2yr'> 2+ years in business</label><label><input type='checkbox' data-funding-signal='goodCredit'> Good personal credit</label><label><input type='checkbox' data-funding-signal='taxReturns'> Tax returns / financials ready</label><label><input type='checkbox' data-funding-signal='collateral'> Collateral available</label><label><input type='checkbox' data-funding-signal='plan'> Funding purpose / plan</label><label><input type='checkbox' data-funding-signal='tradelines'> Existing tradelines</label><label><input type='checkbox' data-funding-signal='noRecentNegatives'> No recent negatives</label><label><input type='checkbox' data-funding-signal='pgOk'> Personal guarantee acceptable</label></div><div class='vendor-recommendation funding-recommendation' data-funding-recommendation><strong>Do not apply yet.</strong><span>Check the items you already have to see which funding path fits this business stage.</span></div><div class='vendor-library-tools'><input class='input' data-funding-library-search placeholder='Search funding options'><select class='input' data-funding-library-category><option value='all'>All categories</option></select></div><div class='vendor-match-filters'><button class='vendor-filter active' type='button' data-funding-match-filter='all'>All funding paths</button><button class='vendor-filter' type='button' data-funding-match-filter='ready'>Ready now</button><button class='vendor-filter' type='button' data-funding-match-filter='almost'>Almost ready</button><button class='vendor-filter' type='button' data-funding-match-filter='wait'>Do not apply yet</button></div><div class='vendor-match-grid' data-funding-match-results></div><p class='legal vendor-disclaimer'><strong>Funding warning:</strong> lender requirements, guarantees, collateral rules, rates, terms, and documentation can change. This is a readiness guide, not guaranteed approval. Do not submit funding applications until the business can support the request.</p>";
+    target.innerHTML="<div class='proof-actions funding-back-nav' data-funding-back-nav><a class='btn secondary' href='/cd-business-loans/'>Back to Module 7 lesson</a><a class='btn ghost' href='/about-net-30/'>Back to Module 6</a><a class='btn ghost' href='/dashboard/'>Dashboard</a></div><div class='vendor-match-head'><div><p class='kicker'>Funding readiness matcher</p><h2>Match the business to realistic bank funding paths before applying.</h2><p>Check what the company already has. This tool compares the member profile against CD-secured loans, secured lines, SBA-backed options, community lenders, and equipment or receivables financing.</p></div><div class='vendor-score-card'><span data-funding-score>0%</span><strong>Funding readiness</strong><small data-funding-count>0 of 16 signals ready</small></div></div><div class='vendor-intake-grid'><label><input type='checkbox' data-funding-signal='entity'> Legal entity formed</label><label><input type='checkbox' data-funding-signal='ein'> EIN issued by IRS</label><label><input type='checkbox' data-funding-signal='address'> Valid business address</label><label><input type='checkbox' data-funding-signal='bank'> Business bank account</label><label><input type='checkbox' data-funding-signal='relationship'> Bank relationship started</label><label><input type='checkbox' data-funding-signal='statements'> 3-6 months bank statements</label><label><input type='checkbox' data-funding-signal='reserve'> Cash reserve / CD funds</label><label><input type='checkbox' data-funding-signal='revenue'> Revenue / cash flow showing</label><label><input type='checkbox' data-funding-signal='time2yr'> 2+ years in business</label><label><input type='checkbox' data-funding-signal='goodCredit'> Good personal credit</label><label><input type='checkbox' data-funding-signal='taxReturns'> Tax returns / financials ready</label><label><input type='checkbox' data-funding-signal='collateral'> Collateral available</label><label><input type='checkbox' data-funding-signal='plan'> Funding purpose / plan</label><label><input type='checkbox' data-funding-signal='tradelines'> Existing tradelines</label><label><input type='checkbox' data-funding-signal='noRecentNegatives'> No recent negatives</label><label><input type='checkbox' data-funding-signal='pgOk'> Personal guarantee acceptable</label></div><div class='vendor-recommendation funding-recommendation' data-funding-recommendation><strong>Do not apply yet.</strong><span>Check the items you already have to see which funding path fits this business stage.</span></div><div class='vendor-library-tools'><input class='input' data-funding-library-search placeholder='Search funding options'><select class='input' data-funding-library-category><option value='all'>All categories</option></select></div><div class='vendor-match-filters'><button class='vendor-filter active' type='button' data-funding-match-filter='all'>All funding paths</button><button class='vendor-filter' type='button' data-funding-match-filter='ready'>Ready now</button><button class='vendor-filter' type='button' data-funding-match-filter='almost'>Almost ready</button><button class='vendor-filter' type='button' data-funding-match-filter='wait'>Do not apply yet</button></div><div class='vendor-match-grid' data-funding-match-results></div><p class='legal vendor-disclaimer'><strong>Funding warning:</strong> lender requirements, guarantees, collateral rules, rates, terms, and documentation can change. This is a readiness guide, not guaranteed approval. Do not submit funding applications until the business can support the request.</p>";
     var note=blocks.find(function(block){return block.textContent.indexOf('Secured credit note')>-1});
     if(note){
       note.innerHTML="<p class='kicker'>Funding strategy note</p><h2>Bank funding should be matched to the business stage, not chased too early.</h2><p>CD-secured and cash-secured products can help create a lower-risk bank relationship. SBA, term-loan, and line-of-credit paths require stronger documentation, revenue, credit, and underwriting support.</p><div class='lesson-note-list'><span>Ask the bank what documentation is required before applying.</span><span>Use deposit-backed options only with funds the business can keep reserved.</span><span>Avoid high-cost funding unless cash flow can clearly support it.</span><span>Save loan documents, terms, payment proof, and payoff proof.</span></div>";
     }
-    document.querySelectorAll('a[href="/homeefe757a6/"],a[href="/support/"]').forEach(function(a){
+    document.querySelectorAll('a[href="/support/"]').forEach(function(a){
       var text=a.textContent.trim().toLowerCase();
-      if(text==='dashboard'||text==='continue to coaching and support'||text==='support') {
+      if(text==='continue to coaching and support'||text==='support') {
         a.href='/final-readiness-summary/';
-        a.textContent=text==='dashboard'?'Final summary':'Continue to final summary';
+        a.textContent='Continue to final summary';
       }
     });
     document.querySelectorAll('.next-lesson-card h3').forEach(function(h){if(h.textContent.trim()==='Dashboard')h.textContent='Final summary'});
@@ -3315,7 +3883,7 @@
     if(!target)return;
     target.className='content-block vendor-match-tool card-match-tool';
     target.setAttribute('data-card-match-tool','');
-    target.innerHTML="<div class='proof-actions funding-back-nav' data-funding-back-nav><a class='btn secondary' href='/cd-business-loans/'>Back to Module 7 lesson</a><a class='btn ghost' href='/about-net-30/'>Back to Module 6</a><a class='btn ghost' href='/homeefe757a6/'>Dashboard</a></div><div class='vendor-match-head'><div><p class='kicker'>Business card readiness matcher</p><h2>Match the business profile to secured, corporate, and revolving card options.</h2><p>Check what the company already has. This tool separates secured cards, bank cards, corporate no-PG cards, store cards, and fleet cards so members do not waste applications before the profile is ready.</p></div><div class='vendor-score-card'><span data-card-score>0%</span><strong>Card readiness</strong><small data-card-count>0 of 14 signals ready</small></div></div><div class='vendor-intake-grid'><label><input type='checkbox' data-card-signal='entity'> Legal entity formed</label><label><input type='checkbox' data-card-signal='ein'> EIN issued by IRS</label><label><input type='checkbox' data-card-signal='phone'> Business phone number</label><label><input type='checkbox' data-card-signal='address'> Valid business address</label><label><input type='checkbox' data-card-signal='website'> Business website</label><label><input type='checkbox' data-card-signal='email'> Domain business email</label><label><input type='checkbox' data-card-signal='bank'> Business bank account</label><label><input type='checkbox' data-card-signal='time'> 90+ days in business records</label><label><input type='checkbox' data-card-signal='tradelines'> Existing vendor tradelines</label><label><input type='checkbox' data-card-signal='goodCredit'> Good personal credit</label><label><input type='checkbox' data-card-signal='pgOk'> Personal guarantee acceptable</label><label><input type='checkbox' data-card-signal='deposit'> Deposit available for secured card</label><label><input type='checkbox' data-card-signal='revenue'> Revenue / cash flow showing</label><label><input type='checkbox' data-card-signal='noPgNeed'> Need no-PG corporate card</label></div><div class='vendor-recommendation card-recommendation' data-card-recommendation><strong>Do not apply yet.</strong><span>Check the items you already have to see which card path fits this business stage.</span></div><div class='vendor-library-tools'><input class='input' data-card-library-search placeholder='Search card library'><select class='input' data-card-library-category><option value='all'>All categories</option></select></div><div class='vendor-match-filters'><button class='vendor-filter active' type='button' data-card-match-filter='all'>All cards</button><button class='vendor-filter' type='button' data-card-match-filter='ready'>Ready now</button><button class='vendor-filter' type='button' data-card-match-filter='almost'>Almost ready</button><button class='vendor-filter' type='button' data-card-match-filter='wait'>Do not apply yet</button></div><div class='vendor-match-grid' data-card-match-results></div><p class='legal vendor-disclaimer'><strong>Application warning:</strong> issuer requirements, deposits, personal guarantees, rewards, and bureau reporting can change. This is a readiness guide, not guaranteed approval. Apply only when the company profile matches the card path.</p>";
+    target.innerHTML="<div class='proof-actions funding-back-nav' data-funding-back-nav><a class='btn secondary' href='/cd-business-loans/'>Back to Module 7 lesson</a><a class='btn ghost' href='/about-net-30/'>Back to Module 6</a><a class='btn ghost' href='/dashboard/'>Dashboard</a></div><div class='vendor-match-head'><div><p class='kicker'>Business card readiness matcher</p><h2>Match the business profile to secured, corporate, and revolving card options.</h2><p>Check what the company already has. This tool separates secured cards, bank cards, corporate no-PG cards, store cards, and fleet cards so members do not waste applications before the profile is ready.</p></div><div class='vendor-score-card'><span data-card-score>0%</span><strong>Card readiness</strong><small data-card-count>0 of 14 signals ready</small></div></div><div class='vendor-intake-grid'><label><input type='checkbox' data-card-signal='entity'> Legal entity formed</label><label><input type='checkbox' data-card-signal='ein'> EIN issued by IRS</label><label><input type='checkbox' data-card-signal='phone'> Business phone number</label><label><input type='checkbox' data-card-signal='address'> Valid business address</label><label><input type='checkbox' data-card-signal='website'> Business website</label><label><input type='checkbox' data-card-signal='email'> Domain business email</label><label><input type='checkbox' data-card-signal='bank'> Business bank account</label><label><input type='checkbox' data-card-signal='time'> 90+ days in business records</label><label><input type='checkbox' data-card-signal='tradelines'> Existing vendor tradelines</label><label><input type='checkbox' data-card-signal='goodCredit'> Good personal credit</label><label><input type='checkbox' data-card-signal='pgOk'> Personal guarantee acceptable</label><label><input type='checkbox' data-card-signal='deposit'> Deposit available for secured card</label><label><input type='checkbox' data-card-signal='revenue'> Revenue / cash flow showing</label><label><input type='checkbox' data-card-signal='noPgNeed'> Need no-PG corporate card</label></div><div class='vendor-recommendation card-recommendation' data-card-recommendation><strong>Do not apply yet.</strong><span>Check the items you already have to see which card path fits this business stage.</span></div><div class='vendor-library-tools'><input class='input' data-card-library-search placeholder='Search card library'><select class='input' data-card-library-category><option value='all'>All categories</option></select></div><div class='vendor-match-filters'><button class='vendor-filter active' type='button' data-card-match-filter='all'>All cards</button><button class='vendor-filter' type='button' data-card-match-filter='ready'>Ready now</button><button class='vendor-filter' type='button' data-card-match-filter='almost'>Almost ready</button><button class='vendor-filter' type='button' data-card-match-filter='wait'>Do not apply yet</button></div><div class='vendor-match-grid' data-card-match-results></div><p class='legal vendor-disclaimer'><strong>Application warning:</strong> issuer requirements, deposits, personal guarantees, rewards, and bureau reporting can change. This is a readiness guide, not guaranteed approval. Apply only when the company profile matches the card path.</p>";
     var note=blocks.find(function(block){return block.textContent.indexOf('Credit card timing note')>-1});
     if(note){
       note.innerHTML="<p class='kicker'>Business card timing note</p><h2>Secured, corporate, store, fleet, and traditional bank cards are different tools.</h2><p>Use secured cards when a deposit is the safest bridge. Use traditional business cards when owner credit and the business profile can support underwriting. Use corporate no-PG cards only when the business has the cash flow, bank activity, website, email, and operating history those platforms review.</p><div class='lesson-note-list'><span>Do not use credit cards as a replacement for proper setup.</span><span>Do not waste applications before matching the prerequisites.</span><span>Keep utilization controlled after approval.</span><span>Verify current reporting before assuming a card builds business credit.</span></div>";
@@ -3589,7 +4157,11 @@
       video.addEventListener('ended',function(){frame.classList.remove('is-playing')});
     });
   }
-  initVideoPlayCues();  initDemoDrive();
+  initVideoPlayCues();
+  initScanFirstDashboard();
+  initMemberActionPanel();
+  initSupportRequestFlow();
+  initDemoDrive();
   applyModuleLabels();
   if(isBusinessCardPage()&&!window.vfCardLibrary){
     var cardScript=document.createElement('script');
@@ -3610,5 +4182,3 @@
     initFundingMatcher();
   }
 })();
-
-

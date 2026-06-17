@@ -28,56 +28,12 @@ export async function createEmailVerification(env, userId, email, request) {
   ).bind(crypto.randomUUID(), userId, token, email, expiresAt).run();
   const origin = clean(env.SITE_URL) || new URL(request.url).origin;
   const url = `${origin}/verify-email/?token=${encodeURIComponent(token)}`;
-  const emailResult = await sendVerificationEmail(env, email, url);
-  return { url, emailResult };
+  await sendVerificationEmail(env, email, url);
+  return url;
 }
 
 export async function sendVerificationEmail(env, email, url) {
-  return await sendResendEmail(env, {
-    to: email,
-    subject: 'Verify your Verge Five account',
-    html: `<p>Welcome to Verge Five.</p><p>Verify your email address to secure your account:</p><p><a href="${url}">Verify email</a></p><p>This link expires in 24 hours.</p><p>Verge Five team</p>`
-  });
-}
-
-export async function createPasswordReset(env, userId, email, request) {
-  const token = crypto.randomUUID() + '-' + crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60).toISOString();
-  await env.DB.prepare(
-    `insert into password_reset_tokens (id, user_id, token, email, expires_at, created_at)
-     values (?, ?, ?, ?, ?, datetime("now"))`
-  ).bind(crypto.randomUUID(), userId, token, email, expiresAt).run();
-  const origin = clean(env.SITE_URL) || new URL(request.url).origin;
-  const url = `${origin}/reset-password/?token=${encodeURIComponent(token)}`;
-  const emailResult = await sendPasswordResetEmail(env, email, url);
-  return { url, emailResult };
-}
-
-export async function sendPasswordResetEmail(env, email, url) {
-  return await sendResendEmail(env, {
-    to: email,
-    subject: 'Set your Verge Five password',
-    html: `<p>Your Verge Five access is ready.</p><p>Use this link to set your password and enter the member platform:</p><p><a href="${url}">Set password</a></p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p><p>Verge Five team</p>`
-  });
-}
-
-export async function sendAdminEmail(env, email, subject, message, adminEmail = '', preheader = '') {
-  const safeSubject = String(subject || '').trim().slice(0, 180) || 'Message from Verge Five';
-  const safeMessage = String(message || '').trim().slice(0, 8000);
-  const safePreheader = String(preheader || '').trim().slice(0, 240);
-  const preheaderHtml = safePreheader ? `<div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;max-height:0;max-width:0;overflow:hidden;mso-hide:all">${escapeHtml(safePreheader)}</div>` : '';
-  const paragraphs = safeMessage.split(/\n{2,}/).map((part) => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join('');
-  return await sendResendEmail(env, {
-    to: email,
-    replyTo: adminEmail || undefined,
-    subject: safeSubject,
-    html: `${preheaderHtml}<div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">${paragraphs}</div>`,
-    text: safeMessage
-  });
-}
-
-async function sendResendEmail(env, input) {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { sent: false, reason: 'email provider not configured in this Cloudflare environment. Missing RESEND_API_KEY or EMAIL_FROM.' };
+  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) return { sent: false, reason: 'email provider not configured' };
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -86,22 +42,11 @@ async function sendResendEmail(env, input) {
     },
     body: JSON.stringify({
       from: env.EMAIL_FROM,
-      to: [input.to],
-      reply_to: input.replyTo || undefined,
-      subject: input.subject,
-      html: input.html,
-      text: input.text || undefined
+      to: [email],
+      subject: 'Verify your Verge Five account',
+      html: `<p>Welcome to Verge Five.</p><p>Verify your email address to secure your account:</p><p><a href="${url}">Verify email</a></p><p>This link expires in 24 hours.</p>`
     })
   });
-  const body = await response.text().catch(() => '');
-  let data = {};
-  try { data = body ? JSON.parse(body) : {}; } catch (error) { data = {}; }
-  if (!response.ok) {
-    return { sent: false, status: response.status, reason: body || 'send failed' };
-  }
-  return { sent: true, status: response.status, id: data.id || '' };
-}
-
-function escapeHtml(value) {
-  return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
+  if (!response.ok) return { sent: false, reason: await response.text().catch(() => 'send failed') };
+  return { sent: true };
 }

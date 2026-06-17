@@ -292,7 +292,7 @@
   "url" : "https://www.vergefive.com",
   "description" : "Welcome to our platform, where we specialize in guiding entrepreneurs through the complexities of LLC formation, credit building, and securing business funding. Founded by a team of experienced financial experts, our mission is to empower business owners with the knowledge and tools needed to establish and grow their corporations confidently. With a focus on personalized strategies and actionable insights, we're dedicated to helping you navigate the financial landscape of entrepreneurship, making your business goals a reality.",
   "telephone" : "844-480-2800",
-  
+  "email" : "admin@vergefive.com",
   "logo" : "https://irp.cdn-website.com/efb66241/dms3rep/multi/Verge+5-f8db9681.png",
   "image" : [ "https://irp.cdn-website.com/efb66241/dms3rep/multi/Verge-5-35bd30e2-91210a96.png", "https://irp.cdn-website.com/efb66241/dms3rep/multi/Verge+5-f8db9681.png", "https://irp.cdn-website.com/efb66241/dms3rep/multi/ChatGPT+Image+Jan+4-+2026-+05_51_35+PM.png" ],
   "openingHoursSpecification" : [ {
@@ -303,4 +303,3 @@
   } ],
   "@id" : "https://www.vergefive.com"
 }
-

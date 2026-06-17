@@ -1,7 +1,6 @@
-import { json, normalizeEmail } from '../../_lib/auth.js';
+import { json } from '../../_lib/auth.js';
 import { verifyStripeSignature } from '../../_lib/stripe.js';
-import { attachReferralToUser, ensureCommissionForCheckout, recordPaidInvoice } from '../../_lib/affiliates.js';
-import { createPasswordReset } from '../../_lib/security.js';
+import { ensureCommissionForCheckout, recordPaidInvoice } from '../../_lib/affiliates.js';
 
 export async function onRequestPost(context) {
   if (!context.env.DB) return json({ error: 'D1 binding DB is not configured.' }, 500);
@@ -30,7 +29,7 @@ export async function onRequestPost(context) {
   const object = event.data && event.data.object ? event.data.object : {};
   try {
     if (event.type === 'checkout.session.completed') {
-      await handleCheckoutCompleted(context.env, object, context.request);
+      await handleCheckoutCompleted(context.env, object);
     }
     if (event.type === 'invoice.paid') {
       await recordPaidInvoice(context.env, object);
@@ -47,8 +46,8 @@ export async function onRequestPost(context) {
   }
 }
 
-async function handleCheckoutCompleted(env, session, request) {
-  const userId = await resolveCheckoutUserId(env, session, request);
+async function handleCheckoutCompleted(env, session) {
+  const userId = session.client_reference_id || session.metadata && session.metadata.user_id;
   if (!userId) return;
   await env.DB.prepare('update users set stripe_customer_id = ? where id = ?').bind(session.customer || '', userId).run();
   await upsertMembership(env, {
@@ -61,42 +60,6 @@ async function handleCheckoutCompleted(env, session, request) {
   await ensureCommissionForCheckout(env, session);
 }
 
-async function resolveCheckoutUserId(env, session, request) {
-  const metadata = session.metadata || {};
-  const existingUserId = session.client_reference_id || metadata.user_id || '';
-  if (existingUserId) return existingUserId;
-
-  const email = normalizeEmail(
-    session.customer_details && session.customer_details.email ||
-    session.customer_email ||
-    metadata.checkout_email ||
-    ''
-  );
-  if (!email) return '';
-
-  const existing = await env.DB.prepare('select id from users where email = ? limit 1').bind(email).first();
-  if (existing && existing.id) return existing.id;
-
-  const userId = crypto.randomUUID();
-  const name = cleanCheckoutName(
-    session.customer_details && session.customer_details.name ||
-    metadata.checkout_name ||
-    ''
-  );
-  await env.DB.prepare(
-    `insert into users (id, email, name, auth_provider, stripe_customer_id, email_verified_at, created_at)
-     values (?, ?, ?, 'stripe_checkout', ?, datetime('now'), datetime('now'))`
-  ).bind(userId, email, name, session.customer || '').run();
-
-  const code = metadata.affiliate_code ? String(metadata.affiliate_code) : '';
-  if (code) await attachReferralToUser(env, userId, code, request).catch(() => null);
-  await createPasswordReset(env, userId, email, request).then((result) => { if (result && result.emailResult && !result.emailResult.sent) console.error('checkout password email failed', result.emailResult); }).catch((error) => console.error('checkout password reset failed', error && error.message ? error.message : error));
-  return userId;
-}
-
-function cleanCheckoutName(value) {
-  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 120);
-}
 async function handleSubscription(env, subscription) {
   const userId = subscription.metadata && subscription.metadata.user_id
     ? subscription.metadata.user_id

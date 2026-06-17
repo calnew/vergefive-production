@@ -1,5 +1,4 @@
 import { cleanLimited, getAuth, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
-import { getReadinessLockSummary } from '../../_lib/readiness-locks.js';
 
 export async function onRequestGet(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
@@ -7,8 +6,7 @@ export async function onRequestGet(context) {
   const progress = await context.env.DB.prepare('select page_path, completed_indexes, last_opened_at from lesson_progress where user_id = ?').bind(auth.user.id).all();
   const signals = await context.env.DB.prepare('select signal_type, selected_keys, updated_at from readiness_signals where user_id = ?').bind(auth.user.id).all();
   const resume = await context.env.DB.prepare('select page_path, page_title, breadcrumb, updated_at from resume_locations where user_id = ?').bind(auth.user.id).first();
-  const readinessLock = await getReadinessLockSummary(context.env, auth.user.id).catch(() => ({ locked: false }));
-  return json({ progress: progress.results || [], signals: signals.results || [], resume: resume || null, readinessLock });
+  return json({ progress: progress.results || [], signals: signals.results || [], resume: resume || null });
 }
 
 export async function onRequestPut(context) {
