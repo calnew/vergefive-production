@@ -2351,11 +2351,14 @@
     var name=dashboardBusinessName(profile);
     var businessEl=document.querySelector('[data-dashboard-business]');
     if(businessEl)businessEl.textContent=name;
+    document.querySelectorAll('[data-dashboard-business-inline]').forEach(function(el){el.textContent=name});
     var progress=dashboardProgressFromProfile(profile);
     var progressText=document.querySelector('[data-dashboard-progress]');
+    var progressBar=document.querySelector('[data-dashboard-progress-bar]');
     var progressRing=document.querySelector('.vf-mini-ring');
     var progressCard=document.querySelector('.vf-side-card p');
     if(progressText)progressText.textContent=progress+'%';
+    if(progressBar)progressBar.style.width=progress+'%';
     if(progressCard)progressCard.textContent='Platform activity, not approval readiness.';
     if(progressRing){
       progressRing.style.setProperty('--vf-progress',progress+'%');
@@ -2369,8 +2372,10 @@
       if(!user)return;
       var name=dashboardNameFromUser(user);
       var userEl=document.querySelector('[data-dashboard-user]');
+      var greetingEl=document.querySelector('[data-dashboard-greeting-name]');
       var initialsEl=document.querySelector('[data-dashboard-user-initials]');
       if(userEl)userEl.textContent=name;
+      if(greetingEl)greetingEl.textContent=name.split(/\s+/)[0]||name;
       if(initialsEl)initialsEl.textContent=dashboardInitials(name,user.email);
     }).catch(function(){});
     try{
@@ -2386,7 +2391,6 @@
     var supportHref='/support/?topic='+encodeURIComponent(action.title||'Fix request')+'&route='+encodeURIComponent(action.href||'/dashboard/');
     return "<article data-dashboard-action='"+escapeHtml(action.key||('fix-'+index))+"'>"+
       "<span class='vf-action-num'>"+(index+1)+"</span>"+
-      "<span class='vf-action-icon'>"+(index===0?'&#9743;':index===1?'&#8982;':'&#9678;')+"</span>"+
       "<div><strong>"+escapeHtml(action.title)+"</strong><p>"+escapeHtml(action.copy)+"</p></div>"+
       "<b class='vf-impact "+impactClass+"'>"+escapeHtml(action.impact||'High Impact')+"</b>"+
       "<a class='vf-outline-btn' href='"+escapeHtml(action.href)+"'>Do It Myself</a>"+
@@ -2418,6 +2422,16 @@
     var scoreCopy=document.querySelector('.vf-score-copy p');
     var pathCopy=document.querySelector('.vf-path-copy strong');
     var pathNote=document.querySelector('.vf-path-copy p');
+    var assignedPath=document.querySelector('[data-dashboard-assigned-path]');
+    var cleanSignals=document.querySelector('[data-dashboard-done-count]');
+    var cleanSignalsSecondary=document.querySelector('[data-dashboard-done-count-secondary]');
+    var visitedCount=document.querySelector('[data-dashboard-visited-count]');
+    var progressText=document.querySelector('[data-dashboard-progress]');
+    var progressBar=document.querySelector('[data-dashboard-progress-bar]');
+    var progress=scanFirstPageProgress(readScanFirstState());
+    var stateSnapshot=readScanFirstState();
+    var doneCount=vfScanFirstOrder.filter(function(key){return stateSnapshot.fixStatus&&stateSnapshot.fixStatus[key]==='done'}).length;
+    var visitedTotal=Object.keys(stateSnapshot.visited||{}).filter(function(key){return stateSnapshot.visited[key]}).length;
     if(scoreShell){
       scoreShell.style.setProperty('--vf-score',readiness.score+'%');
       scoreShell.setAttribute('aria-label',readiness.score+' out of 100 business readiness score');
@@ -2427,6 +2441,12 @@
     if(scoreCopy)scoreCopy.innerHTML='<b>'+escapeHtml(readiness.label)+'</b> - '+escapeHtml(readiness.copy);
     if(pathCopy)pathCopy.innerHTML=readiness.path.replace(' ','<br>');
     if(pathNote)pathNote.textContent=readiness.path==='Account Match Review'?'Review matched accounts, then apply only where the business profile fits.':'Start here to build a solid foundation and improve your approvals.';
+    if(assignedPath)assignedPath.textContent=readiness.path;
+    if(cleanSignals)cleanSignals.textContent=doneCount;
+    if(cleanSignalsSecondary)cleanSignalsSecondary.textContent=doneCount;
+    if(visitedCount)visitedCount.textContent=visitedTotal;
+    if(progressText)progressText.textContent=progress+'%';
+    if(progressBar)progressBar.style.width=progress+'%';
     var list=document.querySelector('.vf-action-list');
     if(list){
       var state=readScanFirstState();
@@ -2646,24 +2666,56 @@
     var params=new URL(location.href).searchParams;
     var topic=params.get('topic')||'Business credit fix request';
     var route=params.get('route')||'/dashboard/';
+    var selectedOption=params.get('option')||'';
+    var authUser=null;
     var panel=document.createElement('section');
     panel.className='content-block support-request-flow';
     panel.setAttribute('data-support-request-flow','');
-    panel.innerHTML="<p class='kicker'>Request help</p><h2>Tell us what you want handled.</h2><p>This starts a simple support request tied to the fix you were working on. Saved proof and checklist progress can plug into this same flow later.</p><form data-support-request-form><label>Fix area<input class='input' name='topic' value='"+escapeHtml(topic)+"'></label><label>Where you came from<input class='input' name='route' value='"+escapeHtml(route)+"'></label><label>What do you need help with?<textarea class='input' name='details' rows='4' placeholder='Tell us what is blocking you.'></textarea></label><label>Priority<select class='input' name='priority'><option>Normal</option><option>Urgent</option><option>Question only</option></select></label><button class='btn' type='submit'>Send request</button><a class='btn ghost' href='/dashboard/'>Back to dashboard</a></form><div class='auth-message' data-support-request-message></div>";
+    panel.innerHTML="<p class='kicker'>Request help</p><h2>Tell us what you want handled.</h2><p>This starts a support request tied to the fix you were working on so the team can see the fix area, route, priority, and selected setup option.</p><form data-support-request-form><label>Fix area<input class='input' name='topic' value='"+escapeHtml(topic)+"'></label><label>Where you came from<input class='input' name='route' value='"+escapeHtml(route)+"'></label>"+(selectedOption?"<label>Selected setup option<input class='input' name='option' value='"+escapeHtml(selectedOption)+"'></label>":"<input type='hidden' name='option' value=''>")+"<label>What do you need help with?<textarea class='input' name='details' rows='4' placeholder='Tell us what is blocking you.' required></textarea></label><label>Priority<select class='input' name='priority'><option>Standard</option><option>Priority</option><option>Urgent</option></select></label><button class='btn' type='submit' data-support-submit>Submit request</button><a class='btn ghost' href='/dashboard/'>Back to dashboard</a></form><div class='auth-message' data-support-request-message></div>";
     main.insertBefore(panel,main.firstChild);
     var form=panel.querySelector('[data-support-request-form]');
     var msg=panel.querySelector('[data-support-request-message]');
+    memberApi('GET','/api/auth/me').then(function(data){authUser=data&&data.user||null}).catch(function(){});
     if(form)form.addEventListener('submit',function(e){
       e.preventDefault();
-      var entry={topic:form.elements.topic.value,route:form.elements.route.value,details:form.elements.details.value,priority:form.elements.priority.value,createdAt:new Date().toISOString()};
+      var submit=form.querySelector('[data-support-submit]');
+      var entry={topic:form.elements.topic.value,route:form.elements.route.value,option:form.elements.option.value,details:form.elements.details.value,priority:form.elements.priority.value,createdAt:new Date().toISOString()};
+      if(!entry.details.trim()){
+        if(msg){msg.textContent='Tell us what you want handled before submitting.';msg.classList.add('error')}
+        return;
+      }
+      if(submit){submit.disabled=true;submit.textContent='Sending...'}
+      if(msg){msg.textContent='Sending your request...';msg.classList.remove('error')}
+      var contactPayload={
+        name:(authUser&&authUser.name)||'Verge Five member',
+        email:(authUser&&authUser.email)||'admin@vergefive.com',
+        topic:'Support request: '+entry.topic,
+        message:[
+          'Fix area: '+entry.topic,
+          'Source route: '+entry.route,
+          entry.option?'Selected option: '+entry.option:'',
+          'Priority: '+entry.priority,
+          '',
+          entry.details
+        ].filter(Boolean).join('\n')
+      };
       var saved=[];
       try{saved=JSON.parse(localStorage.getItem('vf-support-requests')||'[]')}catch(err){saved=[]}
       saved.unshift(entry);
       try{localStorage.setItem('vf-support-requests',JSON.stringify(saved.slice(0,20)))}catch(err){}
-      if(msg){msg.textContent='Request saved. The next step is for support to review this fix area with you.';msg.classList.remove('error')}
-      form.reset();
-      form.elements.topic.value=entry.topic;
-      form.elements.route.value=entry.route;
+      fetch('/api/contact',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(contactPayload)}).then(function(res){
+        return res.json().catch(function(){return {}}).then(function(data){if(!res.ok)throw new Error(data.error||'Support request could not be sent.');return data});
+      }).then(function(data){
+        if(msg){msg.textContent='Request received. Your request is tied to this fix area: '+entry.topic+' - '+entry.route+(data&&data.id?' (delivery '+data.id+')':'');msg.classList.remove('error')}
+        form.reset();
+        form.elements.topic.value=entry.topic;
+        form.elements.route.value=entry.route;
+        form.elements.option.value=entry.option;
+      }).catch(function(err){
+        if(msg){msg.textContent=(err&&err.message?err.message:'Support request could not be sent.')+' A local copy was saved in this browser.';msg.classList.add('error')}
+      }).finally(function(){
+        if(submit){submit.disabled=false;submit.textContent='Submit request'}
+      });
     });
   }
   function renderReadinessLockBanner(summary){
