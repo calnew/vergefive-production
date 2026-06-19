@@ -350,7 +350,7 @@
     if(heroTitle)heroTitle.innerHTML='The all-in-one platform to build, fix, and grow your <span>business credit.</span>';
     if(heroCopy)heroCopy.textContent='Verge Five gives you the tools, insights, and step-by-step guidance to build stronger business credit and get closer to the funding you deserve.';
     var heroButtons=document.querySelectorAll('.hero-actions .btn');
-    if(heroButtons[0]){heroButtons[0].textContent="Start Your Scan - It's Free";heroButtons[0].setAttribute('href','/signup/?scan=start')}
+    if(heroButtons[0]){heroButtons[0].textContent="Start Your Scan - It's Free";heroButtons[0].setAttribute('href','#home-visibility-scan')}
     if(heroButtons[1]){heroButtons[1].textContent='See How It Works';heroButtons[1].setAttribute('href','/whats-inside/')}
     var heroTrust=document.querySelector('.hero .trust-row');
     if(heroTrust)heroTrust.innerHTML="<span><i class='dot'></i><strong>100% Confidential</strong><small>Your data is secure</small></span><span><i class='dot'></i><strong>Takes 2 Minutes</strong><small>Get your results fast</small></span><span><i class='dot'></i><strong>No Impact to Credit</strong><small>Soft pull, zero risk</small></span>";
@@ -360,17 +360,13 @@
     var heroVisual=document.querySelector('.hero-visual');
     if(heroVisual){
       heroVisual.classList.remove('hero-scan-wrap');
-      heroVisual.innerHTML="<div class='vf-home-product-shot' aria-label='Verge Five dashboard preview'><aside class='vf-home-shot-sidebar'><div class='vf-home-shot-logo'><img src='/Resources/images/verge5-logo-mark.png' alt=''><strong>Verge 5</strong></div><nav><span class='active'><i class='vf-ico vf-icon-home'></i>Dashboard</span><span><i class='vf-ico vf-icon-scan'></i>Run Scan</span><span><i class='vf-ico vf-icon-list'></i>Fix List</span><span><i class='vf-ico vf-icon-briefcase'></i>Account Matches</span><span><i class='vf-ico vf-icon-book'></i>Full Buildout</span><span><i class='vf-ico vf-icon-support'></i>Support</span></nav><div class='vf-home-shot-progress'><small>Profile Progress</small><strong>68%</strong><div><em></em></div><p>Keep going! You're building momentum.</p></div><div class='vf-home-shot-company'><strong>Zacky's Construction LLC</strong><small>EIN: 87-3456781</small></div></aside><main class='vf-home-shot-main'><header><span>Dashboard</span><b>Zach Turner</b></header><section><h2>Welcome back, Zach. Let's get your business closer to approval.</h2><div class='vf-home-shot-grid'><article class='vf-home-shot-run'><div class='vf-radar'><span class='vf-radar-ring r1'></span><span class='vf-radar-ring r2'></span><span class='vf-radar-ring r3'></span><span class='vf-radar-sweep'></span><span class='vf-radar-dot'></span></div><div><h3>Run My Scan</h3><p>Find what's holding your business back and what to fix first.</p><a href='/signup/?scan=start'>Run My Scan</a></div></article><article><h3>Explore Full Buildout</h3><p>Access the complete business credit buildout with training, tools, and account library.</p><a href='/whats-inside/'>Explore Full Buildout</a></article><article><div class='vf-home-shot-score'><strong>72</strong><small>/100</small></div><div><h3>Your Current Score</h3><p>Good - You have some blocks holding you back.</p></div></article><article><h3>Your Assigned Path</h3><strong class='vf-home-shot-path'>Foundation Fixes</strong><p>Start here to build a solid foundation and improve your approvals.</p></article></div><div class='vf-home-shot-lower'><article><div class='vf-home-shot-head'><h3>Your Next 3 Actions</h3><a href='/dashboard/'>View all actions</a></div><ol><li><b>1</b><span><strong>Fix Phone Signal</strong><small>Add a business phone number that matches your public records.</small></span><em>High Impact</em></li><li><b>2</b><span><strong>Fix Address Consistency</strong><small>Ensure your address is consistent across key business listings.</small></span><em>High Impact</em></li><li><b>3</b><span><strong>Clean Up Public Listings</strong><small>Fix duplicate and outdated listings on business directories.</small></span><em>Medium Impact</em></li></ol></article><article class='vf-home-shot-access'><h3>Account Access</h3><div><strong>Currently Available to You</strong><p>Net 30 Accounts</p><span>ULINE</span><span>Quill.com</span><span>Grainger</span></div><div class='locked'><strong>Unlock Next</strong><p>Complete your next actions to unlock.</p><span>Staples</span><span>Best Buy</span><span>Lowes</span></div></article></div></section></main></div>";
+      heroVisual.innerHTML="<div class='vf-home-product-shot' aria-label='Verge Five dashboard preview'><aside class='vf-home-shot-sidebar'><div class='vf-home-shot-logo'><img src='/Resources/images/verge5-logo-mark.png' alt=''><strong>Verge 5</strong></div><nav><span class='active'><i class='vf-ico vf-icon-home'></i>Dashboard</span><span><i class='vf-ico vf-icon-scan'></i>Run Scan</span><span><i class='vf-ico vf-icon-list'></i>Fix List</span><span><i class='vf-ico vf-icon-briefcase'></i>Account Matches</span><span><i class='vf-ico vf-icon-book'></i>Full Buildout</span><span><i class='vf-ico vf-icon-support'></i>Support</span></nav><div class='vf-home-shot-progress'><small>Profile Progress</small><strong>68%</strong><div><em></em></div><p>Keep going! You're building momentum.</p></div><div class='vf-home-shot-company'><strong>Zacky's Construction LLC</strong><small>EIN: 87-3456781</small></div></aside><main class='vf-home-shot-main'><header><span>Dashboard</span><b>Zach Turner</b></header><section><h2>Welcome back, Zach. Let's get your business closer to approval.</h2><div class='vf-home-shot-grid'><article class='vf-home-shot-run'><div class='vf-radar'><span class='vf-radar-ring r1'></span><span class='vf-radar-ring r2'></span><span class='vf-radar-ring r3'></span><span class='vf-radar-sweep'></span><span class='vf-radar-dot'></span></div><div><h3>Run My Scan</h3><p>Find what's holding your business back and what to fix first.</p><a href='#home-visibility-scan'>Run My Scan</a></div></article><article><h3>Explore Full Buildout</h3><p>Access the complete business credit buildout with training, tools, and account library.</p><a href='/whats-inside/'>Explore Full Buildout</a></div></article><article><div class='vf-home-shot-score'><strong>72</strong><small>/100</small></div><div><h3>Your Current Score</h3><p>Good - You have some blocks holding you back.</p></div></article><article><h3>Your Assigned Path</h3><strong class='vf-home-shot-path'>Foundation Fixes</strong><p>Start here to build a solid foundation and improve your approvals.</p></article></div><div class='vf-home-shot-lower'><article><div class='vf-home-shot-head'><h3>Your Next 3 Actions</h3><a href='/dashboard/'>View all actions</a></div><ol><li><b>1</b><span><strong>Fix Phone Signal</strong><small>Add a business phone number that matches your public records.</small></span><em>High Impact</em></li><li><b>2</b><span><strong>Fix Address Consistency</strong><small>Ensure your address is consistent across key business listings.</small></span><em>High Impact</em></li><li><b>3</b><span><strong>Clean Up Public Listings</strong><small>Fix duplicate and outdated listings on business directories.</small></span><em>Medium Impact</em></li></ol></article><article class='vf-home-shot-access'><h3>Account Access</h3><div><strong>Currently Available to You</strong><p>Net 30 Accounts</p><span>ULINE</span><span>Quill.com</span><span>Grainger</span></div><div class='locked'><strong>Unlock Next</strong><p>Complete your next actions to unlock.</p><span>Staples</span><span>Best Buy</span><span>Lowes</span></div></article></div></section></main></div>";
     }
     if(document.body)document.body.classList.add('home-mobile-optimized');
-    [].slice.call(document.querySelectorAll('body > section')).forEach(function(section){
-      if(section!==hero)section.remove();
-    });
-    return;
     if(hero&&!document.querySelector('.home-scan-video-section')){
       var scanVideo=document.createElement('section');
       scanVideo.className='home-scan-video-section home-visibility-section';
-      scanVideo.innerHTML="<div class='section home-scan-video-grid'><div class='home-scan-video-copy'><p class='kicker'>Free business visibility scan</p><h2>Run the scan first. Then decide what to fix.</h2><p>The scan gives the owner a starting baseline: business name, state, phone, address, website, and public visibility. If the foundation is weak, Verge Five shows the order to clean it up before vendors, cards, or funding are touched.</p><div class='hero-actions'><a class='btn' href='#home-visibility-scan'>Run the free scan</a><a class='btn secondary' href='/signup/?trial=start'>Take the free test drive</a><a class='btn secondary' href='/whats-inside/'>See what unlocks</a></div><div class='trust-row'><span><i class='dot'></i>Phone and NAP visibility</span><span><i class='dot'></i>Website and address signals</span><span><i class='dot'></i>Readiness before applications</span></div></div><aside class='hero-visual hero-scan-wrap'><form id='home-visibility-scan' class='public-scan-form hero-scan-card' data-public-scan novalidate><div class='scan-card-head'><p class='kicker'>Step 1: visibility baseline</p><h2>Check how the business looks before you build.</h2><p>Get a 1-10 public visibility score after entering the core identifiers lenders and vendors expect to see.</p></div><div class='scan-mode-row'><label><input type='radio' name='scanMode' value='before' checked> Before buildout</label><label><input type='radio' name='scanMode' value='after'> After buildout</label></div><label data-required-field='businessName'>Business name<input class='input' name='businessName' required placeholder='Exact or planned legal business name'></label><label data-required-field='state'>State<input class='input' name='state' required placeholder='State where the business is filed or will operate'></label><div class='scan-two'><label data-required-field='website'>Website<input class='input' name='website' required placeholder='Business website URL'></label><label data-required-field='phone'>Business phone<input class='input' name='phone' required placeholder='Business phone number, not personal mobile'></label></div><label data-required-field='address'>Business address<input class='input' name='address' required placeholder='Commercial-style business address'></label><button class='btn' type='submit'>Get my visibility score</button><div class='scan-helper-note'><strong>Missing a business phone, website, or address?</strong><span>That is the point of the buildout. The scan shows what needs to be created or corrected first.</span></div><div class='scan-result' data-scan-result><strong>Enter the business name to see a score.</strong><span>State, business phone, website, and address are required. Missing one is a signal to build the profile before applying.</span></div></form></aside></div>";
+      scanVideo.innerHTML="<div class='section home-scan-video-grid'><div class='home-scan-video-copy'><p class='kicker'>Free business visibility scan</p><h2>Run the scan. See what to fix before you apply.</h2><p>Verge Five checks the public-facing business signals lenders, issuers, and vendor systems look at first: business name, phone, address, website, listings, and consistency.</p><div class='hero-actions'><a class='btn' href='#home-visibility-scan'>Run the free scan</a><a class='btn secondary' href='/whats-inside/'>See what unlocks</a></div><div class='trust-row'><span><i class='dot'></i>Phone and NAP visibility</span><span><i class='dot'></i>Website and address signals</span><span><i class='dot'></i>Readiness before applications</span></div></div><aside class='hero-visual hero-scan-wrap'><form id='home-visibility-scan' class='public-scan-form hero-scan-card' data-public-scan novalidate><div class='scan-card-head'><p class='kicker'>Step 1: visibility baseline</p><h2>Check how the business looks before you build.</h2><p>Enter the core identifiers approval systems expect to verify so you can see the gap before you apply.</p></div><div class='scan-mode-row'><label><input type='radio' name='scanMode' value='before' checked> Before buildout</label><label><input type='radio' name='scanMode' value='after'> After buildout</label></div><label data-required-field='businessName'>Business name<input class='input' name='businessName' required placeholder='Exact or planned legal business name'></label><label data-required-field='state'>State<input class='input' name='state' required placeholder='State where the business is filed or will operate'></label><div class='scan-two'><label data-required-field='website'>Website<input class='input' name='website' required placeholder='Business website URL'></label><label data-required-field='phone'>Business phone<input class='input' name='phone' required placeholder='Business phone number, not personal mobile'></label></div><label data-required-field='address'>Business address<input class='input' name='address' required placeholder='Commercial-style business address'></label><button class='btn' type='submit'>Get my visibility score</button><div class='scan-helper-note'><strong>Missing a business phone, website, or address?</strong><span>That is the point of the buildout. The scan shows what needs to be created or corrected first.</span></div><div class='scan-result' data-scan-result><strong>Enter the business name to see a score.</strong><span>State, business phone, website, and address are required. Missing one is a signal to build the profile before applying.</span></div></form></aside></div>";
       var auditSection=document.querySelector('.home-ai-audit');
       if(auditSection)auditSection.insertAdjacentElement('afterend',scanVideo);
       else hero.insertAdjacentElement('afterend',scanVideo);
@@ -385,7 +381,7 @@
     if(hero&&!document.querySelector('.burned-buyer-section')){
       var pain=document.createElement('section');
       pain.className='burned-buyer-section';
-      pain.innerHTML="<div class='section'><div class='burned-buyer-head'><h2>The hidden gatekeepers are not emotional. They read signals.</h2><p>The book explains why approvals now happen through data matching, automation, and risk checks. Verge Five turns that into a practical path: clean the profile before the application ever reaches a decision system.</p></div><div class='pain-grid'><article><strong>Wrong phone signal</strong><span>Mobile numbers, weak VoIP providers, missing Business 411 listings, or numbers that do not look commercial can create flags.</span></article><article><strong>Address problems</strong><span>Mailbox-only addresses, virtual addresses that cannot be worked from, or inconsistent records can slow down banking and vendor approvals.</span></article><article><strong>Website and email quality</strong><span>A basic website and domain email help establish legitimacy. Free emails and unfinished websites can make the company look temporary.</span></article><article><strong>Applications too early</strong><span>Some vendors, cards, and funding paths should wait until the business has the right age, bank history, and readiness signals.</span></article></div></div>";
+      pain.innerHTML="<div class='section'><div class='burned-buyer-head'><h2>What the scan is checking before you apply.</h2><p>These are the business signals that usually slow approvals down first. Verge Five helps you spot them early so you can fix them in the right order.</p></div><div class='pain-grid'><article><strong>Phone signal</strong><span>Business numbers, 411 visibility, and public consistency matter more than most owners expect.</span></article><article><strong>Address match</strong><span>Address type and cross-listing consistency can affect banking, vendor, and credit outcomes.</span></article><article><strong>Website and email quality</strong><span>A real website and domain email help the business look established and verifiable.</span></article><article><strong>Application timing</strong><span>Some paths should wait until the business profile, bank history, and readiness signals are in place.</span></article></div></div>";
       var aiTop=document.querySelector('.home-ai-audit');
       scanSection=document.querySelector('.home-scan-video-section');
       if(scanSection)scanSection.insertAdjacentElement('afterend',pain);
@@ -395,7 +391,7 @@
     if(hero&&!document.querySelector('.setup-path-section')){
       var setupPaths=document.createElement('section');
       setupPaths.className='section setup-path-section';
-      setupPaths.innerHTML="<div class='setup-path-head'><p class='kicker'>Business-safe setup paths</p><h2>The setup choices matter before the credit applications do.</h2><p class='lead'>Verge Five does not just tell owners to get a phone, address, website, bank account, or vendor account. It helps them understand which setup paths are safer, what shortcuts can weaken the profile, and what should verify before they move forward.</p></div><div class='setup-path-grid'><article><span>01</span><strong>Choose the right foundation vendors</strong><p>Use business-safe setup paths for phone, 411, address, website, domain email, legal records, and banking.</p></article><article><span>02</span><strong>Avoid weak signals</strong><p>See why personal-looking phone numbers, mailbox-style addresses, unfinished websites, and mismatched records can create problems later.</p></article><article><span>03</span><strong>Save proof</strong><p>Keep confirmations, screenshots, filings, statements, listings, and records tied to each buildout step.</p></article><article><span>04</span><strong>Verify before applying</strong><p>Return to the scan, checklist, and readiness gates before moving into vendor credit, cards, or funding.</p></article></div><div class='setup-path-cta'><a class='btn dark' href='/whats-inside/'>See how it works inside</a><a class='btn secondary' href='/signup/?trial=start'>Take the free test drive</a></div>";
+      setupPaths.innerHTML="<div class='setup-path-head'><p class='kicker'>Business-safe setup paths</p><h2>The setup choices matter before the applications do.</h2><p class='lead'>Verge Five helps owners understand which setup paths are stronger, what shortcuts can weaken the profile, and what should verify before moving into accounts and funding.</p></div><div class='setup-path-grid'><article><span>01</span><strong>Choose the right foundation path</strong><p>Set up phone, address, website, domain email, legal records, and banking the right way.</p></article><article><span>02</span><strong>Avoid weak signals</strong><p>Personal-looking numbers, weak addresses, unfinished websites, and mismatched records create drag.</p></article><article><span>03</span><strong>Save proof</strong><p>Keep confirmations, filings, statements, listings, and screenshots tied to each step.</p></article><article><span>04</span><strong>Verify before applying</strong><p>Return to the scan, checklist, and readiness gates before moving into vendor credit, cards, or funding.</p></article></div><div class='setup-path-cta'><a class='btn dark' href='/whats-inside/'>See how it works inside</a><a class='btn secondary' href='#home-visibility-scan'>Start your scan</a></div>";
       var painSection=document.querySelector('.burned-buyer-section');
       if(painSection)painSection.insertAdjacentElement('afterend',setupPaths);
       else if(scanSection)scanSection.insertAdjacentElement('afterend',setupPaths);
@@ -431,20 +427,6 @@
       var cards=pricing.querySelectorAll('.pricing .card');
       if(cards[0]){cards[0].classList.add('membership-plan','intro-monthly-plan');cards[0].innerHTML="<span class='plan-eyebrow'>Intro monthly offer</span><h3>Monthly access</h3><div class='price'>$7<small>first month</small></div><p><strong>Then $49/month.</strong> Use the 7-module buildout, readiness checklist, vendor matcher, credit card matcher, funding readiness, and member reports.</p><ul><li>Unlock the full platform after the free preview</li><li>Save profile progress and reports</li><li>Use member-only readiness tools</li></ul><a class='btn secondary' href='/membership/?plan=monthly'>Start for $7</a>";}
       if(cards[1]){cards[1].classList.add('membership-plan','featured-plan');cards[1].innerHTML="<span class='plan-eyebrow'>Full-year buildout</span><h3>Annual access</h3><div class='price'>$597<small>/yr</small></div><p>Full-year buildout access for owners who want time to clean records, build banking history, and move through vendors, cards, and funding in order.</p><ul><li>Full-year access to the platform</li><li>Better fit for 90-day readiness timing</li><li>Same tools with more room to execute</li></ul><a class='btn' href='/membership/?plan=annual'>Choose annual</a>";}
-    }
-    if(hero&&!document.querySelector('.mobile-home-conversion')){
-      document.body.classList.add('home-mobile-optimized');
-      var mobileFlow=document.createElement('section');
-      mobileFlow.className='mobile-home-conversion';
-      mobileFlow.innerHTML="<div class='mobile-home-card mobile-home-priority'><p class='kicker'>Start here</p><h2>Run the scan before you apply.</h2><p>Verge Five checks the public-facing business signals automated approval systems look at first: name, phone, address, website, records, banking, timing, and consistency.</p><div class='mobile-home-actions'><a class='btn' href='#home-visibility-scan'>Run free scan</a><a class='btn secondary' href='/signup/?trial=start'>Test drive</a></div></div><div class='mobile-home-steps' aria-label='Mobile path'><article><span>1</span><strong>Get the baseline</strong><small>See what the outside world can verify.</small></article><article><span>2</span><strong>Fix the gaps</strong><small>Build phone, address, website, legal, banking, and readiness in order.</small></article><article><span>3</span><strong>Apply when ready</strong><small>Use matchers and reports before vendors, cards, or funding.</small></article></div><div class='mobile-home-card mobile-home-why'><h2>Why this matters now</h2><p>If the business identifiers do not match, the application can look weak before a person reviews it. The platform is built from The Hidden Gatekeepers framework: clean the signals first, then move.</p></div><div class='mobile-home-accordions'><details open><summary>What do I get?</summary><p>A guided 7-module buildout, business visibility scans, readiness checks, reports, vendor/card matching, and protected application order.</p></details><details><summary>What is the test drive?</summary><p>A free preview where you create an account, run the starting scan, and experience the first identity path before unlocking the full platform.</p></details><details><summary>What does membership cost?</summary><p>Monthly starts at $7 for the first month, then $49/month. Annual access is $597/year for the full buildout.</p></details></div><div class='mobile-home-final'><a class='btn dark' href='#pricing'>See pricing</a><a class='btn secondary' href='/whats-inside/'>What's inside</a></div>";
-      hero.insertAdjacentElement('afterend',mobileFlow);
-    }
-    if(hero&&!document.querySelector('.mobile-home-sticky')){
-      var mobileBar=document.createElement('nav');
-      mobileBar.className='mobile-home-sticky';
-      mobileBar.setAttribute('aria-label','Mobile homepage actions');
-      mobileBar.innerHTML="<a class='btn' href='#home-visibility-scan'>Run Scan</a><a class='btn secondary' href='/signup/?trial=start'>Test Drive</a>";
-      document.body.appendChild(mobileBar);
     }
   }
   upgradeHomepageConversion();
@@ -2400,6 +2382,149 @@
       applyDashboardProfile(remoteProfileToLocal(data&&data.profile));
     }).catch(function(){});
   }
+  function isDocShellMemberRoute(){
+    if(!isMemberExperiencePath())return false;
+    if(location.pathname==='/dashboard/'||location.pathname==='/account/'||location.pathname==='/feedback/'||location.pathname==='/admin/')return false;
+    return true;
+  }
+  function docShellMetaForPath(path){
+    path=path||location.pathname;
+    if(path==='/ai-visibility-audit/')return {kicker:'The Engine Of Verge Five',title:'Business Visibility Audit',showBack:false};
+    if(path==='/start-here/')return {kicker:'Scan-First Workflow',title:'Fix List',showBack:true};
+    if(path==='/full-buildout/')return {kicker:'Buildout System',title:'Full Buildout',showBack:true};
+    if(path==='/support/')return {kicker:'Support',title:'Get Help',showBack:true};
+    var fix=vfScanFirstFixForRoute(path);
+    if(fix)return {kicker:'Scan-Driven Fix',title:fix.title,showBack:true};
+    if(scanSectionTitles[path])return {kicker:'Account Matches',title:scanSectionTitles[path].title,showBack:true};
+    return {kicker:'Member Platform',title:'Workspace',showBack:true};
+  }
+  function docShellNavLink(href,label,icon,current){
+    return "<a"+(current?" class='active'":"")+" href='"+href+"'><span class='vf-ico "+icon+"' aria-hidden='true'></span>"+label+"</a>";
+  }
+  function wrapMemberDocShell(){
+    if(!isDocShellMemberRoute()||document.querySelector('[data-vf-member-shell]'))return;
+    var header=document.querySelector('.site-header');
+    var footer=document.querySelector('.footer');
+    if(!header)return;
+    var bodyChildren=[].slice.call(document.body.children);
+    var nodes=[];
+    bodyChildren.forEach(function(node){
+      if(node===header||node===footer)return;
+      if(node.tagName&&node.tagName.toLowerCase()==='script')return;
+      nodes.push(node);
+    });
+    var meta=docShellMetaForPath(location.pathname);
+    var shell=document.createElement('div');
+    shell.className='vf-doc-shell vf-member-doc-shell';
+    shell.setAttribute('data-vf-member-shell','');
+    shell.innerHTML=
+      "<aside class='vf-doc-sidebar' aria-label='Member navigation'>"+
+        "<a class='vf-doc-logo' href='/dashboard/' aria-label='Verge Five dashboard'><img src='/Resources/images/verge5-logo-mark.png' alt=''><span><strong>Verge Five</strong><small>BUSINESS CREDIT</small></span></a>"+
+        "<nav class='vf-doc-nav'>"+
+          docShellNavLink('/dashboard/','Dashboard','vf-icon-home',location.pathname==='/dashboard/')+
+          docShellNavLink('/ai-visibility-audit/','Run Scan','vf-icon-scan',location.pathname==='/ai-visibility-audit/')+
+          docShellNavLink('/start-here/','Fix List','vf-icon-list',location.pathname==='/start-here/')+
+          docShellNavLink('/about-net-30/','Account Matches','vf-icon-briefcase',location.pathname==='/about-net-30/'||location.pathname==='/office-and-cleaning/'||location.pathname==='/building-and-industrial/'||location.pathname==='/retail-and-wholesale/'||location.pathname==='/revolving-business-credit-cards/'||location.pathname==='/starter-cards/'||location.pathname==='/general-credit-cards/')+
+          docShellNavLink('/full-buildout/','Full Buildout','vf-icon-book',location.pathname==='/full-buildout/')+
+          docShellNavLink('/support/','Support','vf-icon-support',location.pathname==='/support/')+
+        "</nav>"+
+        "<div class='vf-doc-sidebar-foot'>"+
+          "<a class='vf-doc-sidebar-button' href='/dashboard/?mobile=preview'><span class='vf-icon-phone' aria-hidden='true'></span>Mobile preview</a>"+
+          "<div class='vf-doc-member-card'><div class='vf-doc-member-initials' data-doc-user-initials>MB</div><div><strong data-doc-user>Member</strong><small data-doc-business>Business Profile</small></div></div>"+
+          "<a class='vf-doc-sidebar-button' href='/account/'><span class='vf-icon-building' aria-hidden='true'></span>Business Profile</a>"+
+          "<a class='vf-doc-logout' href='/'><span class='vf-icon-logout' aria-hidden='true'></span>Log Out</a>"+
+        "</div>"+
+      "</aside>"+
+      "<main class='vf-doc-main'>"+
+        "<header class='vf-doc-header'><div><span>"+escapeHtml(meta.kicker)+"</span><strong>"+escapeHtml(meta.title)+"</strong></div><nav aria-label='Member actions'>"+(meta.showBack?"<a href='/dashboard/'>Back to Dashboard</a>":"")+"<a href='/support/'>Get Help</a><a class='primary' href='/ai-visibility-audit/'>Run Scan</a></nav></header>"+
+        "<section class='vf-doc-content' data-doc-shell-content></section>"+
+      "</main>";
+    var content=shell.querySelector('[data-doc-shell-content]');
+    nodes.forEach(function(node){content.appendChild(node)});
+    header.remove();
+    if(footer)footer.remove();
+    document.body.classList.add('vf-member-doc-page');
+    document.body.insertBefore(shell,document.body.firstChild);
+  }
+  function initDocShellIdentity(){
+    if(!document.querySelector('[data-vf-member-shell]'))return;
+    memberApi('GET','/api/auth/me').then(function(data){
+      var user=data&&data.user;
+      if(!user)return;
+      var name=dashboardNameFromUser(user);
+      document.querySelectorAll('[data-doc-user]').forEach(function(el){el.textContent=name});
+      document.querySelectorAll('[data-doc-user-initials]').forEach(function(el){el.textContent=dashboardInitials(name,user.email)});
+    }).catch(function(){});
+    memberApi('GET','/api/member/profile').then(function(data){
+      var profile=remoteProfileToLocal(data&&data.profile);
+      var business=dashboardBusinessName(profile);
+      document.querySelectorAll('[data-doc-business]').forEach(function(el){el.textContent=business});
+    }).catch(function(){});
+  }
+  function renderScanFirstFixListPage(){
+    if(location.pathname!=='/start-here/')return;
+    var content=document.querySelector('[data-doc-shell-content]')||document.querySelector('main')||document.body;
+    if(!content||content.querySelector('[data-scan-first-fix-list]'))return;
+    markScanFirstVisited('/start-here/');
+    var state=readScanFirstState();
+    var readiness=scanFirstDashboardReadiness(null,state);
+    var done=scanFirstDoneCount(state);
+    var open=vfScanFirstOrder.length-done;
+    var phases=[
+      {title:'Phase 1 Foundation',keys:['phones','address','website']},
+      {title:'Phase 2 Legal And Banking',keys:['llc','ein','bank','bankrating']},
+      {title:'Phase 3 Credit Readiness',keys:['criteria','net30']}
+    ];
+    function rowHtml(key){
+      var fix=vfScanFirstFixes[key];
+      var meta=scanFirstFixStatusMeta((state.fixStatus||{})[key]||'todo');
+      return "<article class='vf-phase-row'><div><span class='vf-fix-status "+meta.className+"'>"+escapeHtml(meta.label)+"</span><strong>"+escapeHtml(fix.actionTitle)+"</strong><p>"+escapeHtml(fix.tagline)+"</p></div><div><b class='vf-impact "+(/medium/i.test(fix.impact)?'medium':'high')+"'>"+escapeHtml(fix.impact)+"</b><a class='btn secondary' href='"+escapeHtml(fix.route)+"'>Open</a></div></article>";
+    }
+    content.innerHTML=
+      "<section class='content-block vf-fix-list-summary' data-scan-first-fix-list><div><p class='kicker'>Fix list overview</p><h2>Work the highest-impact fixes in order.</h2><p>Your assigned path is <strong>"+escapeHtml(readiness.path)+"</strong>. Complete the foundation fixes first, then move into readiness and account access.</p></div><div class='vf-fix-count-grid'><article><strong>"+done+"</strong><span>Fixes done</span></article><article><strong>"+open+"</strong><span>Open fixes</span></article><article><strong>"+readiness.score+"%</strong><span>Readiness</span></article></div></section>"+
+      "<section class='vf-phase-stack'>"+phases.map(function(phase){
+        var completeCount=phase.keys.filter(function(key){return state.fixStatus&&state.fixStatus[key]==='done'}).length;
+        return "<section class='content-block vf-phase-card'><div class='vf-phase-head'><div><p class='kicker'>"+escapeHtml(phase.title)+"</p><h2>"+completeCount+" of "+phase.keys.length+" complete</h2></div><a class='btn ghost' href='/ai-visibility-audit/'>Run Scan</a></div><div class='vf-phase-rows'>"+phase.keys.map(rowHtml).join('')+"</div></section>";
+      }).join('')+"</section>";
+  }
+  function renderScanFirstBuildoutPage(){
+    if(location.pathname!=='/full-buildout/')return;
+    var content=document.querySelector('[data-doc-shell-content]')||document.querySelector('main')||document.body;
+    if(!content||content.querySelector('[data-scan-first-buildout]'))return;
+    markScanFirstVisited('/full-buildout/');
+    var state=readScanFirstState();
+    var modules=[
+      {phase:'Phase 1 Foundation',tag:'M1',title:'Business Identity',route:'/phones-and-411/',required:['phones','address','website'],summary:'Phone, address, website, and domain-email consistency before any application.'},
+      {phase:'Phase 2 Legal And Banking',tag:'M2',title:'Legal Setup',route:'/llc-vs-corporation/',required:['llc','ein'],summary:'Legal entity and EIN alignment before banking and applications.'},
+      {phase:'Phase 2 Legal And Banking',tag:'M3',title:'Banking Foundation',route:'/bank-account/',required:['bank','bankrating'],summary:'Business bank account, balance behavior, and banking profile strength.'},
+      {phase:'Phase 3 Approval Readiness',tag:'M4',title:'Approval Readiness',route:'/business-credit-criteria/',required:['criteria'],summary:'Readiness criteria, timing, and application discipline before account access.'},
+      {phase:'Phase 4 Credit Access',tag:'M5',title:'Starter Vendors',route:'/about-net-30/',required:['net30'],summary:'Use reporting vendor accounts only after the core profile is ready.'},
+      {phase:'Phase 4 Credit Access',tag:'M6',title:'Business Cards',route:'/revolving-business-credit-cards/',required:['criteria','net30'],summary:'Match the company to realistic starter, revolving, and general card paths.'},
+      {phase:'Phase 5 Funding Review',tag:'M7',title:'Funding Review',route:'/cd-business-loans/',required:['criteria','net30','bank','bankrating'],summary:'Review funding paths only after the business can support the request.'}
+    ];
+    function moduleStatus(required){
+      var doneCount=required.filter(function(key){return state.fixStatus&&state.fixStatus[key]==='done'}).length;
+      if(doneCount===required.length)return scanFirstFixStatusMeta('done');
+      if(doneCount>0)return scanFirstFixStatusMeta('progress');
+      return scanFirstFixStatusMeta('todo');
+    }
+    var grouped={};
+    modules.forEach(function(module){
+      (grouped[module.phase]=grouped[module.phase]||[]).push(module);
+    });
+    content.innerHTML=
+      "<section class='content-block vf-buildout-summary' data-scan-first-buildout><div><p class='kicker'>Full buildout</p><h2>7 modules inside 5 phases.</h2><p>Use the full buildout when you want the deeper path behind the scan-first sequence. Each module stays tied to the fixes and account readiness signals already in the platform.</p></div><div class='vf-fix-count-grid'><article><strong>5</strong><span>Phases</span></article><article><strong>7</strong><span>Modules</span></article><article><strong>"+scanFirstDashboardReadiness(null,state).score+"%</strong><span>Readiness</span></article></div></section>"+
+      Object.keys(grouped).map(function(phase){
+        return "<section class='content-block vf-buildout-phase'><div class='vf-phase-head'><div><p class='kicker'>"+escapeHtml(phase)+"</p><h2>"+grouped[phase].length+" module"+(grouped[phase].length===1?'':'s')+"</h2></div></div><div class='vf-buildout-grid'>"+grouped[phase].map(function(module){
+          var meta=moduleStatus(module.required);
+          return "<article class='vf-buildout-module'><span class='vf-buildout-tag'>"+escapeHtml(module.tag)+"</span><h3>"+escapeHtml(module.title)+"</h3><span class='vf-fix-status "+meta.className+"'>"+escapeHtml(meta.label)+"</span><p>"+escapeHtml(module.summary)+"</p><small>Required fixes: "+module.required.map(function(key){return vfScanFirstFixes[key]?vfScanFirstFixes[key].actionTitle.replace('Fix ',''):key}).join(', ')+"</small><a class='btn secondary' href='"+escapeHtml(module.route)+"'>Open module</a></article>";
+        }).join('')+"</div></section>";
+      }).join('');
+  }
+  wrapMemberDocShell();
+  initDocShellIdentity();
+  renderScanFirstFixListPage();
+  renderScanFirstBuildoutPage();
   function actionArticleHtml(action,index){
     var impactClass=/medium/i.test(action.impact||'')?'medium':'high';
     var supportHref='/support/?topic='+encodeURIComponent(action.title||'Fix request')+'&route='+encodeURIComponent(action.href||'/dashboard/');
