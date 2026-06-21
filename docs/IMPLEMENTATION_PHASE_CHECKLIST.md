@@ -163,9 +163,27 @@ Exit criteria:
 
 Current execution target:
 
-- Phase 1 and Phase 2 together.
-- Homepage shell and member shell first.
+- Phase 4 feature wiring in dev.
+- Keep the new homepage and member shell in place while wiring them into the live member/auth/support/progress behavior.
+- Preserve admin and protected-route behavior while replacing any remaining fake shell actions.
 - No production promotion yet.
+
+## Latest Dev Progress
+
+- Homepage shell direction is in dev.
+- Shared member shell is in dev.
+- Fix List and Full Buildout summary pages are rendering inside the new member shell.
+- Support request flow is wired to `/api/contact`.
+- Member progress, resume state, and scan-first signal tokens are syncing through `/api/member/progress`.
+- Business profile and visibility audit data are syncing through the real member APIs.
+- Logout in the redesigned member shell is now wired to the real `/api/auth/logout` flow instead of behaving like a plain homepage link.
+
+## Next Dev Slice
+
+1. Finish replacing any remaining shell-only placeholder actions with real member flows.
+2. Audit dashboard, support, scan, and account-match behavior against real auth/member state.
+3. Verify no admin or member regressions.
+4. Commit the Phase 4 wiring slice cleanly.
 
 ## Mobile Decision
 

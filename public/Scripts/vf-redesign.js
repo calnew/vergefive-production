@@ -824,7 +824,8 @@
       });
     });
     document.querySelectorAll('[data-logout]').forEach(function(btn){
-      btn.addEventListener('click',function(){
+      btn.addEventListener('click',function(event){
+        if(event&&typeof event.preventDefault==='function')event.preventDefault();
         postJson('/api/auth/logout',{}).then(function(){location.href='/'});
       });
     });
@@ -2432,7 +2433,7 @@
           "<a class='vf-doc-sidebar-button' href='/dashboard/?mobile=preview'><span class='vf-icon-phone' aria-hidden='true'></span>Mobile preview</a>"+
           "<div class='vf-doc-member-card'><div class='vf-doc-member-initials' data-doc-user-initials>MB</div><div><strong data-doc-user>Member</strong><small data-doc-business>Business Profile</small></div></div>"+
           "<a class='vf-doc-sidebar-button' href='/account/'><span class='vf-icon-building' aria-hidden='true'></span>Business Profile</a>"+
-          "<a class='vf-doc-logout' href='/'><span class='vf-icon-logout' aria-hidden='true'></span>Log Out</a>"+
+          "<a class='vf-doc-logout' href='/' data-logout><span class='vf-icon-logout' aria-hidden='true'></span>Log Out</a>"+
         "</div>"+
       "</aside>"+
       "<main class='vf-doc-main'>"+
