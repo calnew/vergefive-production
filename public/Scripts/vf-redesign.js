@@ -2988,6 +2988,45 @@
       input.dispatchEvent(new Event('change',{bubbles:true}));
     });
   }
+  function scanFirstFixDone(state,key){
+    state=state||readScanFirstState();
+    return !!(state.fixStatus&&state.fixStatus[vfScanFirstNormalizeKey(key)]==='done');
+  }
+  function inferredMatcherSignals(signalType){
+    var state=readScanFirstState();
+    var profile=loadProfile();
+    var inferred=[];
+    function add(key,value){
+      if(value&&inferred.indexOf(key)===-1)inferred.push(key);
+    }
+    add('entity',scanFirstFixDone(state,'llc')||!!profile.entityType);
+    add('ein',scanFirstFixDone(state,'ein')||!!profile.ein);
+    add('phone',scanFirstFixDone(state,'phones')||!!profile.phone);
+    add('411',scanFirstFixDone(state,'phones')||!!profile.directory411);
+    add('address',scanFirstFixDone(state,'address')||!!profile.address);
+    add('website',scanFirstFixDone(state,'website')||!!profile.website);
+    add('email',scanFirstFixDone(state,'website')||!!profile.email);
+    add('bank',scanFirstFixDone(state,'bank')||!!profile.bank);
+    add('duns',scanFirstFixDone(state,'criteria')||!!profile.bureauProfile);
+    add('tradelines',scanFirstFixDone(state,'net30')||!!profile.vendorTradelines);
+    if(signalType==='card'){
+      add('deposit',!!profile.fundingReserve);
+    }
+    if(signalType==='funding'){
+      add('relationship',scanFirstFixDone(state,'bankrating')||scanFirstFixDone(state,'bank'));
+      add('statements',scanFirstFixDone(state,'bankrating'));
+      add('reserve',!!profile.fundingReserve);
+      add('tradelines',scanFirstFixDone(state,'net30')||!!profile.vendorTradelines);
+    }
+    return inferred;
+  }
+  function hydrateSignalSelection(signalType){
+    var key=signalStorageKey(signalType);
+    if(!key)return [];
+    var merged=mergeArrays(readArray(key),inferredMatcherSignals(signalType));
+    try{localStorage.setItem(key,JSON.stringify(merged))}catch(e){}
+    return merged;
+  }
   function rememberCurrentLocation(){
     if(!isMemberExperiencePath())return;
     if(location.pathname==='/'||location.pathname==='/dashboard/'||location.pathname.indexOf('/whats-inside/')===0||location.pathname.indexOf('/demo/')===0||location.pathname.indexOf('/trial-roadmap/')===0||location.pathname.indexOf('/blog/')===0||location.pathname.indexOf('/membership/')===0||location.pathname.indexOf('/login/')===0||location.pathname.indexOf('/signup/')===0)return;
@@ -3986,11 +4025,9 @@
       detail.querySelector('[data-vendor-detail-body]').innerHTML="<div class='vendor-match-top'><span class='match-status "+fit.status+"'>"+statusLabel(fit.status)+"</span><span>"+v.category+"</span></div><h2>"+v.name+"</h2><p>"+v.notes+"</p><div class='vendor-prereqs'><strong>Required prerequisites</strong><span>"+v.requires.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-prereqs'><strong>Recommended signals</strong><span>"+v.recommended.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-prereqs'><strong>Reports / review note</strong><span>"+v.reports+"</span></div><div class='vendor-gap "+(fit.status==='wait'?'danger':'')+"'><strong>Match note:</strong> "+(fit.status==='ready'?'You selected the core prerequisites. Verify current vendor terms before applying.':fit.status==='almost'?'Fix these first before applying: '+missingText:'Do not waste an application yet. Build these missing items first: '+missingText)+".</div><small>Helpful next improvements: "+recText+".</small><small>Research note: "+(v.source||'Vendor/category research')+". Requirements and reporting can change.</small><div class='proof-actions'><a class='btn' href='"+v.url+"' target='_blank' rel='noopener'>Open vendor site</a><button class='btn secondary' type='button' data-vendor-detail-close>Close</button></div>";
       detail.classList.remove('hide');
     }
-    try{
-      JSON.parse(localStorage.getItem('vf-vendor-signals')||'[]').forEach(function(key){
-        var input=matcher.querySelector('[data-vendor-signal=\"'+key+'\"]'); if(input)input.checked=true;
-      });
-    }catch(e){}
+    hydrateSignalSelection('vendor').forEach(function(key){
+      var input=matcher.querySelector('[data-vendor-signal=\"'+key+'\"]'); if(input)input.checked=true;
+    });
     matcher.querySelectorAll('[data-vendor-signal]').forEach(function(input){input.addEventListener('change',function(){
       renderMatcher();
       saveMemberSignal('vendor',readArray('vf-vendor-signals'));
@@ -4091,11 +4128,9 @@
       detail.querySelector('[data-card-detail-body]').innerHTML="<div class='vendor-match-top'><span class='match-status "+fit.status+"'>"+statusLabel(fit.status)+"</span><span>"+escapeHtml(card.category)+"</span></div><h2>"+escapeHtml(card.name)+"</h2><p>"+escapeHtml(card.notes)+"</p><div class='vendor-prereqs'><strong>Card type</strong><span>"+escapeHtml(card.type)+"</span></div><div class='vendor-prereqs'><strong>Required prerequisites</strong><span>"+card.requires.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-prereqs'><strong>Recommended signals</strong><span>"+card.recommended.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-prereqs'><strong>Reports / review note</strong><span>"+escapeHtml(card.reports)+"</span></div><div class='vendor-gap "+(fit.status==='wait'?'danger':'')+"'><strong>Match note:</strong> "+(fit.status==='ready'?'You selected the core prerequisites. Verify current issuer terms before applying.':fit.status==='almost'?'Fix these first before applying: '+missingText:'Do not waste an application yet. Build these missing items first: '+missingText)+".</div><small>Helpful next improvements: "+recText+".</small><small>Research note: "+escapeHtml(card.source||'Card/issuer research')+". Requirements, deposits, personal guarantees, rewards, and reporting can change.</small><div class='proof-actions'><a class='btn' href='"+escapeHtml(card.url)+"' target='_blank' rel='noopener'>Open issuer site</a><button class='btn secondary' type='button' data-card-detail-close>Close</button></div>";
       detail.classList.remove('hide');
     }
-    try{
-      JSON.parse(localStorage.getItem('vf-card-signals')||'[]').forEach(function(key){
-        var input=matcher.querySelector('[data-card-signal=\"'+key+'\"]'); if(input)input.checked=true;
-      });
-    }catch(e){}
+    hydrateSignalSelection('card').forEach(function(key){
+      var input=matcher.querySelector('[data-card-signal=\"'+key+'\"]'); if(input)input.checked=true;
+    });
     matcher.querySelectorAll('[data-card-signal]').forEach(function(input){input.addEventListener('change',function(){
       renderMatcher();
       saveMemberSignal('card',readArray('vf-card-signals'));
@@ -4197,11 +4232,9 @@
       detail.querySelector('[data-funding-detail-body]').innerHTML="<div class='vendor-match-top'><span class='match-status "+fit.status+"'>"+statusLabel(fit.status)+"</span><span>"+escapeHtml(item.category)+"</span></div><h2>"+escapeHtml(item.name)+"</h2><p>"+escapeHtml(item.notes)+"</p><div class='vendor-prereqs'><strong>Funding type</strong><span>"+escapeHtml(item.type)+"</span></div><div class='vendor-prereqs'><strong>Required prerequisites</strong><span>"+item.requires.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-prereqs'><strong>Recommended signals</strong><span>"+item.recommended.map(function(k){return signalLabels[k]}).join(', ')+"</span></div><div class='vendor-gap "+(fit.status==='wait'?'danger':'')+"'><strong>Match note:</strong> "+(fit.status==='ready'?'This funding path matches the core selected signals. Verify lender terms before applying.':fit.status==='almost'?'Fix these first before applying: '+missingText:'Do not waste a funding application yet. Build these missing items first: '+missingText)+".</div><small>Helpful next improvements: "+recText+".</small><small>Research note: "+escapeHtml(item.source||'Funding research')+". Requirements, documentation, collateral, guarantees, and reporting can change.</small><div class='proof-actions'><a class='btn' href='"+escapeHtml(item.url)+"' target='_blank' rel='noopener'>Open resource</a><button class='btn secondary' type='button' data-funding-detail-close>Close</button></div>";
       detail.classList.remove('hide');
     }
-    try{
-      JSON.parse(localStorage.getItem('vf-funding-signals')||'[]').forEach(function(key){
-        var input=matcher.querySelector('[data-funding-signal=\"'+key+'\"]'); if(input)input.checked=true;
-      });
-    }catch(e){}
+    hydrateSignalSelection('funding').forEach(function(key){
+      var input=matcher.querySelector('[data-funding-signal=\"'+key+'\"]'); if(input)input.checked=true;
+    });
     matcher.querySelectorAll('[data-funding-signal]').forEach(function(input){input.addEventListener('change',function(){
       renderMatcher();
       saveMemberSignal('funding',readArray('vf-funding-signals'));
