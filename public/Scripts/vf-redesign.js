@@ -2543,6 +2543,26 @@
       return {key:fix.key,title:fix.actionTitle,copy:fix.tagline,href:fix.route,impact:fix.impact};
     });
   }
+  function dashboardAccountHref(account){
+    if(account.type==='Credit Card'){
+      if(/starter/i.test(account.category||''))return '/starter-cards/';
+      if(/general/i.test(account.category||''))return '/general-credit-cards/';
+      return '/revolving-business-credit-cards/';
+    }
+    if(/office/i.test(account.category||''))return '/office-and-cleaning/';
+    if(/building|industrial/i.test(account.category||''))return '/building-and-industrial/';
+    if(/retail|wholesale|fleet/i.test(account.category||''))return '/retail-and-wholesale/';
+    return '/about-net-30/';
+  }
+  function dashboardAccountCardHtml(account){
+    var href=dashboardAccountHref(account);
+    var cls=account.type==='Credit Card'?'cards':'vendor';
+    var cta=(account.status==='locked'||account.status==='notready')?'See what to fix':'View Details';
+    return "<article class='vf-match-card "+cls+" "+escapeHtml(account.status)+"'>"+
+      "<div class='vf-match-card-face'><span>"+escapeHtml(account.category)+"</span><strong>"+escapeHtml(account.name)+"</strong><small>"+escapeHtml(account.type)+"</small></div>"+
+      "<div class='vf-match-card-body'><b>"+escapeHtml(account.label)+"</b><p>"+escapeHtml(account.timing||account.unlockReason)+"</p><small>"+escapeHtml(account.unlockReason)+"</small><a class='btn secondary' href='"+escapeHtml(href)+"'>"+cta+"</a></div>"+
+    "</article>";
+  }
   function actionsFromScan(result){
     var source=[].concat(result&&result.redFlags||[],result&&result.findings||[]);
     var actions=[];
@@ -2587,6 +2607,22 @@
     if(visitedCount)visitedCount.textContent=visitedTotal;
     if(progressText)progressText.textContent=progress+'%';
     if(progressBar)progressBar.style.width=progress+'%';
+    var availableWrap=document.querySelector('[data-dashboard-available]');
+    var lockedWrap=document.querySelector('[data-dashboard-locked]');
+    var availableBlock=document.querySelector('[data-dashboard-available-block]');
+    var lockedBlock=document.querySelector('[data-dashboard-locked-block]');
+    if(availableWrap||lockedWrap){
+      var accounts=vfScanFirstAccounts.map(function(account){return Object.assign({},account,scanFirstAccountStatus(account,stateSnapshot))});
+      var availableAccounts=accounts.filter(function(account){return account.status==='available'||account.status==='recommended'}).slice(0,6);
+      var lockedAccounts=accounts.filter(function(account){return account.status!=='available'&&account.status!=='recommended'}).slice(0,6);
+      if(availableWrap)availableWrap.innerHTML=availableAccounts.length?availableAccounts.map(dashboardAccountCardHtml).join(''):"<p class='legal'>No accounts are currently available. Complete the next foundation fixes first.</p>";
+      if(lockedWrap)lockedWrap.innerHTML=lockedAccounts.length?lockedAccounts.map(dashboardAccountCardHtml).join(''):"<p class='legal'>No locked accounts remain right now.</p>";
+      if(availableBlock)availableBlock.querySelector('p').textContent=availableAccounts.length?'These matches are open based on the member\'s current readiness signals.':'No matches are open yet. Complete the next foundation fixes first.';
+      if(lockedBlock){
+        var lockedNote=lockedBlock.querySelector('p');
+        if(lockedNote)lockedNote.textContent=lockedAccounts.length?'These accounts stay in review or locked status until the required fixes are complete.':'No locked accounts remain right now.';
+      }
+    }
     var list=document.querySelector('.vf-action-list');
     if(list){
       var state=readScanFirstState();
