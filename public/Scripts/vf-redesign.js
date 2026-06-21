@@ -2573,9 +2573,12 @@
     });
     return actions.length?actions.slice(0,3):defaultDashboardActions();
   }
+  var latestDashboardScanResult=null;
   function updateDashboardFromScan(result){
     if(!document.body.classList.contains('vf-scan-dashboard-page'))return;
-    var readiness=scoreToReadiness(result&&result.score!=null?result.score:54);
+    if(result)latestDashboardScanResult=result;
+    var stateSnapshot=readScanFirstState();
+    var readiness=scanFirstDashboardReadiness(latestDashboardScanResult&&latestDashboardScanResult.score,stateSnapshot);
     var scoreShell=document.querySelector('.vf-score-ring');
     var scoreRing=document.querySelector('.vf-score-ring strong');
     var scoreText=document.querySelector('.vf-score-copy strong');
@@ -2589,7 +2592,6 @@
     var progressText=document.querySelector('[data-dashboard-progress]');
     var progressBar=document.querySelector('[data-dashboard-progress-bar]');
     var progress=scanFirstPageProgress(readScanFirstState());
-    var stateSnapshot=readScanFirstState();
     var doneCount=vfScanFirstOrder.filter(function(key){return stateSnapshot.fixStatus&&stateSnapshot.fixStatus[key]==='done'}).length;
     var visitedTotal=Object.keys(stateSnapshot.visited||{}).filter(function(key){return stateSnapshot.visited[key]}).length;
     if(scoreShell){
@@ -2599,8 +2601,8 @@
     if(scoreRing)scoreRing.textContent=readiness.score;
     if(scoreText)scoreText.innerHTML=readiness.score+'<small>/100</small>';
     if(scoreCopy)scoreCopy.innerHTML='<b>'+escapeHtml(readiness.label)+'</b> - '+escapeHtml(readiness.copy);
-    if(pathCopy)pathCopy.innerHTML=readiness.path.replace(' ','<br>');
-    if(pathNote)pathNote.textContent=readiness.path==='Account Match Review'?'Review matched accounts, then apply only where the business profile fits.':'Start here to build a solid foundation and improve your approvals.';
+    if(pathCopy)pathCopy.innerHTML=escapeHtml(readiness.path).replace(' ','<br>');
+    if(pathNote)pathNote.textContent=readiness.copy;
     if(assignedPath)assignedPath.textContent=readiness.path;
     if(cleanSignals)cleanSignals.textContent=doneCount;
     if(cleanSignalsSecondary)cleanSignalsSecondary.textContent=doneCount;
@@ -2626,7 +2628,7 @@
     var list=document.querySelector('.vf-action-list');
     if(list){
       var state=readScanFirstState();
-      var actions=actionsFromScan(result).filter(function(action){return state.fixStatus[vfScanFirstNormalizeKey(action.key)]!=='done'});
+      var actions=actionsFromScan(latestDashboardScanResult||result).filter(function(action){return state.fixStatus[vfScanFirstNormalizeKey(action.key)]!=='done'});
       if(actions.length<3){
         vfScanFirstOrder.forEach(function(key){
           if(actions.length>=3)return;
@@ -3181,6 +3183,7 @@
           applySignalsToPage(row.signal_type,merged);
         }
       });
+      if(location.pathname==='/dashboard/')updateDashboardFromScan(null);
     }).catch(function(){});
   }
   function progressCompletionMap(){
