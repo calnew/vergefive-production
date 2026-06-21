@@ -1931,7 +1931,11 @@
         .catch(function(){return localScan(payload)})
         .then(function(data){
           var saved={mode:mode,businessName:name,state:payload.state,score:data.score,label:data.label,sourceMode:data.sourceMode,time:new Date().toISOString()};
-          if(isMemberStartScan){memberApi('POST','/api/member/visibility-audits',{mode:mode,businessName:name,result:data}).catch(function(){});}
+          if(isMemberStartScan){
+            applyScanResultToScanFirstState(data);
+            memberApi('POST','/api/member/visibility-audits',{mode:mode,businessName:name,result:data}).catch(function(){});
+            if(location.pathname==='/dashboard/')updateDashboardFromScan(data);
+          }
           renderScan(data);
         });
     });
@@ -2190,6 +2194,22 @@
     state=state||vfScanFirstDefaultState();
     try{localStorage.setItem('vf-scan-first-state',JSON.stringify(state));localStorage.setItem('vf-scan-first-tokens',JSON.stringify(vfScanFirstTokensFromState(state)))}catch(e){}
     saveMemberSignal('scan-first-state',vfScanFirstTokensFromState(state));
+  }
+  function applyScanResultToScanFirstState(result){
+    if(!result||typeof result!=='object')return readScanFirstState();
+    var state=readScanFirstState();
+    var signals=result.signals&&typeof result.signals==='object'?result.signals:{};
+    function setStatus(key,done,progress){
+      if(done)state.fixStatus[key]='done';
+      else if(progress&&state.fixStatus[key]!=='done')state.fixStatus[key]='progress';
+    }
+    setStatus('phones',!!signals.phone&&!!signals.directory,!!signals.phone||!!signals.directory);
+    setStatus('address',!!signals.address,!!signals.address);
+    setStatus('website',!!signals.website&&!!signals.email,!!signals.website||!!signals.email);
+    setStatus('llc',!!signals.entity&&!!signals.state,!!signals.entity||!!signals.state);
+    state.visited.scan=true;
+    saveScanFirstState(state);
+    return state;
   }
   function setScanFirstFixStatus(key,status){
     var state=readScanFirstState();
@@ -3796,9 +3816,10 @@
           .then(function(res){return res.json().then(function(data){if(!res.ok)throw new Error(data.error||'scan failed');return data})})
           .then(function(result){
             renderBuildout(result,mode);
+            applyScanResultToScanFirstState(result);
             return memberApi('POST','/api/member/visibility-audits',{mode:mode,businessName:input.businessName,result:result}).then(function(){return result});
           })
-          .then(function(){setMessage('Saved '+mode+' scan to this member account.');return loadAudits()})
+          .then(function(result){updateDashboardFromScan(result);setMessage('Saved '+mode+' scan to this member account.');return loadAudits()})
           .catch(function(err){setMessage(err.message||'The scan could not be completed. Check the required identifiers and try again.',true)});
       });
     });
