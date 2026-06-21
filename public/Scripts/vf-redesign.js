@@ -2482,8 +2482,29 @@
       document.querySelectorAll('[data-doc-business]').forEach(function(el){el.textContent=business});
     }).catch(function(){});
   }
+  function setPageMeta(title,description,path){
+    if(title)document.title=title;
+    if(description){
+      ['meta[name="description"]','meta[property="og:description"]'].forEach(function(selector){
+        var node=document.querySelector(selector);
+        if(node)node.setAttribute('content',description);
+      });
+    }
+    if(title){
+      var ogTitle=document.querySelector('meta[property="og:title"]');
+      if(ogTitle)ogTitle.setAttribute('content',title);
+    }
+    if(path){
+      var canonical=document.querySelector('link[rel="canonical"]');
+      if(canonical)canonical.setAttribute('href','https://www.vergefive.com'+path);
+      var ogUrl=document.querySelector('meta[property="og:url"]');
+      if(ogUrl)ogUrl.setAttribute('content','https://www.vergefive.com'+path);
+    }
+  }
+
   function renderScanFirstFixListPage(){
     if(location.pathname!=='/start-here/')return;
+    setPageMeta('Fix List | Verge Five','Work the highest-impact business credit fixes in order before applying.','/start-here/');
     var content=document.querySelector('[data-doc-shell-content]')||document.querySelector('main')||document.body;
     if(!content||content.querySelector('[data-scan-first-fix-list]'))return;
     markScanFirstVisited('/start-here/');
@@ -2510,6 +2531,7 @@
   }
   function renderScanFirstBuildoutPage(){
     if(location.pathname!=='/full-buildout/')return;
+    setPageMeta('Full Buildout | Verge Five','Continue the Verge Five member buildout across 7 modules inside 5 phases.','/full-buildout/');
     var content=document.querySelector('[data-doc-shell-content]')||document.querySelector('main')||document.body;
     if(!content||content.querySelector('[data-scan-first-buildout]'))return;
     markScanFirstVisited('/full-buildout/');
@@ -2859,6 +2881,7 @@
   initScanFirstVisitTracking();
   function initSupportRequestFlow(){
     if(location.pathname!=='/support/')return;
+    setPageMeta('Get Help | Verge Five','Submit a member support request tied to the business credit fix you are working on.','/support/');
     var main=document.querySelector('.member-main')||document.querySelector('main')||document.querySelector('.page-hero + .section');
     if(!main||document.querySelector('[data-support-request-flow]'))return;
     var params=new URL(location.href).searchParams;
