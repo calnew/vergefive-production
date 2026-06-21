@@ -2846,6 +2846,7 @@
     var route=params.get('route')||'/dashboard/';
     var selectedOption=params.get('option')||'';
     var authUser=null;
+    var authProfile={};
     var panel=document.createElement('section');
     panel.className='content-block support-request-flow';
     panel.setAttribute('data-support-request-flow','');
@@ -2854,6 +2855,7 @@
     var form=panel.querySelector('[data-support-request-form]');
     var msg=panel.querySelector('[data-support-request-message]');
     memberApi('GET','/api/auth/me').then(function(data){authUser=data&&data.user||null}).catch(function(){});
+    memberApi('GET','/api/member/profile').then(function(data){authProfile=remoteProfileToLocal(data&&data.profile)}).catch(function(){});
     if(form)form.addEventListener('submit',function(e){
       e.preventDefault();
       var submit=form.querySelector('[data-support-submit]');
@@ -2864,11 +2866,17 @@
       }
       if(submit){submit.disabled=true;submit.textContent='Sending...'}
       if(msg){msg.textContent='Sending your request...';msg.classList.remove('error')}
+      var memberName=dashboardNameFromUser(authUser||{});
+      var memberEmail=String((authUser&&authUser.email)||'').trim();
+      var businessName=dashboardBusinessName(authProfile);
       var contactPayload={
-        name:(authUser&&authUser.name)||'Verge Five member',
-        email:(authUser&&authUser.email)||'admin@vergefive.com',
+        name:memberName||'Verge Five member',
+        email:memberEmail,
         topic:'Support request: '+entry.topic,
         message:[
+          'Member: '+(memberName||'Unknown member'),
+          memberEmail?'Member email: '+memberEmail:'',
+          businessName&&businessName!=='Business Profile'?'Business: '+businessName:'',
           'Fix area: '+entry.topic,
           'Source route: '+entry.route,
           entry.option?'Selected option: '+entry.option:'',
@@ -2881,6 +2889,11 @@
       try{saved=JSON.parse(localStorage.getItem('vf-support-requests')||'[]')}catch(err){saved=[]}
       saved.unshift(entry);
       try{localStorage.setItem('vf-support-requests',JSON.stringify(saved.slice(0,20)))}catch(err){}
+      if(!memberEmail){
+        if(msg){msg.textContent='Your request was saved in this browser, but it could not be routed because the signed-in email was not available yet.';msg.classList.add('error')}
+        if(submit){submit.disabled=false;submit.textContent='Submit request'}
+        return;
+      }
       fetch('/api/contact',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(contactPayload)}).then(function(res){
         return res.json().catch(function(){return {}}).then(function(data){if(!res.ok)throw new Error(data.error||'Support request could not be sent.');return data});
       }).then(function(data){
