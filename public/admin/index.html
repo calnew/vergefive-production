@@ -1,1 +1,185 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Login | Verge Five</title><meta name="description" content="Log in to your Verge Five member account."><meta name="robots" content="noindex, follow"><link rel="icon" type="image/png" href="/favicon.png" sizes="32x32"><link rel="icon" type="image/png" sizes="32x32" href="/Resources/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/Resources/images/favicon-16x16.png"><link rel="apple-touch-icon" href="/Resources/images/vergefive-icon-180.png"><link rel="stylesheet" href="/Style/vf-redesign.css"></head><body class="vf-static-page auth-page"><header class='site-header'><div class='nav'><a class='brand' href='/'><span class='brand-logo-shell mark'><img src='/Resources/images/verge5-logo-mark.png' alt='Verge Five logo'></span><span>Verge Five</span></a><nav class='nav-links'><a href='/'>Home</a><a href='/whats-inside/'>What's Inside</a><a href='/business-credit-answers/'>Answers</a><a href='/blog/'>Blog</a></nav><div class='nav-actions'><a class='btn ghost' href='/login/'>Login</a><a class='btn' href='/membership/'>Get access</a></div><button class='mobile-toggle' data-menu-toggle aria-label='Open menu'>Menu</button></div><div class='mobile-panel'><a href='/'>Home</a><a href='/whats-inside/'>What's Inside</a><a href='/business-credit-answers/'>Answers</a><a href='/blog/'>Blog</a><a href='/login/'>Login</a><a href='/membership/'>Get access</a></div></header><main class="auth-shell"><section class="auth-card"><p class="kicker">Member login</p><h1>Continue your Verge Five buildout.</h1><p>Log in to access the modules, matchers, reports, and saved progress.</p><form data-auth-form="login" class="auth-form"><label>Email<input class="input" name="email" type="email" autocomplete="email" required></label><label>Password<input class="input" name="password" type="password" autocomplete="current-password" required></label><button class="btn" type="submit">Login</button><div class="auth-message" data-auth-message></div></form><p class="legal">Need access? <a href="/signup/">Create an account</a>. <a href="/forgot-password/">Forgot password?</a></p></section></main><script src="/Scripts/vf-redesign.js" defer></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin | Verge Five</title>
+  <meta name="description" content="Manage members, affiliates, readiness safeguards, and legacy campaigns in Verge Five.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Resources/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Resources/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Resources/images/vergefive-icon-180.png">
+  <link rel="stylesheet" href="/Style/vf-redesign.css">
+</head>
+<body class="vf-static-page admin-page">
+  <header class="site-header">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="brand-logo-shell mark"><img src="/Resources/images/verge5-logo-mark.png" alt="Verge Five logo"></span>
+        <span>Verge Five</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/start-here/">Fix List</a>
+        <a href="/full-buildout/">Full Buildout</a>
+        <a href="/support/">Support</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn ghost" href="/dashboard/">Member view</a>
+        <a class="btn" href="/" data-logout>Log out</a>
+      </div>
+      <button class="mobile-toggle" data-menu-toggle aria-label="Open menu">Menu</button>
+    </div>
+    <div class="mobile-panel">
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/start-here/">Fix List</a>
+      <a href="/full-buildout/">Full Buildout</a>
+      <a href="/support/">Support</a>
+      <a href="/" data-logout>Log out</a>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <section class="admin-page-head">
+      <div>
+        <p class="kicker">Internal workspace</p>
+        <h1 class="page-title">Verge Five admin</h1>
+        <p class="lead">Manage member access, review readiness safeguards, monitor billing links, track affiliates, and keep legacy outreach separate from live member accounts.</p>
+      </div>
+      <a class="btn secondary" href="/api/admin/members?format=csv">Export members</a>
+    </section>
+
+    <div class="auth-message" data-auth-message></div>
+
+    <section class="content-block admin-metrics" data-admin-totals>
+      <article><strong>0</strong><span>Total users</span></article>
+      <article><strong>0</strong><span>Active members</span></article>
+      <article><strong>0</strong><span>Verified emails</span></article>
+      <article><strong>CSV</strong><span>Export members</span></article>
+    </section>
+
+    <section class="content-block admin-env-panel">
+      <div class="block-head">
+        <div>
+          <p class="kicker">Environment</p>
+          <h2>Cloudflare and service status</h2>
+          <p>Quick checks for the services the admin flow depends on in this environment.</p>
+        </div>
+      </div>
+      <div class="admin-env-grid" data-admin-env-list>
+        <article class="admin-env-item"><div><strong>Loading</strong><small>Checking environment status</small></div><span class="match-status wait">Wait</span></article>
+      </div>
+    </section>
+
+    <div class="admin-workspace">
+      <section class="content-block admin-member-list">
+        <div class="block-head">
+          <div>
+            <p class="kicker">Members</p>
+            <h2>Member access and readiness</h2>
+            <p>Open a member to manage status, email, readiness locks, billing links, notes, and saved progress.</p>
+          </div>
+        </div>
+
+        <div class="vendor-library-tools">
+          <input class="input" type="search" data-admin-search placeholder="Search by name, email, status, plan, or member ID">
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Status</th>
+                <th>Email</th>
+                <th>Progress</th>
+                <th>Created</th>
+                <th>Last login</th>
+                <th>Open</th>
+              </tr>
+            </thead>
+            <tbody data-admin-members>
+              <tr><td colspan="7">Loading members...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <section class="content-block affiliate-admin-panel">
+          <div class="block-head">
+            <div>
+              <p class="kicker">Affiliates</p>
+              <h2>Affiliate and commission tracking</h2>
+              <p>Create referral partners, copy tracking links, and monitor payable versus paid commissions.</p>
+            </div>
+          </div>
+
+          <form class="affiliate-create-form" data-affiliate-create>
+            <label>Name<input class="input" name="name" required placeholder="Affiliate name"></label>
+            <label>Email<input class="input" name="email" type="email" required placeholder="name@example.com"></label>
+            <label>Code<input class="input" name="code" required placeholder="partnercode"></label>
+            <label>Payout note<input class="input" name="payoutNotes" placeholder="Optional notes"></label>
+            <button class="btn" type="submit">Create affiliate</button>
+          </form>
+          <p class="auth-message" data-affiliate-message></p>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Affiliate</th>
+                  <th>Referral link</th>
+                  <th>Referrals</th>
+                  <th>Payable</th>
+                  <th>Paid</th>
+                </tr>
+              </thead>
+              <tbody data-admin-affiliates>
+                <tr><td colspan="5">Loading affiliates...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="admin-table-wrap" style="margin-top:12px">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Affiliate</th>
+                  <th>Member</th>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th>Payments</th>
+                  <th>Amount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody data-admin-commissions>
+                <tr><td colspan="7">Loading commissions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <aside class="content-block admin-member-detail">
+        <div class="block-head">
+          <div>
+            <p class="kicker">Member detail</p>
+            <h2>Open a member record</h2>
+            <p>Use the member table to open a profile, then manage access, billing links, notes, and readiness history here.</p>
+          </div>
+        </div>
+
+        <div class="admin-detail-grid" data-admin-member-detail-body>
+          <div class="admin-loading-detail">
+            <strong>Choose a member</strong>
+            <span>Select a member from the table to load profile, progress, readiness, notes, and billing details.</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="/Scripts/vf-redesign.js" defer></script>
+</body>
+</html>
