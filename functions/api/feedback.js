@@ -1,6 +1,33 @@
 import { cleanLimited, getAuth, json, normalizeEmail, rateLimit, readJson, requireSameOrigin } from '../_lib/auth.js';
 import { sendAdminEmail } from '../_lib/security.js';
 
+async function storeSupportRequest(env, data) {
+  if (!env.DB) return '';
+  await env.DB.prepare(`create table if not exists support_requests (
+    id text primary key,
+    user_id text,
+    type text,
+    severity text,
+    name text,
+    email text,
+    page_url text,
+    message text,
+    steps text,
+    browser text,
+    source text,
+    status text not null default 'new',
+    created_at text not null default (datetime('now'))
+  )`).run();
+  await env.DB.prepare('create index if not exists idx_support_requests_created on support_requests(created_at)').run();
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    `insert into support_requests
+      (id, user_id, type, severity, name, email, page_url, message, steps, browser, source, status, created_at)
+     values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', datetime('now'))`
+  ).bind(id, data.userId || null, data.type, data.severity, data.name, data.email, data.pageUrl, data.message, data.steps, data.browser, data.source || 'feedback').run();
+  return id;
+}
+
 function firstAdminEmail(env) {
   return String(env.ADMIN_EMAILS || '').split(',').map((item) => item.trim()).filter(Boolean)[0] || '';
 }
@@ -27,8 +54,9 @@ export async function onRequestPost(context) {
   if (!email || !message) return json({ error: 'Email and message are required.' }, 400);
   if (!/^\S+@\S+\.\S+$/.test(email)) return json({ error: 'Enter a valid email address.' }, 400);
   if (!adminEmail) return json({ error: 'Feedback routing is not configured yet.' }, 500);
+  const storedId = await storeSupportRequest(context.env, { userId: auth && auth.user ? auth.user.id : '', type, severity, name, email, pageUrl, message, steps, browser, source: 'feedback' }).catch(() => '');
   const formatted = [`Type: ${type}`, `Severity: ${severity}`, `Name: ${name}`, `Email: ${email}`, auth && auth.user ? `Member user id: ${auth.user.id}` : 'Member user id: Not logged in', pageUrl ? `Page: ${pageUrl}` : 'Page: Not provided', browser ? `Browser: ${browser}` : '', '', 'Message:', message, steps ? `\nSteps to reproduce / extra detail:\n${steps}` : ''].filter(Boolean).join('\n');
   const result = await sendAdminEmail(context.env, adminEmail, `Verge Five ${type}: ${severity}`, formatted, email);
   if (!result.sent) return json({ error: 'Feedback could not be sent yet.' }, 502);
-  return json({ ok: true, id: result.id || '' });
+  return json({ ok: true, id: result.id || '', requestId: storedId });
 }

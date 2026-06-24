@@ -150,7 +150,7 @@ function isMemberApi(pathname) {
 }
 
 function isAdminPath(pathname) {
-  return pathname === '/admin/' || pathname.startsWith('/api/admin/');
+  return pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html' || pathname.startsWith('/api/admin/');
 }
 
 function isTrialAllowedPath(pathname) {
@@ -168,6 +168,9 @@ function mappedRedirectTarget(target, search) {
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
+  if (url.pathname === '/admin') {
+    return redirect(`/admin/${url.search}`);
+  }
   if (LEGACY_ROUTE_MAP[url.pathname]) {
     return redirect(mappedRedirectTarget(LEGACY_ROUTE_MAP[url.pathname], url.search));
   }

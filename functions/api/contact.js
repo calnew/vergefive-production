@@ -1,6 +1,33 @@
 import { cleanLimited, json, normalizeEmail, rateLimit, readJson, requireSameOrigin } from '../_lib/auth.js';
 import { sendAdminEmail } from '../_lib/security.js';
 
+async function storeSupportRequest(env, data) {
+  if (!env.DB) return '';
+  await env.DB.prepare(`create table if not exists support_requests (
+    id text primary key,
+    user_id text,
+    type text,
+    severity text,
+    name text,
+    email text,
+    page_url text,
+    message text,
+    steps text,
+    browser text,
+    source text,
+    status text not null default 'new',
+    created_at text not null default (datetime('now'))
+  )`).run();
+  await env.DB.prepare('create index if not exists idx_support_requests_created on support_requests(created_at)').run();
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    `insert into support_requests
+      (id, user_id, type, severity, name, email, page_url, message, steps, browser, source, status, created_at)
+     values (?, null, ?, ?, ?, ?, '', ?, '', '', ?, 'new', datetime('now'))`
+  ).bind(id, data.type, data.severity, data.name, data.email, data.message, data.source || 'contact').run();
+  return id;
+}
+
 function firstAdminEmail(env) {
   return String(env.ADMIN_EMAILS || '').split(',').map((item) => item.trim()).filter(Boolean)[0] || '';
 }
@@ -31,6 +58,7 @@ export async function onRequestPost(context) {
   if (!name || !email || !topic || !message) return json({ error: 'Name, email, topic, and message are required.' }, 400);
   if (!/^\S+@\S+\.\S+$/.test(email)) return json({ error: 'Enter a valid email address.' }, 400);
   if (!adminEmail) return json({ error: 'Contact routing is not configured yet.' }, 500);
+  const storedId = await storeSupportRequest(context.env, { type: topic || 'Website contact', severity: 'Normal', name, email, message, source: 'contact' }).catch(() => '');
 
   const formatted = [
     `Name: ${name}`,
@@ -41,5 +69,5 @@ export async function onRequestPost(context) {
   ].join('\n');
   const result = await sendAdminEmail(context.env, adminEmail, `Website contact: ${topic}`, formatted, email);
   if (!result.sent) return json({ error: 'Message could not be sent yet.' }, 502);
-  return json({ ok: true, id: result.id || '' });
+  return json({ ok: true, id: result.id || '', requestId: storedId });
 }

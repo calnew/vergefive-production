@@ -15,6 +15,24 @@ async function requireAdmin(context) {
   return auth && isAdminEmail(auth.user.email, context.env) ? auth : null;
 }
 
+async function ensureVisibilityAuditTable(env) {
+  await env.DB.prepare(
+    `create table if not exists visibility_audits (
+      id text primary key,
+      user_id text not null references users(id) on delete cascade,
+      mode text not null,
+      business_name text,
+      score integer,
+      label text,
+      source_mode text,
+      engine text,
+      result_json text not null,
+      created_at text not null default (datetime('now'))
+    )`
+  ).run();
+  await env.DB.prepare('create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at)').run();
+}
+
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context);
   if (!auth) return json({ error: 'Admin access required.' }, 403);
@@ -45,6 +63,7 @@ export async function onRequestGet(context) {
   ).bind(memberId).first();
 
   if (!member) return json({ error: 'Member not found.' }, 404);
+  await ensureVisibilityAuditTable(context.env);
 
   const profile = await context.env.DB.prepare(
     `select business_name, trade_name, entity_type, formation_state, ein, industry, phone, address, website, email,
@@ -80,6 +99,14 @@ export async function onRequestGet(context) {
   const reportRows = await context.env.DB.prepare(
     `select id, report_type, readiness_stage, summary_json, created_at
      from report_snapshots
+     where user_id = ?
+     order by created_at desc
+     limit 20`
+  ).bind(memberId).all();
+
+  const auditRows = await context.env.DB.prepare(
+    `select id, mode, business_name, score, label, source_mode, engine, result_json, created_at
+     from visibility_audits
      where user_id = ?
      order by created_at desc
      limit 20`
@@ -136,6 +163,18 @@ export async function onRequestGet(context) {
     createdAt: row.created_at
   }));
 
+  const visibilityAudits = (auditRows.results || []).map((row) => ({
+    id: row.id,
+    mode: row.mode,
+    businessName: row.business_name,
+    score: row.score,
+    label: row.label,
+    sourceMode: row.source_mode,
+    engine: row.engine,
+    result: parseJson(row.result_json, {}),
+    createdAt: row.created_at
+  }));
+
   const notes = (noteRows.results || []).map((row) => ({
     id: row.id,
     adminEmail: row.admin_email,
@@ -163,5 +202,5 @@ export async function onRequestGet(context) {
     stripeSubscription: member.stripe_subscription_id ? `https://dashboard.stripe.com/subscriptions/${member.stripe_subscription_id}` : ''
   };
 
-  return json({ member, profile: profile || null, resume: resume || null, progress, signals, reports, notes, activity, readinessLock: readinessLock || null, accessEvents, billingLinks });
+  return json({ member, profile: profile || null, resume: resume || null, progress, signals, reports, visibilityAudits, notes, activity, readinessLock: readinessLock || null, accessEvents, billingLinks });
 }
