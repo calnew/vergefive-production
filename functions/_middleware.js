@@ -161,10 +161,15 @@ function isTrialAllowedMemberApi(pathname) {
   return TRIAL_ALLOWED_MEMBER_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 }
 
+function mappedRedirectTarget(target, search) {
+  if (!search) return target;
+  return target + (target.includes('?') ? '&' : '?') + search.slice(1);
+}
+
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   if (LEGACY_ROUTE_MAP[url.pathname]) {
-    return redirect(LEGACY_ROUTE_MAP[url.pathname] + url.search);
+    return redirect(mappedRedirectTarget(LEGACY_ROUTE_MAP[url.pathname], url.search));
   }
   if (!isProtected(url.pathname) && !isMemberApi(url.pathname) && !isAdminPath(url.pathname)) {
     return context.next();
