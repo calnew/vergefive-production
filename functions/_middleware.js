@@ -90,7 +90,7 @@ const LEGACY_ROUTE_MAP = {
   '/business-credit-criteria/': '/vf-app.html?page=fix&fix=criteria',
   '/newpagea5b34995/': '/vf-app.html?page=fix&fix=criteria',
   '/about-net-30/': '/vf-app.html?page=fix&fix=net30',
-  '/starter-net-30-vendors/': '/vf-app.html?page=fix&fix=net30',
+  '/starter-net-30-vendors/': '/vf-app.html?page=accounts&tab=vendor',
   '/nav-ecredable/': '/vf-app.html?page=accounts&tab=cards',
   '/nav-boot/': '/vf-app.html?page=accounts&tab=cards',
   '/revolving-business-credit-cards/': '/vf-app.html?page=accounts&tab=cards',
