@@ -252,6 +252,13 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
+  let normalized = {
+    mode: 'before',
+    businessName: 'Your Business',
+    state: '',
+    website: '',
+    phone: ''
+  };
   try {
     const ip = context.request.headers.get('cf-connecting-ip') || 'unknown';
     let limited = { ok: true };
@@ -262,9 +269,9 @@ export async function onRequestPost(context) {
     }
     if (!limited.ok) return limited.response;
     const input = await readJson(context.request);
-    const normalized = {
+    normalized = {
       mode: cleanLimited(input.mode || 'before', 20),
-      businessName: cleanLimited(input.businessName, 160),
+      businessName: cleanLimited(input.businessName, 160) || 'Your Business',
       state: cleanLimited(input.state, 80),
       website: cleanLimited(input.website, 180),
       phone: cleanLimited(input.phone, 60)
@@ -298,6 +305,15 @@ export async function onRequestPost(context) {
 
     return json(analysis);
   } catch (error) {
-    return json({ error: 'Unable to run visibility scan.' }, 500);
+    const analysis = basicSignalScan(normalized);
+    analysis.redFlags.unshift('Live scan services were unavailable, so this fallback scan used the profile fields only.');
+    analysis.aiRecommendation = '';
+    analysis.businessName = normalized.businessName || 'Your Business';
+    analysis.state = normalized.state || '';
+    analysis.mode = normalized.mode || 'before';
+    analysis.generatedAt = new Date().toISOString();
+    analysis.disclaimer = 'This is a public visibility scan, not a credit approval guarantee. It cannot confirm private bureau files, bank underwriting, or lender databases.';
+    analysis.recovered = true;
+    return json(analysis);
   }
 }
