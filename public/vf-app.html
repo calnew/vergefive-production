@@ -107,29 +107,6 @@
 
   <!-- MAIN -->
   <main style="flex:1;min-width:0;background:#F1F4F9;display:flex;flex-direction:column">
-    <!-- HEADER -->
-    <header style="position:sticky;top:0;z-index:5;background:rgba(241,244,249,.85);backdrop-filter:blur(10px);border-bottom:1px solid #e2e8f2;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px">
-      <div style="min-width:0">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.4px;color:#8a97ab;text-transform:uppercase">{{ kicker }}</div>
-        <div style="font-family:'Space Grotesk';font-weight:700;font-size:23px;letter-spacing:-.5px;color:#0F1B2D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pageTitle }}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex:none">
-        <sc-if value="{{ showBack }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ navDashboard }}" style="display:flex;align-items:center;gap:7px;border:none;background:#0E1A2B;color:#fff;cursor:pointer;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700" style-hover="background:#1b2c46">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5l-7 7 7 7"></path></svg>
-            Dashboard
-          </button>
-        </sc-if>
-        <button onClick="{{ getHelpGeneral }}" style="display:flex;align-items:center;gap:7px;border:1px solid #d6deea;background:#fff;color:#33425a;cursor:pointer;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600" style-hover="border-color:#2563EB;color:#2563EB">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M9.2 9.3a2.8 2.8 0 1 1 4 2.5c-.9.5-1.2 1-1.2 1.9"></path><circle cx="12" cy="17" r=".6" fill="currentColor"></circle></svg>
-          Get Help
-        </button>
-        <button onClick="{{ runScan }}" style="display:flex;align-items:center;gap:7px;border:none;background:#2563EB;color:#fff;cursor:pointer;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 6px 16px rgba(37,99,235,.32)" style-hover="background:#1d4ed8">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
-          Run Scan
-        </button>
-      </div>
-    </header>
 
     <div style="padding:32px 36px 56px;max-width:1180px;width:100%;margin:0 auto">
 
