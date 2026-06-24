@@ -52,7 +52,7 @@ async function readJson(request, maxBytes = MAX_SCAN_JSON_BYTES) {
 }
 
 async function rateLimit(env, key, limit = 20, windowSeconds = 900) {
-  if (!env.DB) return { ok: true };
+  if (!env || !env.DB) return { ok: true };
   const now = Date.now();
   const resetAt = new Date(now + windowSeconds * 1000).toISOString();
   await env.DB.prepare(
@@ -254,7 +254,12 @@ export async function onRequestOptions() {
 export async function onRequestPost(context) {
   try {
     const ip = context.request.headers.get('cf-connecting-ip') || 'unknown';
-    const limited = await rateLimit(context.env, `visibility:${ip}`, 20, 900);
+    let limited = { ok: true };
+    try {
+      limited = await rateLimit(context.env, `visibility:${ip}`, 20, 900);
+    } catch (error) {
+      limited = { ok: true };
+    }
     if (!limited.ok) return limited.response;
     const input = await readJson(context.request);
     const normalized = {
@@ -270,14 +275,14 @@ export async function onRequestPost(context) {
 
     let analysis;
     try {
-      const search = await publicSearch(context.env, normalized);
+      const search = await publicSearch(context.env || {}, normalized);
       analysis = search ? analyzePublicResults(normalized, search) : basicSignalScan(normalized);
     } catch (error) {
       analysis = basicSignalScan(normalized);
       analysis.redFlags.unshift('Live public lookup was attempted but did not complete.');
     }
 
-    analysis.aiRecommendation = await aiReview(context.env, normalized, analysis);
+    analysis.aiRecommendation = await aiReview(context.env || {}, normalized, analysis);
     analysis.businessName = normalized.businessName;
     analysis.state = normalized.state;
     analysis.mode = normalized.mode;
