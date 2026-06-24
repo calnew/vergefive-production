@@ -1,1 +1,0 @@
-"use strict";(self.webpackJsonpRuntime=self.webpackJsonpRuntime||[]).push([[192],{737(n,e,s){s.r(e),s.d(e,{IGNORE_LINK_ON_CONTAINER_ATTRIBUTE:()=>t.Q,LINK_ON_CONTAINER_ATTRIBUTE:()=>N,init:()=>i});var t=s(8041);const N="data-link-on-container",c=`[${N}]`;async function i(){(0,t.A)({selector:c})}}}]);
