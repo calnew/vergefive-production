@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 (function(){
   var header=document.querySelector('.site-header');
   var toggle=document.querySelector('[data-menu-toggle]');
@@ -4588,3 +4589,6 @@
     initFundingMatcher();
   }
 })();
+=======
+location.replace('/dashboard/');
+>>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
