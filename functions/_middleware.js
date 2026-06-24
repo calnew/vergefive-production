@@ -60,6 +60,14 @@ const PROTECTED_PREFIXES = [
 
 const LEGACY_ROUTE_MAP = {
   '/demo/': '/whats-inside/',
+  '/dashboard/': '/vf-app.html?page=dashboard',
+  '/run-scan/': '/vf-app.html?page=scan',
+  '/fix-list/': '/vf-app.html?page=fixlist',
+  '/account-matches/': '/vf-app.html?page=accounts',
+  '/full-buildout/': '/vf-app.html?page=buildout',
+  '/support/': '/vf-app.html?page=support',
+  '/report-card/': '/vf-app.html?page=report',
+  '/mobile/': '/vf-app.html?page=mobile',
   '/homeefe757a6/': '/vf-app.html?page=dashboard',
   '/business-visibility-audit/': '/vf-app.html?page=scan',
   '/ai-visibility-audit/': '/vf-app.html?page=scan',
