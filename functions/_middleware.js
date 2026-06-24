@@ -1,12 +1,4 @@
 import { getAuth, isAdminEmail, isTrialExpired, isTrialMembership, redirect } from './_lib/auth.js';
-<<<<<<< HEAD
-
-const PROTECTED_PREFIXES = [
-  '/account/',
-  '/dashboard/',
-  '/full-buildout/',
-  '/start-here/',
-=======
 import { isAdvancedReadinessPath, readinessLockForPath, recordMemberPageAccess } from './_lib/readiness-locks.js';
 
 const PROTECTED_PREFIXES = [
@@ -21,7 +13,6 @@ const PROTECTED_PREFIXES = [
   '/start-here/',
   '/homeefe757a6/',
   '/nap-overview/',
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   '/phones-and-411/',
   '/business-address/',
   '/website-domain-email/',
@@ -34,19 +25,13 @@ const PROTECTED_PREFIXES = [
   '/bank-rating/',
   '/your-bank-rating/',
   '/business-plan/',
-<<<<<<< HEAD
-=======
   '/business-plan-report/',
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   '/equifax-business/',
   '/comparable-credit/',
   '/business-credit-criteria/',
   '/newpagea5b34995/',
   '/about-net-30/',
-<<<<<<< HEAD
-=======
   '/nav-ecredable/',
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   '/nav-boot/',
   '/revolving-business-credit-cards/',
   '/cd-business-loans/',
@@ -62,10 +47,7 @@ const PROTECTED_PREFIXES = [
   '/Resources/files/sample-restaurant-business-plan.pdf',
   '/Resources/files/sample-restaurant-business-plan.html',
   '/downloads/',
-<<<<<<< HEAD
-=======
   '/business-visibility-audit/',
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   '/ai-visibility-audit/',
   '/conversational-ai-bot/',
   '/support/',
@@ -76,26 +58,6 @@ const PROTECTED_PREFIXES = [
 ];
 
 const LEGACY_ROUTE_MAP = {
-<<<<<<< HEAD
-  '/homeefe757a6/': '/dashboard/',
-  '/newpage87229491/': '/website-domain-email/',
-  '/newpage7c157847/': '/llc-vs-corporation/',
-  '/newpagea5b34995/': '/business-credit-criteria/',
-  '/newpagebd8ae2e6/': '/high-tech-auto-vendors/',
-  '/newpageed554e37/': '/business-assets-equipment/'
-};
-
-const TRIAL_ALLOWED_PREFIXES = [
-  '/account/',
-  '/dashboard/',
-  '/full-buildout/',
-  '/start-here/',
-  '/ai-visibility-audit/',
-  '/phones-and-411/'
-];
-
-const TRIAL_ALLOWED_MEMBER_API_PREFIXES = [
-=======
   '/demo/': '/whats-inside/',
   '/homeefe757a6/': '/dashboard/',
   '/business-visibility-audit/': '/run-scan/',
@@ -164,7 +126,6 @@ const TRIAL_PREVIEW_PREFIXES = PROTECTED_PREFIXES.filter((prefix) => (
 
 const TRIAL_ALLOWED_MEMBER_API_PREFIXES = [
   '/api/member/guide',
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   '/api/member/profile',
   '/api/member/progress',
   '/api/member/visibility-audits'
@@ -183,11 +144,7 @@ function isAdminPath(pathname) {
 }
 
 function isTrialAllowedPath(pathname) {
-<<<<<<< HEAD
-  return TRIAL_ALLOWED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
-=======
   return TRIAL_PREVIEW_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
 }
 
 function isTrialAllowedMemberApi(pathname) {
@@ -201,8 +158,6 @@ export async function onRequest(context) {
   }
   if (!isProtected(url.pathname) && !isMemberApi(url.pathname) && !isAdminPath(url.pathname)) {
     return context.next();
-<<<<<<< HEAD
-=======
   }
 
   const auth = await getAuth(context.request, context.env);
@@ -282,77 +237,24 @@ export async function onRequest(context) {
       });
     }
     return redirect(`/membership/?next=${encodeURIComponent(url.pathname + url.search)}`);
->>>>>>> 6374203 (Replace frontend with uploaded Verge Five layout)
   }
 
-  const auth = await getAuth(context.request, context.env);
-  if (!auth) {
-    if (isMemberApi(url.pathname)) {
-      return new Response(JSON.stringify({ error: 'Login required.' }), {
-        status: 401,
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
-      });
-    }
-    return redirect(`/login/?next=${encodeURIComponent(url.pathname + url.search)}`);
+  if (!isMemberApi(url.pathname)) {
+    await recordMemberPageAccess(context.env, auth.user.id, url.pathname).catch(() => null);
   }
-
-  const isAdmin = isAdminEmail(auth.user.email, context.env);
-
-  if (isAdminPath(url.pathname)) {
-    if (!isAdmin) {
-      if (url.pathname.startsWith('/api/admin/')) {
-        return new Response(JSON.stringify({ error: 'Admin access required.' }), {
-          status: 403,
-          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
-        });
-      }
-      return redirect('/account/');
-    }
-    context.data.auth = auth;
-    return context.next();
-  }
-
-  if (url.pathname === '/account/' || url.pathname.startsWith('/api/billing/')) {
-    context.data.auth = auth;
-    return context.next();
-  }
-
-  if (isAdmin) {
-    context.data.auth = auth;
-    return context.next();
-  }
-
-  if (isTrialMembership(auth.membership.status)) {
-    if (isTrialExpired(auth.membership.status, auth.membership.currentPeriodEnd)) {
+  if (isAdvancedReadinessPath(url.pathname)) {
+    const settleHours = Number(context.env.READINESS_SETTLE_HOURS || 72);
+    const readiness = await readinessLockForPath(context.env, auth.user.id, url.pathname, { settleHours }).catch(() => ({ locked: false }));
+    if (readiness.locked) {
+      const message = encodeURIComponent(readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.');
       if (isMemberApi(url.pathname)) {
-        return new Response(JSON.stringify({ error: 'Your free test drive has expired. Choose a plan to continue.' }), {
-          status: 402,
+        return new Response(JSON.stringify({ error: readiness.lock && readiness.lock.message || 'Advanced sections are paused until your business readiness path is reviewed.', code: readiness.code || 'readiness_locked' }), {
+          status: 423,
           headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
         });
       }
-      return redirect(`/membership/?trial=expired&next=${encodeURIComponent(url.pathname + url.search)}`);
+      return redirect(`/homeefe757a6/?readiness=locked&reason=${encodeURIComponent(readiness.code || 'readiness_locked')}&message=${message}&next=${encodeURIComponent(url.pathname + url.search)}`);
     }
-    if (isTrialAllowedPath(url.pathname) || isTrialAllowedMemberApi(url.pathname)) {
-      context.data.auth = auth;
-      return context.next();
-    }
-    if (isMemberApi(url.pathname)) {
-      return new Response(JSON.stringify({ error: 'Upgrade to unlock this member tool.' }), {
-        status: 402,
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
-      });
-    }
-    return redirect(`/membership/?trial=locked&next=${encodeURIComponent(url.pathname + url.search)}`);
-  }
-
-  if (!auth.active) {
-    if (isMemberApi(url.pathname)) {
-      return new Response(JSON.stringify({ error: 'Active membership required.' }), {
-        status: 402,
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
-      });
-    }
-    return redirect(`/membership/?next=${encodeURIComponent(url.pathname + url.search)}`);
   }
 
   context.data.auth = auth;
