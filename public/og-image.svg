@@ -1,0 +1,17 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#EEF3FA"/>
+  <rect x="86" y="72" width="1028" height="486" rx="42" fill="#0E1A2B"/>
+  <circle cx="1010" cy="150" r="126" fill="#2563EB" fill-opacity="0.24"/>
+  <circle cx="190" cy="494" r="96" fill="#19A56B" fill-opacity="0.18"/>
+  <rect x="132" y="118" width="58" height="58" rx="16" fill="#061121" stroke="#26B7CD" stroke-width="4"/>
+  <path d="M147 147C167 122 185 122 174 147C164 171 135 168 148 137C159 110 194 125 176 162" stroke="#26B7CD" stroke-width="5" stroke-linecap="round"/>
+  <text x="212" y="156" fill="white" font-family="Arial, sans-serif" font-size="34" font-weight="800">Verge Five</text>
+  <text x="132" y="260" fill="#8FB5FF" font-family="Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="7">BUSINESS CREDIT READINESS</text>
+  <text x="132" y="340" fill="white" font-family="Arial, sans-serif" font-size="66" font-weight="900">Run the scan.</text>
+  <text x="132" y="418" fill="white" font-family="Arial, sans-serif" font-size="66" font-weight="900">Fix what matters.</text>
+  <text x="132" y="496" fill="#31B36A" font-family="Arial, sans-serif" font-size="66" font-weight="900">Unlock the right path.</text>
+  <rect x="768" y="272" width="268" height="150" rx="28" fill="white" fill-opacity="0.12" stroke="white" stroke-opacity="0.24"/>
+  <circle cx="834" cy="346" r="44" stroke="#2563EB" stroke-width="14"/>
+  <text x="890" y="338" fill="white" font-family="Arial, sans-serif" font-size="30" font-weight="900">56/100</text>
+  <text x="890" y="374" fill="#AEBFD8" font-family="Arial, sans-serif" font-size="20" font-weight="700">Fair readiness</text>
+</svg>

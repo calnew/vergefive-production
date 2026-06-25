@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Entitlement {
+  free
+  self_serve
+  done_with_you
+}
+
+enum IssueSeverity {
+  high
+  med
+  low
+}
+
+enum IssueStatus {
+  todo
+  progress
+  done
+}
+
+enum AccountCategory {
+  vendor_net30
+  secured_card
+  credit_card
+  funding
+}
+
+enum AccountTier {
+  ready
+  unlock_next
+}
+
+model User {
+  id                   String      @id @default(cuid())
+  email                String      @unique
+  passwordHash         String
+  name                 String
+  createdAt            DateTime    @default(now())
+  entitlement          Entitlement @default(free)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  businesses           Business[]
+}
+
+model Business {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  entityType String
+  address    String
+  phone      String
+  website    String
+  email      String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scans      Scan[]
+
+  @@index([userId])
+}
+
+model Scan {
+  id             String         @id @default(cuid())
+  businessId     String
+  createdAt      DateTime       @default(now())
+  readinessScore Int
+  grade          String
+  signalsTotal   Int
+  signalsClean   Int
+  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  issues         Issue[]
+  accountMatches AccountMatch[]
+
+  @@index([businessId])
+}
+
+model Issue {
+  id         String        @id @default(cuid())
+  scanId     String
+  key        String
+  title      String
+  detail     String
+  severity   IssueSeverity
+  impactRank Int
+  status     IssueStatus   @default(todo)
+  scan       Scan          @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([scanId])
+  @@index([key])
+}
+
+model AccountMatch {
+  id           String          @id @default(cuid())
+  scanId       String
+  name         String
+  category     AccountCategory
+  tier         AccountTier
+  reason       String
+  unlockReason String?
+  faceBg       String
+  scan         Scan            @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([scanId])
+  @@index([category])
+  @@index([tier])
+}
+
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
+}

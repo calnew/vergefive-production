@@ -1,5 +1,6 @@
 # Dependencies and caches
 node_modules/
+.next/
 .wrangler/
 .cache/
 dist/
@@ -34,6 +35,7 @@ qa/**/*.json
 
 # Local reference archives kept off GitHub
 _reference/
+archive/
 
 # Root-level generated QA captures
 qa/*.html
