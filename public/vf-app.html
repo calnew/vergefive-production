@@ -338,17 +338,29 @@
             <div style="position:relative;width:160px;height:160px;margin:14px auto 6px">
               <svg width="160" height="160" viewBox="0 0 132 132">
                 <circle cx="66" cy="66" r="58" fill="none" stroke="#EAEEF4" stroke-width="12"></circle>
-                <circle cx="66" cy="66" r="58" fill="none" stroke="{{ ringColor }}" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ ringCirc }}" stroke-dashoffset="{{ ringOffset }}" transform="rotate(-90 66 66)" style="transition:stroke-dashoffset .7s ease"></circle>
+                <circle cx="66" cy="66" r="58" fill="none" stroke="{{ scanRingColor }}" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ scanRingCirc }}" stroke-dashoffset="{{ scanRingOffset }}" transform="rotate(-90 66 66)" style="transition:stroke-dashoffset .7s ease"></circle>
               </svg>
               <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                <div style="font-family:'Space Grotesk';font-weight:700;font-size:42px;color:#0F1B2D;line-height:1">{{ score }}</div>
+                <div style="font-family:'Space Grotesk';font-weight:700;font-size:42px;color:#0F1B2D;line-height:1">{{ scanScore }}</div>
                 <div style="font-size:11px;color:#8a97ab;font-weight:700">/ 100</div>
               </div>
             </div>
-            <div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;color:{{ ringColor }}">{{ scoreLabel }}</div>
+            <div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;color:{{ scanRingColor }}">{{ scanScoreLabel }}</div>
             <div style="background:#F4F7FC;border-radius:11px;padding:12px;margin-top:16px;text-align:left">
-              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase">Recommended path</div>
-              <div style="font-weight:700;color:#2563EB;font-size:15px;margin-top:3px">{{ assignedPath }}</div>
+              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase">Scan source</div>
+              <div style="font-weight:700;color:#2563EB;font-size:15px;margin-top:3px">{{ scanSourceLabel }}</div>
+              <div style="font-size:12px;color:#5B6B82;margin-top:4px">{{ scanEngine }}</div>
+              <div style="font-size:12px;color:#5B6B82;margin-top:4px">Generated: {{ scanGeneratedAt }}</div>
+            </div>
+            <sc-if value="{{ hasFallbackNotice }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FCF1E2;border:1px solid #f4d5a1;border-radius:11px;padding:12px;margin-top:12px;text-align:left;color:#92400e;font-size:12.5px;line-height:1.45;font-weight:700">{{ fallbackNotice }}</div>
+            </sc-if>
+            <div style="background:#F4F7FC;border-radius:11px;padding:12px;margin-top:12px;text-align:left">
+              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase">AI review</div>
+              <div style="font-weight:700;color:#0F1B2D;font-size:13px;margin-top:3px">{{ scanAiStatusLabel }}</div>
+              <sc-if value="{{ hasAiRecommendation }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px;color:#5B6B82;margin-top:7px;line-height:1.45">{{ scanAiRecommendation }}</div>
+              </sc-if>
             </div>
           </div>
 
@@ -368,6 +380,34 @@
                 </div>
               </sc-for>
             </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px">
+              <div style="border:1px solid #EAEEF4;border-radius:13px;padding:14px">
+                <div style="font-size:11.5px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Findings</div>
+                <sc-for list="{{ scanFindings }}" as="f" hint-placeholder-count="3">
+                  <div style="font-size:12.5px;color:#34435c;line-height:1.45;margin-top:7px">✓ {{ f.text }}</div>
+                </sc-for>
+              </div>
+              <div style="border:1px solid #EAEEF4;border-radius:13px;padding:14px">
+                <div style="font-size:11.5px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Review flags</div>
+                <sc-for list="{{ scanRedFlags }}" as="f" hint-placeholder-count="3">
+                  <div style="font-size:12.5px;color:#34435c;line-height:1.45;margin-top:7px">• {{ f.text }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ hasScanEvidence }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid #EEF1F6;margin-top:18px;padding-top:16px">
+              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Live search evidence</div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ scanEvidence }}" as="e" hint-placeholder-count="4">
+                  <a href="{{ e.url }}" target="_blank" rel="noopener" style="display:block;border:1px solid #EAEEF4;border-radius:12px;padding:11px 13px;color:#0F1B2D;text-decoration:none" style-hover="border-color:#2563EB;background:#f7fbff">
+                    <div style="font-weight:700;font-size:13px">{{ e.title }}</div>
+                    <div style="font-size:11.5px;color:#2563EB;margin-top:3px">{{ e.domain }}</div>
+                    <div style="font-size:12px;color:#5B6B82;margin-top:4px;line-height:1.4">{{ e.description }}</div>
+                  </a>
+                </sc-for>
+              </div>
+            </div>
+            </sc-if>
           </div>
         </div>
         </sc-if>
@@ -1637,13 +1677,18 @@ class Component extends DCLogic {
     fetch('/api/member/progress', {method:'PUT', credentials:'include', headers:{'content-type':'application/json'}, body:JSON.stringify({pagePath:'/dashboard/?page=fix&fix='+encodeURIComponent(key), pageTitle:(this.FIXES[key]||{}).title || key, breadcrumb:'Verge Five buildout', completedIndexes:[index], signalType:'fix-status', selectedKeys:Object.keys(Object.assign({}, this.state.fixStatus, {[key]:status})).filter(k => (k===key ? status : this.state.fixStatus[k]) === 'done')})}).catch(()=>{});
   }
   async runLiveVisibilityScan(){
+    if(this.state.scanRunning) return;
+    if(!(this.state.backend && this.state.backend.loaded)){
+      await this.loadBackendState().catch(() => null);
+    }
     const p = (this.state.backend && this.state.backend.profile) || {};
     const payload = { mode:'before', businessName:p.business_name || p.businessName || this.state.backend.businessName || '', state:p.formation_state || p.formationState || '', website:p.website || '', phone:p.phone || '', address:p.address || '' };
     this.setState({ page:'scan', scanRunning:true, scanComplete:false, scanError:'', visited:{...this.state.visited, scan:true} });
     this.persistRouteProgress('scan');
     try{
       const result = await this.backendFetch('/api/visibility-scan', {method:'POST', body:JSON.stringify(payload)});
-      await fetch('/api/member/visibility-audits', {method:'POST', credentials:'include', headers:{'content-type':'application/json'}, body:JSON.stringify({mode:'before', businessName:payload.businessName, result})}).catch(()=>{});
+      result.auditSaved = true;
+      await fetch('/api/member/visibility-audits', {method:'POST', credentials:'include', headers:{'content-type':'application/json'}, body:JSON.stringify({mode:'before', businessName:payload.businessName, result})}).catch(()=>{ result.auditSaved = false; });
       const nextSignals = {};
       if(result.signals){ if(result.signals.phone) nextSignals.phones='progress'; if(result.signals.address) nextSignals.address='progress'; if(result.signals.website) nextSignals.website='progress'; }
       this.setState(s => ({ scanRunning:false, scanComplete:true, scanResult:result, scanError:'', fixStatus:Object.assign({}, s.fixStatus, nextSignals) }));
@@ -1906,6 +1951,28 @@ class Component extends DCLogic {
       {label:'Bank account', value: (s.backend.profile && s.backend.profile.bank ? 'On file' : '') || this.props.profileBank || 'From profile'},
     ];
 
+    // live scan display
+    const scanResult = s.scanResult || {};
+    const rawScanScore = Number(scanResult.score || 0);
+    const scanScore = s.scanComplete ? Math.max(0, Math.min(100, rawScanScore <= 10 ? Math.round(rawScanScore * 10) : Math.round(rawScanScore))) : 0;
+    const scanScoreLabel = scanResult.label || 'Run the scan to see your result';
+    const scanRingColor = scanScore < 40 ? '#DC2626' : scanScore < 60 ? '#D97706' : scanScore < 80 ? '#2563EB' : '#15803D';
+    const scanRingCirc = 2*Math.PI*58;
+    const scanRingOffset = scanRingCirc * (1 - scanScore/100);
+    const scanSourceLabel = scanResult.sourceMode === 'public-search' ? 'Live public search' : 'Fallback entered-signals scan';
+    const scanEngine = scanResult.engine || 'Waiting for scan';
+    let scanGeneratedAt = 'Not run yet';
+    try { if(scanResult.generatedAt) scanGeneratedAt = new Date(scanResult.generatedAt).toLocaleString(); } catch(e){}
+    const hasFallbackNotice = !!(s.scanComplete && scanResult.sourceMode !== 'public-search');
+    const fallbackNotice = scanResult.fallbackReason || 'This result used the fallback entered-profile scan instead of live public search.';
+    const scanAiRecommendation = scanResult.aiRecommendation || '';
+    const hasAiRecommendation = !!scanAiRecommendation;
+    const scanAiStatusLabel = scanResult.aiStatus === 'active' || hasAiRecommendation ? 'AI-enhanced review active' : (scanResult.aiStatus === 'error' ? 'AI review attempted but unavailable' : 'AI review not configured');
+    const scanFindings = (Array.isArray(scanResult.findings) && scanResult.findings.length ? scanResult.findings : ['Run or rerun the scan to collect current public signals.']).slice(0,5).map(text => ({ text }));
+    const scanRedFlags = (Array.isArray(scanResult.redFlags) && scanResult.redFlags.length ? scanResult.redFlags : ['No current scan flags yet.']).slice(0,5).map(text => ({ text }));
+    const scanEvidence = (Array.isArray(scanResult.evidence) ? scanResult.evidence : []).slice(0,6).map(item => ({ title:item.title || item.url || 'Search result', url:item.url || '#', domain:item.domain || '', description:item.description || '' }));
+    const hasScanEvidence = scanEvidence.length > 0;
+
     // scan issues
     const sev = (level) => level==='High' ? {sevBg:'#FBE9E9',sevColor:'#DC2626',dot:'#DC2626'} : level==='Medium' ? {sevBg:'#FCF1E2',sevColor:'#B45309',dot:'#D97706'} : {sevBg:'#EEF3FE',sevColor:'#2563EB',dot:'#2563EB'};
     const issueDefs = [
@@ -1915,7 +1982,12 @@ class Component extends DCLogic {
       {k:'bankrating', title:'Bank rating below Low-5', detail:'Average balance is under the recommended threshold.', severity:'Medium'},
       {k:'net30', title:'No reporting tradelines yet', detail:'You have no Net 30 accounts reporting to the bureaus.', severity:'Medium'},
     ];
-    const scanIssues = issueDefs.map(i => ({ ...i, ...sev(i.severity), onFix: () => this.openFix(i.k) }));
+    const liveFlags = Array.isArray(scanResult.redFlags) ? scanResult.redFlags : [];
+    const scanIssues = (s.scanComplete && liveFlags.length ? liveFlags.slice(0,5).map((flag) => {
+      const t = String(flag || '').toLowerCase();
+      const k = t.includes('phone') ? 'phones' : t.includes('address') ? 'address' : t.includes('website') || t.includes('domain') ? 'website' : t.includes('state') || t.includes('entity') ? 'llc' : t.includes('directory') ? 'phones' : 'criteria';
+      return { k, title: flag, detail:'Fresh finding from the latest public visibility scan.', severity: t.includes('not configured') || t.includes('fallback') ? 'Medium' : 'High' };
+    }) : issueDefs).map(i => ({ ...i, ...sev(i.severity), onFix: () => this.openFix(i.k) }));
 
     // fix list phases
     const phaseDefs = [
@@ -2102,6 +2174,11 @@ class Component extends DCLogic {
       scanButtonOpacity: s.scanRunning ? '.65' : '1',
       scanCta: s.scanRunning ? 'Scanning...' : (s.scanComplete ? 'Re-run Scan' : 'Run Scan Now'),
       scanInputs, scanIssues,
+      scanScore, scanScoreLabel, scanRingColor, scanRingCirc, scanRingOffset,
+      scanSourceLabel, scanEngine, scanGeneratedAt,
+      hasFallbackNotice, fallbackNotice,
+      scanAiStatusLabel, scanAiRecommendation, hasAiRecommendation,
+      scanFindings, scanRedFlags, scanEvidence, hasScanEvidence,
       phases,
       fix, markBtnText, markBtnBg,
       markActiveComplete: () => this.markComplete(s.activeFix),

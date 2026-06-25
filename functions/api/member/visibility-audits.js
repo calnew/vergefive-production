@@ -61,7 +61,12 @@ export async function onRequestPost(context) {
       url: cleanLimited(item.url, 300),
       domain: cleanLimited(item.domain, 120)
     })) : [],
+    providerConfigured: !!result.providerConfigured,
+    fallbackReason: cleanLimited(result.fallbackReason, 300),
+    aiStatus: cleanLimited(result.aiStatus, 80),
     aiRecommendation: cleanLimited(result.aiRecommendation, 600),
+    address: cleanLimited(result.address, 220),
+    queries: Array.isArray(result.queries) ? result.queries.map((item) => cleanLimited(item, 220)).slice(0, 8) : [],
     disclaimer: cleanLimited(result.disclaimer, 400),
     generatedAt: cleanLimited(result.generatedAt, 80)
   };

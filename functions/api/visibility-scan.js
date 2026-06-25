@@ -86,6 +86,14 @@ function normalizePhone(phone) {
   return clean(phone).replace(/\D/g, '');
 }
 
+function normalizeText(value) {
+  return clean(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function addressTokens(address) {
+  return normalizeText(address).split(' ').filter((token) => token.length >= 3 || /^\d+$/.test(token)).slice(0, 8);
+}
+
 function scoreLabel(score) {
   if (score <= 3) return 'Not publicly ready';
   if (score <= 5) return 'Visible, but weak foundation';
@@ -101,9 +109,10 @@ function basicSignalScan(input) {
   if (input.state) score += 1; else redFlags.push('State was not provided, so public record matching is harder.');
   if (input.website) score += 1; else redFlags.push('No website was provided.');
   if (input.phone) score += 1; else redFlags.push('No business phone was provided.');
+  if (input.address) score += 1; else redFlags.push('No business address was provided.');
   score = Math.max(1, Math.min(5, score));
   findings.push('This fallback scan scored only the public identifiers entered on the form.');
-  findings.push('A live public lookup can be enabled by adding a search provider key to Cloudflare Pages.');
+  findings.push('A live public lookup requires BRAVE_SEARCH_API_KEY or SERPAPI_API_KEY in the Cloudflare Pages environment.');
   return {
     score,
     label: scoreLabel(score),
@@ -117,8 +126,12 @@ function basicSignalScan(input) {
       state: !!input.state,
       website: !!input.website,
       phone: !!input.phone,
-      directory: false
-    }
+      address: !!input.address,
+      directory: false,
+      entity: false
+    },
+    providerConfigured: false,
+    fallbackReason: 'No live search provider returned results.'
   };
 }
 
@@ -163,15 +176,39 @@ async function serpSearch(env, query) {
 }
 
 async function publicSearch(env, input) {
-  const parts = ['"' + input.businessName + '"'];
-  if (input.state) parts.push(input.state);
-  parts.push('business');
-  const query = parts.join(' ');
-  const brave = await braveSearch(env, query);
-  if (brave) return { engine: 'Brave Search API', results: brave };
-  const serp = await serpSearch(env, query);
-  if (serp) return { engine: 'SerpApi Google Search', results: serp };
-  return null;
+  const hasBrave = !!env.BRAVE_SEARCH_API_KEY;
+  const hasSerp = !!env.SERPAPI_API_KEY;
+  if (!hasBrave && !hasSerp) {
+    return { configured: false, engine: 'No live search provider configured', results: [], queries: [] };
+  }
+  const base = ['"' + input.businessName + '"'];
+  if (input.state) base.push(input.state);
+  const queries = [
+    base.concat(['business']).join(' '),
+    input.phone ? ['"' + input.businessName + '"', input.phone].join(' ') : '',
+    input.address ? ['"' + input.businessName + '"', input.address].join(' ') : '',
+    input.website ? ['"' + input.businessName + '"', domainFromUrl(input.website)].join(' ') : '',
+    ['"' + input.businessName + '"', 'Secretary of State', input.state].filter(Boolean).join(' ')
+  ].filter(Boolean);
+  const byUrl = new Map();
+  let engine = '';
+  for (const query of queries) {
+    let found = null;
+    const brave = await braveSearch(env, query);
+    if (brave) found = { engine: 'Brave Search API', results: brave };
+    if (!found) {
+      const serp = await serpSearch(env, query);
+      if (serp) found = { engine: 'SerpApi Google Search', results: serp };
+    }
+    if (found) {
+      engine = found.engine;
+      found.results.forEach((item) => {
+        const key = item.url || item.title;
+        if (key && !byUrl.has(key)) byUrl.set(key, item);
+      });
+    }
+  }
+  return { configured: true, engine: engine || (hasBrave ? 'Brave Search API' : 'SerpApi Google Search'), results: Array.from(byUrl.values()).slice(0, 12), queries };
 }
 
 function analyzePublicResults(input, search) {
@@ -179,6 +216,7 @@ function analyzePublicResults(input, search) {
   const state = input.state.toLowerCase();
   const phone = normalizePhone(input.phone);
   const websiteDomain = domainFromUrl(input.website || '');
+  const addrTokens = addressTokens(input.address || '');
   const results = search.results || [];
   const textFor = (item) => (item.title + ' ' + item.description + ' ' + item.url).toLowerCase();
   const exactMatches = results.filter((item) => textFor(item).includes(name));
@@ -187,6 +225,11 @@ function analyzePublicResults(input, search) {
   const stateRecordMatches = results.filter((item) => STATE_DOMAINS.some((token) => textFor(item).includes(token)));
   const websiteMatches = websiteDomain ? results.filter((item) => item.domain === websiteDomain || textFor(item).includes(websiteDomain)) : [];
   const phoneMatches = phone && phone.length >= 10 ? results.filter((item) => normalizePhone(textFor(item)).includes(phone.slice(-10))) : [];
+  const addressMatches = addrTokens.length >= 2 ? results.filter((item) => {
+    const text = normalizeText(textFor(item));
+    const matched = addrTokens.filter((token) => text.includes(token)).length;
+    return matched >= Math.min(3, addrTokens.length);
+  }) : [];
 
   let score = 1;
   if (exactMatches.length > 0) score += 2;
@@ -194,6 +237,7 @@ function analyzePublicResults(input, search) {
   if (stateRecordMatches.length >= 1) score += 2;
   if (websiteMatches.length > 0) score += 1;
   if (phoneMatches.length > 0) score += 1;
+  if (addressMatches.length > 0) score += 1;
   if (directoryMatches.length >= 2) score += 1;
   score = Math.max(1, Math.min(10, score));
 
@@ -208,6 +252,8 @@ function analyzePublicResults(input, search) {
   else if (websiteDomain) redFlags.push('The provided website domain did not appear in the first public search results.');
   if (phoneMatches.length) findings.push('The provided phone number appeared in public result text.');
   else if (phone) redFlags.push('The provided phone number did not appear in the first public search result text.');
+  if (addressMatches.length) findings.push('The provided address appeared in public result text.');
+  else if (addrTokens.length) redFlags.push('The provided address did not clearly appear in the first public search results.');
   if (state && !stateMatches.length) redFlags.push('The provided state was not clearly visible in the first public search results.');
   findings.push('These are surface public signals only; the platform verifies whether each identifier is the right type before you apply.');
 
@@ -216,15 +262,19 @@ function analyzePublicResults(input, search) {
     label: scoreLabel(score),
     sourceMode: 'public-search',
     engine: search.engine,
+    providerConfigured: !!search.configured,
+    queries: search.queries || [],
     findings,
     redFlags,
-    evidence: results.slice(0, 5),
+    evidence: results.slice(0, 6),
     signals: {
       name: exactMatches.length > 0,
       state: stateRecordMatches.length > 0 || stateMatches.length > 0,
       website: websiteMatches.length > 0,
       phone: phoneMatches.length > 0,
-      directory: directoryMatches.length > 0
+      address: addressMatches.length > 0,
+      directory: directoryMatches.length > 0,
+      entity: stateRecordMatches.length > 0
     }
   };
 }
@@ -239,12 +289,12 @@ async function aiReview(env, input, analysis) {
           { role: 'user', content: prompt }
         ]
       });
-      return cleanLimited(response.response || response.result || '', 500);
+      return { text: cleanLimited(response.response || response.result || '', 500), status: 'active' };
     } catch (error) {
-      return '';
+      return { text: '', status: 'error' };
     }
   }
-  return '';
+  return { text: '', status: 'not-configured' };
 }
 
 export async function onRequestOptions() {
@@ -274,7 +324,8 @@ export async function onRequestPost(context) {
       businessName: cleanLimited(input.businessName, 160) || 'Your Business',
       state: cleanLimited(input.state, 80),
       website: cleanLimited(input.website, 180),
-      phone: cleanLimited(input.phone, 60)
+      phone: cleanLimited(input.phone, 60),
+      address: cleanLimited(input.address, 220)
     };
     if (!normalized.businessName) {
       return json({ error: 'Business name is required.' }, 400);
@@ -283,22 +334,39 @@ export async function onRequestPost(context) {
     let analysis;
     try {
       const search = await publicSearch(context.env || {}, normalized);
-      analysis = search ? analyzePublicResults(normalized, search) : basicSignalScan(normalized);
+      if (search && search.configured && search.results && search.results.length) {
+        analysis = analyzePublicResults(normalized, search);
+      } else {
+        analysis = basicSignalScan(normalized);
+        analysis.engine = search && search.engine || analysis.engine;
+        analysis.providerConfigured = !!(search && search.configured);
+        analysis.fallbackReason = search && search.configured
+          ? 'Live search provider was configured but returned no public results for this business.'
+          : 'Live search provider is not configured. Add BRAVE_SEARCH_API_KEY or SERPAPI_API_KEY in Cloudflare Pages.';
+        analysis.redFlags.unshift(analysis.fallbackReason);
+      }
     } catch (error) {
       analysis = basicSignalScan(normalized);
-      analysis.redFlags.unshift('Live public lookup was attempted but did not complete.');
+      analysis.providerConfigured = !!(context.env && (context.env.BRAVE_SEARCH_API_KEY || context.env.SERPAPI_API_KEY));
+      analysis.fallbackReason = 'Live public lookup was attempted but did not complete.';
+      analysis.redFlags.unshift(analysis.fallbackReason);
     }
 
-    analysis.aiRecommendation = await aiReview(context.env || {}, normalized, analysis);
+    const ai = await aiReview(context.env || {}, normalized, analysis);
+    analysis.aiRecommendation = ai.text;
+    analysis.aiStatus = ai.status;
     analysis.businessName = normalized.businessName;
     analysis.state = normalized.state;
+    analysis.address = normalized.address;
     analysis.mode = normalized.mode;
     analysis.signals = analysis.signals || {
       name: !!normalized.businessName,
       state: false,
       website: false,
       phone: false,
-      directory: false
+      address: false,
+      directory: false,
+      entity: false
     };
     analysis.generatedAt = new Date().toISOString();
     analysis.disclaimer = 'This is a public visibility scan, not a credit approval guarantee. It cannot confirm private bureau files, bank underwriting, or lender databases.';
@@ -308,8 +376,10 @@ export async function onRequestPost(context) {
     const analysis = basicSignalScan(normalized);
     analysis.redFlags.unshift('Live scan services were unavailable, so this fallback scan used the profile fields only.');
     analysis.aiRecommendation = '';
+    analysis.aiStatus = 'unavailable';
     analysis.businessName = normalized.businessName || 'Your Business';
     analysis.state = normalized.state || '';
+    analysis.address = normalized.address || '';
     analysis.mode = normalized.mode || 'before';
     analysis.generatedAt = new Date().toISOString();
     analysis.disclaimer = 'This is a public visibility scan, not a credit approval guarantee. It cannot confirm private bureau files, bank underwriting, or lender databases.';
