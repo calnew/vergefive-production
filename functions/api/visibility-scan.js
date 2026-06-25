@@ -291,8 +291,10 @@ async function aiReview(env, input, analysis) {
         'Keep it under 140 words.',
         'Do not promise credit approval, funding, or lender acceptance.',
         'Business name: ' + input.businessName,
+        'Legal business name or DBA: ' + (input.legalBusinessName || 'not provided'),
         'State: ' + (input.state || 'not provided'),
         'Website/domain: ' + (input.website || 'not provided'),
+        'Domain email: ' + (input.domainEmail || 'not provided'),
         'Phone: ' + (input.phone || 'not provided'),
         'Address: ' + (input.address || 'not provided'),
         'Score: ' + analysis.score + '/10',
@@ -341,10 +343,12 @@ export async function onRequestPost(context) {
     normalized = {
       mode: cleanLimited(input.mode || 'before', 20),
       businessName: cleanLimited(input.businessName, 160) || 'Your Business',
+      legalBusinessName: cleanLimited(input.legalBusinessName || input.legalName || input.tradeName, 160),
       state: cleanLimited(input.state, 80),
       website: cleanLimited(input.website, 180),
       phone: cleanLimited(input.phone, 60),
-      address: cleanLimited(input.address, 220)
+      address: cleanLimited(input.address, 220),
+      domainEmail: cleanLimited(input.domainEmail || input.email, 180)
     };
     if (!normalized.businessName) {
       return json({ error: 'Business name is required.' }, 400);
@@ -375,8 +379,12 @@ export async function onRequestPost(context) {
     analysis.aiRecommendation = ai.text;
     analysis.aiStatus = ai.status;
     analysis.businessName = normalized.businessName;
+    analysis.legalBusinessName = normalized.legalBusinessName;
     analysis.state = normalized.state;
+    analysis.website = normalized.website;
+    analysis.phone = normalized.phone;
     analysis.address = normalized.address;
+    analysis.domainEmail = normalized.domainEmail;
     analysis.mode = normalized.mode;
     analysis.signals = analysis.signals || {
       name: !!normalized.businessName,
@@ -397,8 +405,12 @@ export async function onRequestPost(context) {
     analysis.aiRecommendation = '';
     analysis.aiStatus = 'unavailable';
     analysis.businessName = normalized.businessName || 'Your Business';
+    analysis.legalBusinessName = normalized.legalBusinessName || '';
     analysis.state = normalized.state || '';
+    analysis.website = normalized.website || '';
+    analysis.phone = normalized.phone || '';
     analysis.address = normalized.address || '';
+    analysis.domainEmail = normalized.domainEmail || '';
     analysis.mode = normalized.mode || 'before';
     analysis.generatedAt = new Date().toISOString();
     analysis.disclaimer = 'This is a public visibility scan, not a credit approval guarantee. It cannot confirm private bureau files, bank underwriting, or lender databases.';

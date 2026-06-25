@@ -65,7 +65,13 @@ export async function onRequestPost(context) {
     fallbackReason: cleanLimited(result.fallbackReason, 300),
     aiStatus: cleanLimited(result.aiStatus, 80),
     aiRecommendation: cleanLimited(result.aiRecommendation, 600),
+    businessName: cleanLimited(result.businessName, 160),
+    legalBusinessName: cleanLimited(result.legalBusinessName, 160),
+    state: cleanLimited(result.state, 80),
+    website: cleanLimited(result.website, 180),
+    phone: cleanLimited(result.phone, 60),
     address: cleanLimited(result.address, 220),
+    domainEmail: cleanLimited(result.domainEmail, 180),
     queries: Array.isArray(result.queries) ? result.queries.map((item) => cleanLimited(item, 220)).slice(0, 8) : [],
     disclaimer: cleanLimited(result.disclaimer, 400),
     generatedAt: cleanLimited(result.generatedAt, 80)

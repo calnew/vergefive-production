@@ -314,21 +314,52 @@
         <div style="background:#FBE9E9;border:1px solid #f3cdcd;border-radius:14px;padding:14px 16px;color:#9f1239;font-size:13.5px;font-weight:700">Scan could not complete: {{ scanError }}</div>
         </sc-if>
 
-        <!-- pre-scan -->
-        <sc-if value="{{ scanPending }}" hint-placeholder-val="{{ true }}">
+        <!-- scan input form -->
         <div style="background:#fff;border:1px solid #E5EAF1;border-radius:18px;padding:26px">
-          <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:#0F1B2D;margin-bottom:4px">We'll scan this business profile</div>
-          <div style="color:#5B6B82;font-size:13.5px;margin-bottom:18px">Pulled from your member profile. Run the scan to score it.</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-            <sc-for list="{{ scanInputs }}" as="f" hint-placeholder-count="6">
-              <div style="border:1px solid #EAEEF4;border-radius:12px;padding:14px 16px">
-                <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px">{{ f.label }}</div>
-                <div style="font-weight:600;font-size:14px;color:#0F1B2D;margin-top:5px">{{ f.value }}</div>
-              </div>
-            </sc-for>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px">
+            <div>
+              <div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:#0F1B2D;margin-bottom:4px">Enter the business information to scan</div>
+              <div style="color:#5B6B82;font-size:13.5px;line-height:1.5">Profile details are prefilled when available. Update anything that changed, then run or rerun the scan.</div>
+            </div>
+            <sc-if value="{{ scanProfileMissing }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FCF1E2;border:1px solid #f4d5a1;color:#92400e;border-radius:11px;padding:10px 12px;font-size:12px;font-weight:700;max-width:330px">Some profile details are missing. Add the business name, state, website, phone, and address here before scanning.</div>
+            </sc-if>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Business name</label>
+              <input value="{{ sfScan.businessName }}" onInput="{{ sfScan.onBusinessName }}" placeholder="Exact business name to search" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Legal business name or DBA</label>
+              <input value="{{ sfScan.legalBusinessName }}" onInput="{{ sfScan.onLegalBusinessName }}" placeholder="Legal name if different" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Formation state</label>
+              <input value="{{ sfScan.state }}" onInput="{{ sfScan.onState }}" placeholder="NC, GA, TX..." style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Website/domain</label>
+              <input value="{{ sfScan.website }}" onInput="{{ sfScan.onWebsite }}" placeholder="https://yourbusiness.com" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Business phone</label>
+              <input value="{{ sfScan.phone }}" onInput="{{ sfScan.onPhone }}" placeholder="Business phone number" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Business address</label>
+              <input value="{{ sfScan.address }}" onInput="{{ sfScan.onAddress }}" placeholder="Street, city, state" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div>
+              <label style="display:block;font-size:12.5px;font-weight:700;color:#0F1B2D;margin-bottom:6px">Domain email</label>
+              <input value="{{ sfScan.domainEmail }}" onInput="{{ sfScan.onDomainEmail }}" placeholder="info@yourbusiness.com" style="width:100%;border:1px solid #d6deea;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;color:#0F1B2D;outline:none" style-focus="border-color:#2563EB" />
+            </div>
+            <div style="display:flex;align-items:end;gap:10px;flex-wrap:wrap">
+              <button onClick="{{ runScan }}" disabled="{{ scanRunning }}" style="border:none;background:#2563EB;color:#fff;cursor:pointer;padding:12px 20px;border-radius:11px;font-size:14px;font-weight:700;opacity:{{ scanButtonOpacity }}" style-hover="background:#1d4ed8">{{ scanCta }}</button>
+              <button onClick="{{ navReport }}" style="border:1px solid #d6deea;background:#fff;color:#2563EB;cursor:pointer;padding:12px 18px;border-radius:11px;font-size:14px;font-weight:700" style-hover="border-color:#2563EB;background:#f4f8ff">View Report</button>
+            </div>
           </div>
         </div>
-        </sc-if>
 
         <!-- result -->
         <sc-if value="{{ scanComplete }}" hint-placeholder-val="{{ true }}">
@@ -933,7 +964,7 @@
       <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
       <div style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:18px">
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <span style="font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:#E7F4EC;color:#15803D">Member report</span>
+          <span style="font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:#E7F4EC;color:#15803D">{{ reportStatusBadge }}</span>
           <span style="font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:#FCF1E2;color:#B45309">No lesson content exported</span>
           <span style="font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:#EEF3FE;color:#2563EB">Styled summary</span>
         </div>
@@ -941,14 +972,25 @@
         <div style="background:linear-gradient(135deg,#0E1A2B,#1d3a64);border-radius:18px;padding:28px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap">
           <div style="max-width:440px">
             <div style="font-size:12px;font-weight:700;letter-spacing:.5px;color:#7fa3e6;text-transform:uppercase">Member-safe report</div>
-            <div style="font-family:'Space Grotesk';font-weight:700;font-size:22px;margin:8px 0 6px;line-height:1.3">This report shows progress and readiness without giving away the lesson plan.</div>
-            <div style="color:#aebfd8;font-size:13.5px;line-height:1.55">It summarizes profile completion, readiness stage, and next actions. It does not export the platform lessons, vendor strategy, or proprietary training.</div>
+            <div style="font-family:'Space Grotesk';font-weight:700;font-size:22px;margin:8px 0 6px;line-height:1.3">Download a populated visibility report from the latest scan.</div>
+            <div style="color:#aebfd8;font-size:13.5px;line-height:1.55">{{ reportHeroText }}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;flex:none">
-            <button onClick="{{ printReport }}" style="border:none;background:#2563EB;color:#fff;cursor:pointer;padding:12px 22px;border-radius:11px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 20px rgba(37,99,235,.4)" style-hover="background:#3b82f6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M7 11l5 4 5-4M5 21h14"></path></svg>Download report</button>
+            <button onClick="{{ downloadReport }}" disabled="{{ noReportData }}" style="border:none;background:#2563EB;color:#fff;cursor:pointer;padding:12px 22px;border-radius:11px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 20px rgba(37,99,235,.4);opacity:{{ reportButtonOpacity }}" style-hover="background:#3b82f6"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M7 11l5 4 5-4M5 21h14"></path></svg>{{ reportDownloadLabel }}</button>
             <button onClick="{{ printReport }}" style="border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;cursor:pointer;padding:12px 22px;border-radius:11px;font-size:14px;font-weight:700" style-hover="background:rgba(255,255,255,.12)">Print report</button>
+            <button onClick="{{ navScan }}" style="border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;cursor:pointer;padding:12px 22px;border-radius:11px;font-size:14px;font-weight:700" style-hover="background:rgba(255,255,255,.12)">Run Scan</button>
           </div>
         </div>
+
+        <sc-if value="{{ noReportData }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FFFBF4;border:1px solid #f3e2cd;border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#0F1B2D">Run a scan first</div>
+            <div style="font-size:13px;color:#8a6a3a;margin-top:3px">There is no active scan or saved visibility audit yet, so there is nothing useful to download.</div>
+          </div>
+          <button onClick="{{ navScan }}" style="border:none;background:#2563EB;color:#fff;cursor:pointer;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:700">Go to scan form</button>
+        </div>
+        </sc-if>
 
         <!-- the report itself -->
         <div style="background:#fff;border:1px solid #E5EAF1;border-radius:18px;padding:30px">
@@ -958,20 +1000,50 @@
               <div style="font-size:13px;color:#5B6B82">Business Readiness Report · {{ member }}</div>
             </div>
             <div style="text-align:center">
-              <div style="font-family:'Space Grotesk';font-weight:700;font-size:32px;color:{{ ringColor }};line-height:1">{{ score }}</div>
-              <div style="font-size:11px;color:#8a97ab;font-weight:700">/ 100 · {{ scoreLabel }}</div>
+              <div style="font-family:'Space Grotesk';font-weight:700;font-size:32px;color:{{ reportRingColor }};line-height:1">{{ reportDisplayScore }}</div>
+              <div style="font-size:11px;color:#8a97ab;font-weight:700">/ 100 · {{ reportScoreLabel }}</div>
             </div>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
             <div style="background:#F4F7FC;border-radius:12px;padding:16px">
               <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px">Business profile snapshot</div>
-              <div style="font-size:13.5px;color:#34435c;line-height:1.5">{{ doneCount }} of 9 readiness signals are clean. Page progress is at {{ profileProgress }}%. Assigned path: <b style="color:#0F1B2D">{{ assignedPath }}</b>.</div>
+              <div style="font-size:13.5px;color:#34435c;line-height:1.5">{{ reportBusinessName }}<br>{{ reportWebsite }}<br>{{ reportPhone }}<br>{{ reportAddress }}</div>
             </div>
             <div style="background:#F4F7FC;border-radius:12px;padding:16px">
-              <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px">Readiness stage</div>
-              <div style="font-size:13.5px;color:#34435c;line-height:1.5">Your business is at the <b style="color:#0F1B2D">{{ scoreLabel }}</b> stage. {{ openCount }} fixes remain before full account-match readiness.</div>
+              <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px">Latest scan</div>
+              <div style="font-size:13.5px;color:#34435c;line-height:1.5">Source: <b style="color:#0F1B2D">{{ reportSourceMode }}</b><br>Engine: {{ reportEngine }}<br>Generated: {{ reportGeneratedAt }}</div>
             </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+            <div style="background:#F4F7FC;border-radius:12px;padding:16px">
+              <div style="font-size:11px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Key findings</div>
+              <sc-for list="{{ reportFindings }}" as="f" hint-placeholder-count="3">
+                <div style="font-size:12.5px;color:#34435c;line-height:1.45;margin-top:7px">✓ {{ f.text }}</div>
+              </sc-for>
+            </div>
+            <div style="background:#F4F7FC;border-radius:12px;padding:16px">
+              <div style="font-size:11px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Red flags</div>
+              <sc-for list="{{ reportRedFlags }}" as="f" hint-placeholder-count="3">
+                <div style="font-size:12.5px;color:#34435c;line-height:1.45;margin-top:7px">• {{ f.text }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#F4F7FC;border-radius:12px;padding:16px;margin-top:14px">
+            <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">AI recommendation</div>
+            <div style="font-size:13.5px;color:#34435c;line-height:1.5">{{ reportAiRecommendation }}</div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin:22px 0 10px">Evidence included in download</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ reportEvidence }}" as="e" hint-placeholder-count="3">
+              <a href="{{ e.url }}" target="_blank" rel="noopener" style="display:block;border:1px solid #EEF1F6;border-radius:11px;padding:12px 14px;text-decoration:none;color:#0F1B2D">
+                <div style="font-weight:700;font-size:13px">{{ e.title }}</div>
+                <div style="font-size:11.5px;color:#2563EB;margin-top:3px">{{ e.domain }}</div>
+              </a>
+            </sc-for>
           </div>
 
           <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin:22px 0 10px">Recommended next actions</div>
@@ -1239,7 +1311,9 @@ class Component extends DCLogic {
     acctSignals: {},
     visited: { dashboard:true, scan:true, fixlist:true, fix_website:true, fix_llc:true, fix_ein:true, fix_bank:true },
     backend: { loaded:false, memberName:'Member', businessName:'Your Business', profile:{}, auth:null },
-    scanRunning:false, scanResult:null, scanError:'', backendNotice:''
+    scanRunning:false, scanResult:null, scanError:'', backendNotice:'',
+    scanForm:{ businessName:'', legalBusinessName:'', state:'', website:'', phone:'', address:'', domainEmail:'' },
+    latestAudit:null, auditHistory:[]
   };
 
   FIXES = {
@@ -1649,20 +1723,94 @@ class Component extends DCLogic {
     if(!res.ok) throw new Error(data.error || ('Request failed: '+path));
     return data;
   }
+  profileScanForm(profile={}, fallbackBusiness=''){
+    const email = profile.domain_email || profile.domainEmail || profile.business_email || profile.email || '';
+    return {
+      businessName: profile.business_name || profile.businessName || profile.trade_name || fallbackBusiness || '',
+      legalBusinessName: profile.legal_business_name || profile.legalBusinessName || profile.legal_name || profile.business_name || profile.businessName || '',
+      state: profile.formation_state || profile.formationState || profile.state || '',
+      website: profile.website || profile.domain || '',
+      phone: profile.phone || profile.business_phone || profile.businessPhone || '',
+      address: profile.address || profile.business_address || profile.businessAddress || '',
+      domainEmail: email
+    };
+  }
+  parseAudit(row){
+    if(!row) return null;
+    let result = {};
+    try{ result = typeof row.result_json === 'string' ? JSON.parse(row.result_json || '{}') : (row.result_json || {}); }catch(e){ result = {}; }
+    return Object.assign({}, result, {
+      businessName: result.businessName || row.business_name || '',
+      score: result.score || row.score || 0,
+      label: result.label || row.label || '',
+      sourceMode: result.sourceMode || row.source_mode || '',
+      engine: result.engine || row.engine || '',
+      generatedAt: result.generatedAt || row.created_at || '',
+      savedAt: row.created_at || ''
+    });
+  }
+  setScanFormField(k, e){ const v=e && e.target ? e.target.value : e; this.setState(s => ({ scanForm:Object.assign({}, s.scanForm, {[k]:v}) })); }
+  currentScanPayload(){
+    const p = (this.state.backend && this.state.backend.profile) || {};
+    const form = this.state.scanForm || {};
+    const base = this.profileScanForm(p, (this.state.backend && this.state.backend.businessName) || this.props.businessName || '');
+    return {
+      mode:'before',
+      businessName: form.businessName || base.businessName || 'Your Business',
+      legalBusinessName: form.legalBusinessName || base.legalBusinessName || '',
+      state: form.state || base.state || '',
+      website: form.website || base.website || '',
+      phone: form.phone || base.phone || '',
+      address: form.address || base.address || '',
+      domainEmail: form.domainEmail || base.domainEmail || ''
+    };
+  }
+  escReport(value){ return String(value || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  renderReportHtml(){
+    const result = this.state.scanResult || this.state.latestAudit || null;
+    if(!result) return '';
+    const payload = this.currentScanPayload();
+    const score = Number(result.score || 0);
+    const displayScore = Math.max(0, Math.min(100, score <= 10 ? Math.round(score * 10) : Math.round(score)));
+    const list = (items) => (Array.isArray(items) && items.length ? items : ['No items returned.']).map(item => '<li>'+this.escReport(item && item.text ? item.text : item)+'</li>').join('');
+    const evidence = (Array.isArray(result.evidence) && result.evidence.length ? result.evidence : []).map(item => '<li><a href="'+this.escReport(item.url || '#')+'">'+this.escReport(item.title || item.url || 'Evidence link')+'</a><br><small>'+this.escReport(item.domain || '')+'</small></li>').join('') || '<li>No live evidence links saved for this report.</li>';
+    const signals = result.signals && typeof result.signals === 'object' ? Object.keys(result.signals).map(k => '<li>'+this.escReport(k)+': '+(result.signals[k] ? 'Yes' : 'No')+'</li>').join('') : '<li>No signal details saved.</li>';
+    const generated = result.generatedAt ? new Date(result.generatedAt).toLocaleString() : 'Not available';
+    return '<!doctype html><html><head><meta charset="utf-8"><title>Verge Five Visibility Report</title><style>body{font-family:Arial,sans-serif;color:#0f1b2d;margin:32px;line-height:1.5}h1{margin-bottom:4px}.card{border:1px solid #d8e0ed;border-radius:14px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.muted{color:#5b6b82}.score{font-size:42px;font-weight:800;color:#2563eb}.warn{color:#b45309}.ok{color:#15803d}a{color:#2563eb}</style></head><body><h1>Verge Five Business Visibility Report</h1><div class="muted">Generated from the latest Business Visibility Scan.</div><div class="card"><div class="score">'+displayScore+'/100</div><h2>'+this.escReport(result.label || 'Visibility scan result')+'</h2><p><b>Source:</b> '+this.escReport(result.sourceMode || 'Not available')+'<br><b>Engine:</b> '+this.escReport(result.engine || 'Not available')+'<br><b>Generated:</b> '+this.escReport(generated)+'</p></div><div class="card grid"><p><b>Business name</b><br>'+this.escReport(result.businessName || payload.businessName)+'</p><p><b>Legal name / DBA</b><br>'+this.escReport(result.legalBusinessName || payload.legalBusinessName)+'</p><p><b>State</b><br>'+this.escReport(result.state || payload.state)+'</p><p><b>Website/domain</b><br>'+this.escReport(result.website || payload.website)+'</p><p><b>Phone</b><br>'+this.escReport(result.phone || payload.phone)+'</p><p><b>Address</b><br>'+this.escReport(result.address || payload.address)+'</p><p><b>Domain email</b><br>'+this.escReport(result.domainEmail || payload.domainEmail)+'</p></div><div class="card"><h2>Findings</h2><ul class="ok">'+list(result.findings)+'</ul></div><div class="card"><h2>Red flags / review items</h2><ul class="warn">'+list(result.redFlags)+'</ul></div><div class="card"><h2>Signals</h2><ul>'+signals+'</ul></div><div class="card"><h2>Live search evidence</h2><ul>'+evidence+'</ul></div><div class="card"><h2>AI recommendation</h2><p>'+this.escReport(result.aiRecommendation || 'No AI recommendation was saved for this scan.')+'</p></div><div class="card"><h2>Disclaimer</h2><p>'+this.escReport(result.disclaimer || 'This is a public visibility scan, not a credit approval guarantee.')+'</p></div></body></html>';
+  }
+  downloadReport(){
+    const html = this.renderReportHtml();
+    if(!html){ this.go('scan'); return; }
+    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const name = (this.currentScanPayload().businessName || 'verge-five').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase() || 'verge-five';
+    a.href = url; a.download = name+'-visibility-report.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
   async loadBackendState(){
     try{
       const auth = await this.backendFetch('/api/auth/me', {method:'GET'});
       let profileData = { profile:{} };
       let progressData = { progress:[], signals:[], resume:null };
+      let auditData = { audits:[] };
       try{ profileData = await this.backendFetch('/api/member/profile', {method:'GET'}); }catch(e){}
       try{ progressData = await this.backendFetch('/api/member/progress', {method:'GET'}); }catch(e){}
+      try{ auditData = await this.backendFetch('/api/member/visibility-audits', {method:'GET'}); }catch(e){}
       const profile = profileData.profile || {};
+      const scanForm = this.profileScanForm(profile, profile.business_name || profile.businessName || profile.trade_name || 'Your Business');
+      const auditHistory = (auditData.audits || []).map(row => this.parseAudit(row)).filter(Boolean);
+      const latestAudit = auditHistory[0] || null;
       const signalRows = progressData.signals || [];
       const acctSignals = {};
       signalRows.forEach(row => { try{ JSON.parse(row.selected_keys || '[]').forEach(k => { acctSignals[k]=true; }); }catch(e){} });
       this.setState(s => ({
         backend:{ loaded:true, auth, profile, memberName:(auth.user && auth.user.name) || (auth.user && auth.user.email) || 'Member', businessName:profile.business_name || profile.businessName || profile.trade_name || 'Your Business' },
         acctSignals:Object.assign({}, s.acctSignals, acctSignals),
+        scanForm:Object.assign({}, scanForm, s.scanForm && s.scanForm.businessName ? s.scanForm : {}),
+        latestAudit,
+        auditHistory,
         supportForm:Object.assign({}, s.supportForm, { name:(auth.user && auth.user.name) || s.supportForm.name, email:(auth.user && auth.user.email) || s.supportForm.email, business:profile.business_name || profile.businessName || s.supportForm.business })
       }));
     }catch(e){ this.setState({ backendNotice:e.message || 'Backend profile could not be loaded yet.' }); }
@@ -1681,8 +1829,7 @@ class Component extends DCLogic {
     if(!(this.state.backend && this.state.backend.loaded)){
       await this.loadBackendState().catch(() => null);
     }
-    const p = (this.state.backend && this.state.backend.profile) || {};
-    const payload = { mode:'before', businessName:p.business_name || p.businessName || this.state.backend.businessName || '', state:p.formation_state || p.formationState || '', website:p.website || '', phone:p.phone || '', address:p.address || '' };
+    const payload = this.currentScanPayload();
     this.setState({ page:'scan', scanRunning:true, scanComplete:false, scanError:'', visited:{...this.state.visited, scan:true} });
     this.persistRouteProgress('scan');
     try{
@@ -1691,7 +1838,7 @@ class Component extends DCLogic {
       await fetch('/api/member/visibility-audits', {method:'POST', credentials:'include', headers:{'content-type':'application/json'}, body:JSON.stringify({mode:'before', businessName:payload.businessName, result})}).catch(()=>{ result.auditSaved = false; });
       const nextSignals = {};
       if(result.signals){ if(result.signals.phone) nextSignals.phones='progress'; if(result.signals.address) nextSignals.address='progress'; if(result.signals.website) nextSignals.website='progress'; }
-      this.setState(s => ({ scanRunning:false, scanComplete:true, scanResult:result, scanError:'', fixStatus:Object.assign({}, s.fixStatus, nextSignals) }));
+      this.setState(s => ({ scanRunning:false, scanComplete:true, scanResult:result, latestAudit:result, auditHistory:[result].concat(s.auditHistory||[]), scanError:'', fixStatus:Object.assign({}, s.fixStatus, nextSignals) }));
     }catch(e){ this.setState({ scanRunning:false, scanComplete:false, scanError:e.message || 'Unable to run visibility scan.' }); }
   }
   async submitSupportRequest(){
@@ -1972,6 +2119,30 @@ class Component extends DCLogic {
     const scanRedFlags = (Array.isArray(scanResult.redFlags) && scanResult.redFlags.length ? scanResult.redFlags : ['No current scan flags yet.']).slice(0,5).map(text => ({ text }));
     const scanEvidence = (Array.isArray(scanResult.evidence) ? scanResult.evidence : []).slice(0,6).map(item => ({ title:item.title || item.url || 'Search result', url:item.url || '#', domain:item.domain || '', description:item.description || '' }));
     const hasScanEvidence = scanEvidence.length > 0;
+    const reportResult = s.scanResult || s.latestAudit || null;
+    const hasReportData = !!reportResult;
+    const noReportData = !hasReportData;
+    const reportRawScore = Number(reportResult && reportResult.score || 0);
+    const reportDisplayScore = hasReportData ? Math.max(0, Math.min(100, reportRawScore <= 10 ? Math.round(reportRawScore * 10) : Math.round(reportRawScore))) : 0;
+    const reportScoreLabel = hasReportData ? (reportResult.label || 'Visibility scan result') : 'Run a scan first';
+    const reportRingColor = reportDisplayScore < 40 ? '#DC2626' : reportDisplayScore < 60 ? '#D97706' : reportDisplayScore < 80 ? '#2563EB' : '#15803D';
+    let reportGeneratedAt = 'No scan yet';
+    try { if(reportResult && reportResult.generatedAt) reportGeneratedAt = new Date(reportResult.generatedAt).toLocaleString(); } catch(e){}
+    const reportPayload = this.currentScanPayload();
+    const reportBusinessName = (reportResult && reportResult.businessName) || reportPayload.businessName || business;
+    const reportWebsite = (reportResult && reportResult.website) || reportPayload.website || 'Website not entered';
+    const reportPhone = (reportResult && reportResult.phone) || reportPayload.phone || 'Phone not entered';
+    const reportAddress = (reportResult && reportResult.address) || reportPayload.address || 'Address not entered';
+    const reportSourceMode = (reportResult && reportResult.sourceMode) || 'No scan yet';
+    const reportEngine = (reportResult && reportResult.engine) || 'Run a scan to generate';
+    const reportFindings = (Array.isArray(reportResult && reportResult.findings) && reportResult.findings.length ? reportResult.findings : ['Run a scan to populate findings.']).slice(0,5).map(text => ({ text }));
+    const reportRedFlags = (Array.isArray(reportResult && reportResult.redFlags) && reportResult.redFlags.length ? reportResult.redFlags : ['No current red flags available.']).slice(0,5).map(text => ({ text }));
+    const reportEvidence = (Array.isArray(reportResult && reportResult.evidence) ? reportResult.evidence : []).slice(0,6).map(item => ({ title:item.title || item.url || 'Evidence link', url:item.url || '#', domain:item.domain || '' }));
+    const reportAiRecommendation = (reportResult && reportResult.aiRecommendation) || 'Run a scan to generate an AI-enhanced recommendation.';
+    const reportStatusBadge = hasReportData ? 'Latest scan report' : 'Report empty';
+    const reportHeroText = hasReportData ? 'This report uses the latest active scan or saved visibility audit and includes score, findings, red flags, evidence, AI recommendation, timestamp, and disclaimer.' : 'Run a Business Visibility Scan first, then return here to view and download the populated report.';
+    const reportDownloadLabel = hasReportData ? 'Download report' : 'Run a scan first';
+    const reportButtonOpacity = hasReportData ? '1' : '.55';
 
     // scan issues
     const sev = (level) => level==='High' ? {sevBg:'#FBE9E9',sevColor:'#DC2626',dot:'#DC2626'} : level==='Medium' ? {sevBg:'#FCF1E2',sevColor:'#B45309',dot:'#D97706'} : {sevBg:'#EEF3FE',sevColor:'#2563EB',dot:'#2563EB'};
@@ -2156,6 +2327,7 @@ class Component extends DCLogic {
       navSupport: () => this.go('support'),
       navReport: () => this.go('report'),
       printReport: () => { try{ window.print(); }catch(e){} },
+      downloadReport: () => this.downloadReport(),
       goMobile: () => this.go('mobile'),
       runScan: () => this.runScan(),
       getHelpGeneral: () => this.getHelp('General question', '/'+page+'/'),
@@ -2179,6 +2351,14 @@ class Component extends DCLogic {
       hasFallbackNotice, fallbackNotice,
       scanAiStatusLabel, scanAiRecommendation, hasAiRecommendation,
       scanFindings, scanRedFlags, scanEvidence, hasScanEvidence,
+      sfScan: {
+        businessName:s.scanForm.businessName, legalBusinessName:s.scanForm.legalBusinessName, state:s.scanForm.state, website:s.scanForm.website, phone:s.scanForm.phone, address:s.scanForm.address, domainEmail:s.scanForm.domainEmail,
+        onBusinessName:(e)=>this.setScanFormField('businessName',e), onLegalBusinessName:(e)=>this.setScanFormField('legalBusinessName',e), onState:(e)=>this.setScanFormField('state',e), onWebsite:(e)=>this.setScanFormField('website',e), onPhone:(e)=>this.setScanFormField('phone',e), onAddress:(e)=>this.setScanFormField('address',e), onDomainEmail:(e)=>this.setScanFormField('domainEmail',e)
+      },
+      scanProfileMissing: !((s.scanForm.businessName||'').trim() && (s.scanForm.state||'').trim() && (s.scanForm.website||'').trim() && (s.scanForm.phone||'').trim() && (s.scanForm.address||'').trim()),
+      hasReportData, noReportData, reportStatusBadge, reportHeroText, reportDownloadLabel, reportButtonOpacity,
+      reportDisplayScore, reportScoreLabel, reportRingColor, reportBusinessName, reportWebsite, reportPhone, reportAddress,
+      reportSourceMode, reportEngine, reportGeneratedAt, reportFindings, reportRedFlags, reportEvidence, reportAiRecommendation,
       phases,
       fix, markBtnText, markBtnBg,
       markActiveComplete: () => this.markComplete(s.activeFix),
