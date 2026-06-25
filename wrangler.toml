@@ -6,3 +6,6 @@ compatibility_date = "2026-05-13"
 binding = "DB"
 database_name = "vergefive-members"
 database_id = "c9291712-1726-4010-8ff2-f64652c01d59"
+
+[ai]
+binding = "AI"

@@ -32,7 +32,19 @@ Brave Search is checked first. SerpApi is used if Brave is not configured.
 
 ## Optional AI Review
 
-The function can use a Cloudflare Workers AI binding named `AI` if that binding is added to the Pages project. Without the binding, the endpoint still returns deterministic findings and recommendations.
+The function can use a Cloudflare Workers AI binding named `AI`. The Wrangler config includes:
+
+```toml
+[ai]
+binding = "AI"
+```
+
+For Cloudflare Pages Functions, also confirm the Pages project has a Workers AI binding named `AI` in the Cloudflare dashboard for the dev branch/environment. Without that binding, the endpoint returns deterministic findings and `aiStatus: "not-configured"` without exposing or hardcoding any API keys.
+
+When the binding is available, the endpoint returns:
+
+- `aiStatus: "active"`
+- `aiRecommendation`: a short member-facing recommendation based on the live public search evidence, business identifiers, findings, and red flags.
 
 ## Wrangler Deploy Note
 
