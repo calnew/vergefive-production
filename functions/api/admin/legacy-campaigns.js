@@ -3,7 +3,7 @@ import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
 const DEFAULT_SUBJECT = 'Is [Phone Number] still attached to [Business Name]?';
-const DEFAULT_PREVIEW = "You didn't fail the process before — you just couldn't see it. AI actually made it more predictable.";
+const DEFAULT_PREVIEW = "You didn't fail the process before - you just couldn't see it. Automated reviews are more predictable than most people realize.";
 const DEFAULT_MESSAGE = `Hi [First Name],
 
 I was going back through the old Verge Five records and found [Business Name]. This is the number we had on file:
@@ -18,7 +18,7 @@ I get it. That confusion is the reason a lot of people quietly gave up.
 
 So here's what might surprise you.
 
-Now that AI and automated systems run these reviews, it's actually easier — not harder. Most people assume AI makes everything more complicated. It's the opposite. Automated systems are predictable. They follow patterns. When the right signals are in place, the right doors open — almost like a formula. Line up A, B, and C, and D opens up.
+Now that automated systems run these reviews, it is actually easier - not harder. Most people assume the process is mysterious. It is not. Automated systems are predictable. They follow patterns. When the right signals are in place, the right doors open - almost like a formula. Line up A, B, and C, and D opens up.
 
 The guesswork that frustrated you the first time is mostly gone. The system isn't a mystery anymore. It's a pattern you can actually see and follow.
 

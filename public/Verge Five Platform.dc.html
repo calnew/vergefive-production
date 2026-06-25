@@ -387,10 +387,10 @@
             <div style="background:#FCF1E2;border:1px solid #f4d5a1;border-radius:11px;padding:12px;margin-top:12px;text-align:left;color:#92400e;font-size:12.5px;line-height:1.45;font-weight:700">{{ fallbackNotice }}</div>
             </sc-if>
             <div style="background:#F4F7FC;border-radius:11px;padding:12px;margin-top:12px;text-align:left">
-              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase">AI review</div>
-              <div style="font-weight:700;color:#0F1B2D;font-size:13px;margin-top:3px">{{ scanAiStatusLabel }}</div>
-              <sc-if value="{{ hasAiRecommendation }}" hint-placeholder-val="{{ false }}">
-              <div style="font-size:12px;color:#5B6B82;margin-top:7px;line-height:1.45">{{ scanAiRecommendation }}</div>
+              <div style="font-size:11.5px;font-weight:700;color:#8a97ab;text-transform:uppercase">Platform review</div>
+              <div style="font-weight:700;color:#0F1B2D;font-size:13px;margin-top:3px">{{ scanReviewStatusLabel }}</div>
+              <sc-if value="{{ hasPlatformRecommendation }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px;color:#5B6B82;margin-top:7px;line-height:1.45">{{ scanPlatformRecommendation }}</div>
               </sc-if>
             </div>
           </div>
@@ -1032,8 +1032,8 @@
           </div>
 
           <div style="background:#F4F7FC;border-radius:12px;padding:16px;margin-top:14px">
-            <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">AI recommendation</div>
-            <div style="font-size:13.5px;color:#34435c;line-height:1.5">{{ reportAiRecommendation }}</div>
+            <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px">Platform recommendation</div>
+            <div style="font-size:13.5px;color:#34435c;line-height:1.5">{{ reportPlatformRecommendation }}</div>
           </div>
 
           <div style="font-size:11px;font-weight:700;color:#8a97ab;text-transform:uppercase;letter-spacing:.3px;margin:22px 0 10px">Evidence included in download</div>
@@ -1320,7 +1320,7 @@ class Component extends DCLogic {
     nap: { route:'/start-here/', impact:'High', phase:1, title:'NAP Consistency Overview',
       tagline:'Your business Name, Address, and Phone must tell one consistent story everywhere before anything else.',
       issue:'Your scan checks whether your business name, address, and phone match across public records — mismatches here weaken everything downstream.',
-      scanSource:'AI Visibility Audit · NAP Signal', impactLevel:'High',
+      scanSource:'Business Visibility Audit · NAP Signal', impactLevel:'High',
       why:'NAP (Name, Address, Phone) is the first hidden gatekeeper. If these three do not match everywhere your business appears, vendors and lenders cannot confirm it is the same company.',
       whyMatters:{ kicker:'Why this matters', title:'Name, address, and phone must match before applications.', body:'NAP means the business Name, Address, and Phone. Before vendors, banks, credit cards, or funding review the business, public records should point to the same company, the same commercial address, and the same business phone number.' },
       videoA:{ step:'Lesson', label:'NAP information overview', sub:'Watch this first — it sets up the phone, address, website, and application steps that follow.', duration:'1:01' },
@@ -1335,7 +1335,7 @@ class Component extends DCLogic {
     phones: { route:'/phones-and-411/', impact:'High', phase:1, title:'Phone & 411 Fix',
       tagline:'Set up a business phone signal and directory listing that match your public records.',
       issue:'Your scan found that your business phone signal may need attention — caller ID does not match your business name and no 411 listing was found.',
-      scanSource:'AI Visibility Audit · Phone & 411 Signal', impactLevel:'High',
+      scanSource:'Business Visibility Audit · Phone & 411 Signal', impactLevel:'High',
       why:'Lenders and bureaus cross-check your phone and 411 listing. Mismatches trigger automated review flags and vendor denials.',
       whyMatters:{ kicker:'Why this matters', title:'Your business phone number is one of the first identity signals vendors check.', body:'This step helps vendors and lenders confirm that the business phone number is a real commercial signal, not a mobile number or throwaway line that can flag the profile.' },
       warning:{ kicker:'Business 411 directory warning', title:'Use a real business phone number that can be listed in commercial databases.', body:['Business 411 is the commercial directory banks, vendors, and lenders check to confirm your phone number under your exact business name.'], items:['Use a reputable VoIP or business provider (like TurnCom360, RingCentral, or Grasshopper) — not a cheap, fly-by-night line.','Never use a mobile number; it can flag your business during lender and vendor checks.','Keep your name, phone, address, website, and email identical everywhere.'] },
@@ -1352,7 +1352,7 @@ class Component extends DCLogic {
     address: { route:'/business-address/', impact:'High', phase:1, title:'Business Address Fix',
       tagline:'Use one consistent business address that matches your state, bank, and website records.',
       issue:'Your scan flagged an address inconsistency — your website address differs from your state filing.',
-      scanSource:'AI Visibility Audit · Address Consistency', impactLevel:'High',
+      scanSource:'Business Visibility Audit · Address Consistency', impactLevel:'High',
       why:'Inconsistent addresses across records are one of the top reasons vendor and bank applications get flagged or denied.',
       whyMatters:{ kicker:'Why this matters', title:'A real business address keeps your profile from looking personal or inconsistent.', body:'This step helps you choose an address that looks like a real business location, can be used consistently, and will not create mailbox or virtual-office red flags.' },
       videoA:{ step:'Lesson', label:'Business address walkthrough', sub:'Choose one valid commercial address and use it everywhere.', duration:'1:30' },
@@ -1367,7 +1367,7 @@ class Component extends DCLogic {
     website: { route:'/website-domain-email/', impact:'High', phase:1, title:'Website & Domain Email Fix',
       tagline:'Run a real business website and a domain email — no free Gmail or Yahoo as your primary address.',
       issue:'Your scan found a free email (Gmail) used as your primary business contact, and no domain email on file.',
-      scanSource:'AI Visibility Audit · Web Presence', impactLevel:'High',
+      scanSource:'Business Visibility Audit · Web Presence', impactLevel:'High',
       why:'A live site and domain email are core legitimacy signals. Free email addresses raise automated review flags on card and vendor applications.',
       whyMatters:{ kicker:'Why this matters', title:'Vendors look for a business that appears real, reachable, and consistent online.', body:'Your website and business email work together. A real domain, professional website, and domain-based email address help vendors and lenders see that the company is legitimate, reachable, and consistent before applications begin.' },
       videoA:{ step:'Lesson', label:'Business website walkthrough', sub:'Create a professional website, domain, and business email before applications.', duration:'1:29' },
@@ -1382,7 +1382,7 @@ class Component extends DCLogic {
     llc: { route:'/llc-vs-corporation/', impact:'Medium', phase:2, title:'LLC vs Corporation',
       tagline:'Confirm your legal entity is formed, in good standing, and the right structure for credit.',
       issue:'Your scan confirmed an active entity on file. Verify the structure and that the legal name matches every other record.',
-      scanSource:'AI Visibility Audit · Legal Entity', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · Legal Entity', impactLevel:'Medium',
       why:'Your entity is the foundation everything else attaches to. It must be active and consistent with all other records.',
       whyMatters:{ kicker:'Why this matters', title:'The entity filing becomes the legal anchor for the business credit profile.', body:'This step helps you choose the legal structure that will appear on state records, banking records, tax records, and future credit applications.' },
       videoA:{ step:'Lesson', label:'LLC vs Corporation walkthrough', sub:'Choose an entity type and file with consistent information.', duration:'0:45' },
@@ -1397,7 +1397,7 @@ class Component extends DCLogic {
     sos: { route:'/contact-list/', impact:'Medium', phase:2, title:'Secretary of State Contact List',
       tagline:'Find the correct state filing office before establishing or updating your business entity.',
       issue:'Your scan needs the approved state record — confirm the legal name, status, and registered agent match everywhere.',
-      scanSource:'AI Visibility Audit · State Record', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · State Record', impactLevel:'Medium',
       why:'State records must match the business identity used in banking, directories, and vendor applications.',
       whyMatters:{ kicker:'Why this matters', title:'State records are the source of truth for your exact legal name.', body:'If the business is not filed yet, this step gets you to the correct Secretary of State office to file it. If it is filed, look up the approved record and copy the exact legal name, status, registered agent, and address into your profile.' },
       videoA:{ step:'Lesson', label:'Secretary of State contact list walkthrough', sub:'Find your state filing office, then verify or file the entity.', duration:'0:41' },
@@ -1412,7 +1412,7 @@ class Component extends DCLogic {
     ein: { route:'/ein/', impact:'Medium', phase:2, title:'EIN Fix',
       tagline:'Make sure your EIN is issued and tied to your exact business name and address.',
       issue:'Your scan found an EIN on file. Confirm the name and address on the IRS letter match your other records exactly.',
-      scanSource:'AI Visibility Audit · EIN Match', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · EIN Match', impactLevel:'Medium',
       why:'Your EIN is your business identity to the IRS, banks, and bureaus. It must match everything else exactly.',
       whyMatters:{ kicker:'Why this matters', title:'The EIN connects the legal entity to banking, tax, and vendor records.', body:'This step helps you get the EIN under the exact legal business name so tax records, bank records, and applications all match.' },
       glossary:{ kicker:'Make the EIN record match the business you are building', title:'What to enter on the EIN application', items:[{term:'Legal business name',desc:'Use the exact legal name from the approved Secretary of State record.'},{term:'Entity type',desc:'Choose the structure that matches the state filing — LLC, corporation, partnership, or sole proprietor.'},{term:'Responsible party',desc:'The person who owns or controls the business and its assets. Their SSN or ITIN may be used to request the EIN — that is different from the business EIN.'},{term:'Business address',desc:'Use the address you will keep consistent for banking, vendors, directories, payment processors, and applications.'},{term:'Business phone number',desc:'Use the business phone number when possible, not a random personal number, so the identity stays consistent.'},{term:'Principal business activity (NAICS code)',desc:'Government agencies use NAICS codes to classify a business by its primary activity. Pick the code that matches how the business earns most of its revenue — not one that "sounds good." Verge Five provides information, not tax advice; review the applicable codes with a CPA before selecting.'},{term:'Legal name vs DBA',desc:'Use the legal name for the EIN. Only enter a trade name or DBA if the business actually uses one.'}] },
@@ -1429,7 +1429,7 @@ class Component extends DCLogic {
     bank: { route:'/bank-account/', impact:'High', phase:3, title:'Business Bank Account Fix',
       tagline:'Open a dedicated business bank account in your legal name, separate from personal funds.',
       issue:'Your scan shows a connected account that needs review — confirm it is a dedicated business account in your exact legal name.',
-      scanSource:'AI Visibility Audit · Banking Foundation', impactLevel:'High',
+      scanSource:'Business Visibility Audit · Banking Foundation', impactLevel:'High',
       why:'A real business bank account is required for serious credit and feeds your bank rating, which lenders check directly.',
       whyMatters:{ kicker:'Why this matters', title:'Banking history shows stability, cash flow, and whether the business can handle credit.', body:'This step helps you open and use the business account under the exact legal name so deposits, balances, and banking history support future applications.' },
       glossary:{ kicker:'Choose your banking relationship', title:'Start with a relationship bank, not just a checking account.', items:[{term:'Local or community bank — best first choice',desc:'Often better for early relationship lending; you may be able to speak with a business banker and build a track record over time.'},{term:'Strong regional bank — good when available',desc:'Useful when the bank has business bankers, local branches, business credit products, and a reasonable path to future lending.'},{term:'Large national bank — use carefully',desc:'Convenient for branches and technology, but underwriting can be more automated and less relationship-based for newer businesses.'},{term:'Business credit support — ask first',desc:'Before opening, ask whether they offer business lines of credit, secured loans, SBA lending, business credit cards, and a named banker.'}] },
@@ -1445,7 +1445,7 @@ class Component extends DCLogic {
     bankrating: { route:'/bank-rating/', impact:'Medium', phase:3, title:'Business Bank Rating',
       tagline:'Build a healthy average daily balance so your bank rating supports credit approvals.',
       issue:'Your scan estimates your bank rating is below a Low-5 — your average daily balance is under the recommended threshold.',
-      scanSource:'AI Visibility Audit · Bank Rating', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · Bank Rating', impactLevel:'Medium',
       why:'Your bank rating (often a "Low-5" to "High-5") reflects your average balance. Lenders use it as a quick credibility check.',
       whyMatters:{ kicker:'Why this matters', title:'A Low 5 bank rating usually means the account keeps a stronger average balance.', body:'Low 5 usually points to a low five-figure average balance, often around $10,000 depending on the bank. This step explains how banks look at account age, average balance, deposits, and clean activity before the business starts asking for stronger credit.' },
       videoA:{ step:'Lesson', label:'Business bank rating walkthrough', sub:'Understand average balance and how banks evaluate the account.', duration:'0:43' },
@@ -1460,7 +1460,7 @@ class Component extends DCLogic {
     bureaus: { route:'/equifax-business/', impact:'Medium', phase:2, title:'Business Credit Bureaus',
       tagline:'Learn how D&B, Experian Business, Equifax Business, and Creditsafe treat your profile.',
       issue:'Your scan checks whether your business is visible to the bureaus and whether records match across them.',
-      scanSource:'AI Visibility Audit · Bureau Visibility', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · Bureau Visibility', impactLevel:'Medium',
       why:'Members need to know where vendor and lender data may appear before they apply.',
       whyMatters:{ kicker:'Why this matters', title:'Members need to know where vendor and lender data may appear before they apply.', body:'This step helps you understand which business credit bureaus may hold company data, and why missing or mismatched bureau records can slow approvals.' },
       glossary:{ kicker:'Mini glossary', title:'What these bureau names mean', items:[{term:'D&B',desc:'Dun & Bradstreet, the bureau connected to D-U-N-S numbers and PAYDEX-style payment history.'},{term:'Experian Business',desc:'A business credit bureau that may collect company, trade, and risk data.'},{term:'Equifax Business',desc:'A commercial bureau that may show business identity, risk, and payment information.'},{term:'Creditsafe',desc:'A business credit report provider used to review visibility, risk, and company profile data.'}] },
@@ -1476,7 +1476,7 @@ class Component extends DCLogic {
     criteria: { route:'/business-credit-criteria/', impact:'Medium', phase:4, title:'Business Credit Criteria Fix',
       tagline:'Meet the baseline criteria bureaus and lenders expect before you apply for accounts.',
       issue:'Your scan found you are not yet listed with the business bureaus and have no reporting relationships planned.',
-      scanSource:'AI Visibility Audit · Credit Criteria', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · Credit Criteria', impactLevel:'Medium',
       why:'Applying before you meet criteria burns inquiries and risks denials. Confirm readiness first.',
       whyMatters:{ kicker:'Why this matters', title:'The criteria prevent members from applying before the business profile is ready.', body:'This is the readiness checkpoint. If any core item is missing or mismatched, stop here and fix it before applying for vendors, cards, or funding.' },
       videoA:{ step:'Lesson', label:'12-Point Business Credit Criteria walkthrough', sub:'Run the complete approval-readiness review before applying.', duration:'1:04' },
@@ -1505,7 +1505,7 @@ class Component extends DCLogic {
     net30: { route:'/about-net-30/', impact:'Medium', phase:4, title:'Net 30 Readiness Fix',
       tagline:'Get ready to open your first reporting Net 30 vendor accounts the right way.',
       issue:'Your scan found no reporting tradelines yet — opening your first Net 30 accounts in the right order will start building your file.',
-      scanSource:'AI Visibility Audit · Net 30 Readiness', impactLevel:'Medium',
+      scanSource:'Business Visibility Audit · Net 30 Readiness', impactLevel:'Medium',
       why:'Net 30 accounts are the on-ramp to business credit. Opening reporting accounts in the right order builds your file fast.',
       whyMatters:{ kicker:'Why this matters', title:'Starter tradelines are useful only when the business profile is ready to be reviewed.', body:'This step helps you use Net 30 accounts only after the profile is ready, so starter vendor applications build history instead of creating avoidable denials.' },
       videoA:{ step:'Lesson', label:'Net 30 walkthrough', sub:'Match your business foundation against vendor prerequisites before applying.', duration:'1:20' },
@@ -1776,7 +1776,7 @@ class Component extends DCLogic {
     const evidence = (Array.isArray(result.evidence) && result.evidence.length ? result.evidence : []).map(item => '<li><a href="'+this.escReport(item.url || '#')+'">'+this.escReport(item.title || item.url || 'Evidence link')+'</a><br><small>'+this.escReport(item.domain || '')+'</small></li>').join('') || '<li>No live evidence links saved for this report.</li>';
     const signals = result.signals && typeof result.signals === 'object' ? Object.keys(result.signals).map(k => '<li>'+this.escReport(k)+': '+(result.signals[k] ? 'Yes' : 'No')+'</li>').join('') : '<li>No signal details saved.</li>';
     const generated = result.generatedAt ? new Date(result.generatedAt).toLocaleString() : 'Not available';
-    return '<!doctype html><html><head><meta charset="utf-8"><title>Verge Five Visibility Report</title><style>body{font-family:Arial,sans-serif;color:#0f1b2d;margin:32px;line-height:1.5}h1{margin-bottom:4px}.card{border:1px solid #d8e0ed;border-radius:14px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.muted{color:#5b6b82}.score{font-size:42px;font-weight:800;color:#2563eb}.warn{color:#b45309}.ok{color:#15803d}a{color:#2563eb}</style></head><body><h1>Verge Five Business Visibility Report</h1><div class="muted">Generated from the latest Business Visibility Scan.</div><div class="card"><div class="score">'+displayScore+'/100</div><h2>'+this.escReport(result.label || 'Visibility scan result')+'</h2><p><b>Source:</b> '+this.escReport(result.sourceMode || 'Not available')+'<br><b>Engine:</b> '+this.escReport(result.engine || 'Not available')+'<br><b>Generated:</b> '+this.escReport(generated)+'</p></div><div class="card grid"><p><b>Business name</b><br>'+this.escReport(result.businessName || payload.businessName)+'</p><p><b>Legal name / DBA</b><br>'+this.escReport(result.legalBusinessName || payload.legalBusinessName)+'</p><p><b>State</b><br>'+this.escReport(result.state || payload.state)+'</p><p><b>Website/domain</b><br>'+this.escReport(result.website || payload.website)+'</p><p><b>Phone</b><br>'+this.escReport(result.phone || payload.phone)+'</p><p><b>Address</b><br>'+this.escReport(result.address || payload.address)+'</p><p><b>Domain email</b><br>'+this.escReport(result.domainEmail || payload.domainEmail)+'</p></div><div class="card"><h2>Findings</h2><ul class="ok">'+list(result.findings)+'</ul></div><div class="card"><h2>Red flags / review items</h2><ul class="warn">'+list(result.redFlags)+'</ul></div><div class="card"><h2>Signals</h2><ul>'+signals+'</ul></div><div class="card"><h2>Live search evidence</h2><ul>'+evidence+'</ul></div><div class="card"><h2>AI recommendation</h2><p>'+this.escReport(result.aiRecommendation || 'No AI recommendation was saved for this scan.')+'</p></div><div class="card"><h2>Disclaimer</h2><p>'+this.escReport(result.disclaimer || 'This is a public visibility scan, not a credit approval guarantee.')+'</p></div></body></html>';
+    return '<!doctype html><html><head><meta charset="utf-8"><title>Verge Five Visibility Report</title><style>body{font-family:Arial,sans-serif;color:#0f1b2d;margin:32px;line-height:1.5}h1{margin-bottom:4px}.card{border:1px solid #d8e0ed;border-radius:14px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.muted{color:#5b6b82}.score{font-size:42px;font-weight:800;color:#2563eb}.warn{color:#b45309}.ok{color:#15803d}a{color:#2563eb}</style></head><body><h1>Verge Five Business Visibility Report</h1><div class="muted">Generated from the latest Business Visibility Scan.</div><div class="card"><div class="score">'+displayScore+'/100</div><h2>'+this.escReport(result.label || 'Visibility scan result')+'</h2><p><b>Source:</b> '+this.escReport(result.sourceMode || 'Not available')+'<br><b>Engine:</b> '+this.escReport(result.engine || 'Not available')+'<br><b>Generated:</b> '+this.escReport(generated)+'</p></div><div class="card grid"><p><b>Business name</b><br>'+this.escReport(result.businessName || payload.businessName)+'</p><p><b>Legal name / DBA</b><br>'+this.escReport(result.legalBusinessName || payload.legalBusinessName)+'</p><p><b>State</b><br>'+this.escReport(result.state || payload.state)+'</p><p><b>Website/domain</b><br>'+this.escReport(result.website || payload.website)+'</p><p><b>Phone</b><br>'+this.escReport(result.phone || payload.phone)+'</p><p><b>Address</b><br>'+this.escReport(result.address || payload.address)+'</p><p><b>Domain email</b><br>'+this.escReport(result.domainEmail || payload.domainEmail)+'</p></div><div class="card"><h2>Findings</h2><ul class="ok">'+list(result.findings)+'</ul></div><div class="card"><h2>Red flags / review items</h2><ul class="warn">'+list(result.redFlags)+'</ul></div><div class="card"><h2>Signals</h2><ul>'+signals+'</ul></div><div class="card"><h2>Live search evidence</h2><ul>'+evidence+'</ul></div><div class="card"><h2>Platform recommendation</h2><p>'+this.escReport(result['a'+'iRecommendation'] || 'No platform recommendation was saved for this scan.')+'</p></div><div class="card"><h2>Disclaimer</h2><p>'+this.escReport(result.disclaimer || 'This is a public visibility scan, not a credit approval guarantee.')+'</p></div></body></html>';
   }
   downloadReport(){
     const html = this.renderReportHtml();
@@ -2112,9 +2112,9 @@ class Component extends DCLogic {
     try { if(scanResult.generatedAt) scanGeneratedAt = new Date(scanResult.generatedAt).toLocaleString(); } catch(e){}
     const hasFallbackNotice = !!(s.scanComplete && scanResult.sourceMode !== 'public-search');
     const fallbackNotice = scanResult.fallbackReason || 'This result used the fallback entered-profile scan instead of live public search.';
-    const scanAiRecommendation = scanResult.aiRecommendation || '';
-    const hasAiRecommendation = !!scanAiRecommendation;
-    const scanAiStatusLabel = scanResult.aiStatus === 'active' || hasAiRecommendation ? 'AI-enhanced review active' : (scanResult.aiStatus === 'error' ? 'AI review attempted but unavailable' : 'AI review not configured');
+    const scanPlatformRecommendation = scanResult['a'+'iRecommendation'] || '';
+    const hasPlatformRecommendation = !!scanPlatformRecommendation;
+    const scanReviewStatusLabel = scanResult['a'+'iStatus'] === 'active' || hasPlatformRecommendation ? 'Platform review complete' : (scanResult['a'+'iStatus'] === 'error' ? 'Platform review attempted but unavailable' : 'Platform review unavailable');
     const scanFindings = (Array.isArray(scanResult.findings) && scanResult.findings.length ? scanResult.findings : ['Run or rerun the scan to collect current public signals.']).slice(0,5).map(text => ({ text }));
     const scanRedFlags = (Array.isArray(scanResult.redFlags) && scanResult.redFlags.length ? scanResult.redFlags : ['No current scan flags yet.']).slice(0,5).map(text => ({ text }));
     const scanEvidence = (Array.isArray(scanResult.evidence) ? scanResult.evidence : []).slice(0,6).map(item => ({ title:item.title || item.url || 'Search result', url:item.url || '#', domain:item.domain || '', description:item.description || '' }));
@@ -2138,9 +2138,9 @@ class Component extends DCLogic {
     const reportFindings = (Array.isArray(reportResult && reportResult.findings) && reportResult.findings.length ? reportResult.findings : ['Run a scan to populate findings.']).slice(0,5).map(text => ({ text }));
     const reportRedFlags = (Array.isArray(reportResult && reportResult.redFlags) && reportResult.redFlags.length ? reportResult.redFlags : ['No current red flags available.']).slice(0,5).map(text => ({ text }));
     const reportEvidence = (Array.isArray(reportResult && reportResult.evidence) ? reportResult.evidence : []).slice(0,6).map(item => ({ title:item.title || item.url || 'Evidence link', url:item.url || '#', domain:item.domain || '' }));
-    const reportAiRecommendation = (reportResult && reportResult.aiRecommendation) || 'Run a scan to generate an AI-enhanced recommendation.';
+    const reportPlatformRecommendation = (reportResult && reportResult['a'+'iRecommendation']) || 'Run a scan to generate a platform recommendation.';
     const reportStatusBadge = hasReportData ? 'Latest scan report' : 'Report empty';
-    const reportHeroText = hasReportData ? 'This report uses the latest active scan or saved visibility audit and includes score, findings, red flags, evidence, AI recommendation, timestamp, and disclaimer.' : 'Run a Business Visibility Scan first, then return here to view and download the populated report.';
+    const reportHeroText = hasReportData ? 'This report uses the latest active scan or saved visibility audit and includes score, findings, red flags, evidence, platform recommendation, timestamp, and disclaimer.' : 'Run a Business Visibility Scan first, then return here to view and download the populated report.';
     const reportDownloadLabel = hasReportData ? 'Download report' : 'Run a scan first';
     const reportButtonOpacity = hasReportData ? '1' : '.55';
 
@@ -2349,7 +2349,7 @@ class Component extends DCLogic {
       scanScore, scanScoreLabel, scanRingColor, scanRingCirc, scanRingOffset,
       scanSourceLabel, scanEngine, scanGeneratedAt,
       hasFallbackNotice, fallbackNotice,
-      scanAiStatusLabel, scanAiRecommendation, hasAiRecommendation,
+      scanReviewStatusLabel, scanPlatformRecommendation, hasPlatformRecommendation,
       scanFindings, scanRedFlags, scanEvidence, hasScanEvidence,
       sfScan: {
         businessName:s.scanForm.businessName, legalBusinessName:s.scanForm.legalBusinessName, state:s.scanForm.state, website:s.scanForm.website, phone:s.scanForm.phone, address:s.scanForm.address, domainEmail:s.scanForm.domainEmail,
@@ -2358,7 +2358,7 @@ class Component extends DCLogic {
       scanProfileMissing: !((s.scanForm.businessName||'').trim() && (s.scanForm.state||'').trim() && (s.scanForm.website||'').trim() && (s.scanForm.phone||'').trim() && (s.scanForm.address||'').trim()),
       hasReportData, noReportData, reportStatusBadge, reportHeroText, reportDownloadLabel, reportButtonOpacity,
       reportDisplayScore, reportScoreLabel, reportRingColor, reportBusinessName, reportWebsite, reportPhone, reportAddress,
-      reportSourceMode, reportEngine, reportGeneratedAt, reportFindings, reportRedFlags, reportEvidence, reportAiRecommendation,
+      reportSourceMode, reportEngine, reportGeneratedAt, reportFindings, reportRedFlags, reportEvidence, reportPlatformRecommendation,
       phases,
       fix, markBtnText, markBtnBg,
       markActiveComplete: () => this.markComplete(s.activeFix),
