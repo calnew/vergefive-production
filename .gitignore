@@ -1,6 +1,7 @@
 # Dependencies and caches
 node_modules/
 .next/
+.open-next/
 .wrangler/
 .cache/
 dist/

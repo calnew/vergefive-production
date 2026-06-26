@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { CheckoutStart } from "@/app/checkout/checkout-start";
+import { PublicHeader } from "@/components/marketing/public-header";
 import { normalizeBilling, normalizePlan } from "@/lib/stripe";
 
 export default async function CheckoutPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -13,8 +14,11 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
   if (!session?.user?.id) redirect(`/signup?plan=${plan}&billing=${billing}`);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-surface-page px-6 py-12">
-      <CheckoutStart plan={plan} billing={billing} />
+    <main className="min-h-screen bg-surface-page">
+      <PublicHeader />
+      <section className="grid min-h-[calc(100vh-74px)] place-items-center px-6 py-12">
+        <CheckoutStart plan={plan} billing={billing} />
+      </section>
     </main>
   );
 }
