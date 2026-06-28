@@ -11,7 +11,7 @@ export function PortalButton() {
   async function openPortal() {
     setError("");
     setLoading(true);
-    const response = await fetch("/api/stripe/portal", { method: "POST" });
+    const response = await fetch("/api/billing/create-portal-session", { method: "POST" });
     const data = await response.json();
     setLoading(false);
     if (!response.ok || !data.url) {

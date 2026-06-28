@@ -13,6 +13,7 @@ To prevent duplicate Stripe checkout sessions and duplicate subscription creatio
 The newer Next.js Stripe routes are not allowed to create checkout sessions:
 
 - `/api/stripe/checkout` returns `410` and points to `/api/billing/create-checkout-session`.
+- `/api/stripe/portal` returns `410` and points to `/api/billing/create-portal-session`.
 - `/api/stripe/webhook` returns `200` ignored so Stripe does not retry if the endpoint was accidentally configured, but it does not mutate membership or billing records.
 
 The checkout UI posts to `/api/billing/create-checkout-session` and sends `annual` or `monthly` as the billing plan expected by the existing Cloudflare backend.
