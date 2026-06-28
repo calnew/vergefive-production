@@ -105,8 +105,16 @@ Create Stripe test-mode prices:
 Webhook endpoint:
 
 ```text
-/api/stripe/webhook
+/api/billing/webhook
 ```
+
+Canonical checkout endpoint:
+
+```text
+/api/billing/create-checkout-session
+```
+
+The newer `/api/stripe/checkout` route is disabled so only the Cloudflare billing backend can create Stripe Checkout sessions.
 
 Events handled:
 
@@ -140,3 +148,4 @@ npm install
 ## Compliance note
 
 All account and payment views must keep this position: Verge Five improves business credit readiness and account-match sequencing. It does not guarantee approvals, funding, account terms, or lender decisions.
+

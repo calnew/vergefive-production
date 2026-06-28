@@ -15,7 +15,7 @@ Checkout behavior:
 
 Webhook endpoint:
 
-- `/api/stripe/webhook`
+- `/api/billing/webhook`
 - Events needed: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
 
 Compliance language:
