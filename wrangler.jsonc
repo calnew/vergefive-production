@@ -21,6 +21,9 @@
   "ai": {
     "binding": "AI"
   },
+  "vars": {
+    "ADMIN_EMAILS": "qa-admin-path@example.com"
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
