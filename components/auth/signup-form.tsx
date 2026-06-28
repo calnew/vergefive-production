@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 import { Button, Card, CardContent } from "@/components/ui";
@@ -20,7 +19,7 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
 
-    const response = await fetch("/api/auth/signup", {
+    const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -37,13 +36,7 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
       return;
     }
 
-    const result = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
-
-    if (result?.error) {
-      window.location.href = "/login";
-      return;
-    }
 
     window.location.href = `/checkout?plan=${encodeURIComponent(plan)}&billing=${encodeURIComponent(selectedBilling)}`;
   }
@@ -70,7 +63,7 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
           </label>
           <label className="grid gap-2 text-sm font-bold text-vfText-strong">
             Password
-            <input className="h-12 rounded-xl border border-vfBorder bg-white px-4 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100" name="password" type="password" minLength={8} required />
+            <input className="h-12 rounded-xl border border-vfBorder bg-white px-4 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100" name="password" type="password" minLength={12} required />
           </label>
           {plan !== "done-with-you" ? (
             <label className="grid gap-2 text-sm font-bold text-vfText-strong">

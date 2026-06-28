@@ -1,15 +1,16 @@
 import Link from "next/link";
 
-import { auth } from "@/auth";
 import { ScanForm } from "@/app/scan/scan-form";
 import { PlatformShell } from "@/components/platform/platform-shell";
 import { PlatformPaywall } from "@/components/platform/paywall";
-import { prisma } from "@/lib/prisma";
+import { getD1RequestAuth, entitlementFromD1 } from "@/lib/d1-auth";
+
+type ProfileRow = { business_name?: string; trade_name?: string; entity_type?: string; address?: string; phone?: string; website?: string; email?: string };
 
 export default async function ScanPage() {
-  const session = await auth();
+  const { auth, env } = await getD1RequestAuth();
 
-  if (!session?.user?.id) {
+  if (!auth) {
     return (
       <main className="min-h-screen bg-surface-page px-5 py-8 md:px-8">
         <nav className="mx-auto mb-10 flex max-w-6xl items-center justify-between">
@@ -21,16 +22,28 @@ export default async function ScanPage() {
     );
   }
 
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user || user.entitlement === "free") return <PlatformPaywall title="Upgrade to re-run scans inside the platform" />;
+  if (!auth.active) return <PlatformPaywall title="Upgrade to re-run scans inside the platform" />;
 
-  const latestBusiness = await prisma.business.findFirst({ where: { userId: user.id }, orderBy: { createdAt: "desc" } });
+  const profile = await env.DB.prepare("select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1").bind(auth.user.id).first<ProfileRow>().catch(() => null);
+  const user = {
+    id: auth.user.id,
+    email: auth.user.email,
+    name: auth.user.name || auth.user.email,
+    entitlement: entitlementFromD1(auth.membership.status, auth.active),
+  };
 
   return (
     <PlatformShell user={user} active="Run Scan">
       <div className="mx-auto max-w-5xl">
         <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Refresh your readiness</p>
-        <ScanForm paid initialValues={latestBusiness ?? {}} />
+        <ScanForm paid initialValues={{
+          name: profile?.business_name || profile?.trade_name || "",
+          entityType: profile?.entity_type || "",
+          address: profile?.address || "",
+          phone: profile?.phone || "",
+          website: profile?.website || "",
+          email: profile?.email || "",
+        }} />
       </div>
     </PlatformShell>
   );

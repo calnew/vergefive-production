@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getD1RequestAuth, entitlementFromD1, type D1Env } from "@/lib/d1-auth";
 
 export const issuePointMap: Record<string, number> = {
   phones: 10,
@@ -96,21 +95,98 @@ export const buildoutModules = [
   { title: "Account Strategy", sections: 5, description: "Net 30 vendors, cards, funding paths, and account sequencing." },
 ];
 
-export type PlatformData = Awaited<ReturnType<typeof getPlatformData>>;
+type D1Row = Record<string, unknown>;
+type IssueSeverity = "high" | "med" | "low";
+type IssueStatus = "todo" | "progress" | "done";
 
-export async function getPlatformData() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+export type PlatformIssue = { id: string; key: string; title: string; detail: string; severity: IssueSeverity; impactRank: number; status: IssueStatus };
+export type PlatformAccountMatch = { id: string; name: string; category: string; tier: string; reason: string; unlockReason: string | null; faceBg: string };
+export type PlatformUser = { id: string; email: string; name: string; entitlement: string };
+export type PlatformScan = { id: string; business: { name: string }; readinessScore: number; grade: string; signalsTotal: number; signalsClean: number; issues: PlatformIssue[]; accountMatches: PlatformAccountMatch[] };
+export type PlatformData = { user: PlatformUser; allowed: boolean; scan: PlatformScan | null };
 
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user) redirect("/login");
+function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(String(value)) as Record<string, unknown>;
+  } catch {
+    return fallback;
+  }
+}
 
-  const allowed = user.entitlement === "self_serve" || user.entitlement === "done_with_you";
-  const scan = await prisma.scan.findFirst({
-    where: { business: { userId: user.id } },
-    include: { business: true, issues: { orderBy: { impactRank: "asc" } }, accountMatches: true },
-    orderBy: { createdAt: "desc" },
-  });
+async function safeFirst(env: D1Env, sql: string, ...bindings: unknown[]) {
+  try {
+    return await env.DB.prepare(sql).bind(...bindings).first<D1Row>();
+  } catch {
+    return null;
+  }
+}
+
+function defaultIssues(result: Record<string, unknown>): PlatformIssue[] {
+  const redFlags = Array.isArray(result.redFlags) ? result.redFlags.map(String) : [];
+  const findings = Array.isArray(result.findings) ? result.findings.map(String) : [];
+  const details = [...redFlags, ...findings];
+  const keys = ["phones", "email", "address", "bank-rating", "website"];
+  return keys.map((key, index) => ({
+    id: `d1-${key}`,
+    key,
+    title: issueFixContent[key].title,
+    detail: details[index] || issueFixContent[key].saw,
+    severity: index < 3 ? "high" : index === 3 ? "med" : "low",
+    impactRank: index + 1,
+    status: "todo",
+  }));
+}
+
+function defaultMatches(): PlatformAccountMatch[] {
+  return [
+    { id: "ready-crown", name: "Crown Office Supplies", category: "vendor_net30", tier: "ready", reason: "Good fit when identity and address signals are aligned.", unlockReason: null, faceBg: "linear-gradient(135deg,#0E1A2B,#2563EB)" },
+    { id: "ready-uline", name: "Uline", category: "vendor_net30", tier: "ready", reason: "Starter vendor path for businesses with core records in place.", unlockReason: null, faceBg: "linear-gradient(135deg,#1E3A8A,#38BDF8)" },
+    { id: "ready-bofa", name: "BofA Secured", category: "secured_card", tier: "ready", reason: "Secured card path can fit earlier than stronger revolving cards.", unlockReason: null, faceBg: "linear-gradient(135deg,#111827,#64748B)" },
+    { id: "unlock-spark", name: "Capital One Spark", category: "credit_card", tier: "unlock_next", reason: "Finish the phone and public identity signal before using this path.", unlockReason: "Complete Phone & 411 Fix", faceBg: "linear-gradient(135deg,#7F1D1D,#2563EB)" },
+    { id: "unlock-amazon", name: "Amazon Business Amex", category: "credit_card", tier: "unlock_next", reason: "Address and business profile consistency should be cleaned up first.", unlockReason: "Complete Business Address Fix", faceBg: "linear-gradient(135deg,#111827,#F59E0B)" },
+    { id: "unlock-chase", name: "Chase Ink", category: "credit_card", tier: "unlock_next", reason: "Banking and readiness signals should be stronger before this path.", unlockReason: "Complete Bank Rating Fix", faceBg: "linear-gradient(135deg,#0F172A,#1D4ED8)" },
+  ];
+}
+
+function signalsCleanFromResult(result: Record<string, unknown>, score: number) {
+  const signals = result.signals && typeof result.signals === "object" ? Object.values(result.signals as Record<string, unknown>) : [];
+  if (signals.length) return signals.filter(Boolean).length;
+  return Math.max(0, Math.min(9, Math.round((score / 100) * 9)));
+}
+
+export async function getPlatformData(): Promise<PlatformData> {
+  const { auth, env } = await getD1RequestAuth();
+  if (!auth) redirect("/login");
+
+  const user: PlatformUser = {
+    id: auth.user.id,
+    email: auth.user.email,
+    name: auth.user.name || auth.user.email,
+    entitlement: entitlementFromD1(auth.membership.status, auth.active),
+  };
+  const allowed = !!auth.active;
+
+  const [profile, audit] = await Promise.all([
+    safeFirst(env, "select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1", auth.user.id),
+    safeFirst(env, "select id, business_name, score, label, result_json, created_at from visibility_audits where user_id = ? order by created_at desc limit 1", auth.user.id),
+  ]);
+
+  if (!audit && !profile) return { user, allowed, scan: null };
+
+  const result = parseJson(audit?.result_json);
+  const score = Number(audit?.score || result.score || 56);
+  const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
+  const scan: PlatformScan = {
+    id: String(audit?.id || "d1-profile-scan"),
+    business: { name: businessName },
+    readinessScore: Math.max(0, Math.min(100, score)),
+    grade: String(audit?.label || result.label || gradeForScore(score)),
+    signalsTotal: 9,
+    signalsClean: signalsCleanFromResult(result, score),
+    issues: defaultIssues(result),
+    accountMatches: defaultMatches(),
+  };
 
   return { user, allowed, scan };
 }
@@ -144,4 +220,3 @@ export function matchIsReady(match: { tier: string; name: string }, issues: { ke
   const key = unlockKeyForMatch(match.name);
   return Boolean(key && issues.some((issue) => issue.key === key && issue.status === "done"));
 }
-

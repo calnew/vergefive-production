@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -18,16 +17,19 @@ export function LoginForm() {
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const result = await signIn("credentials", {
-      email: String(formData.get("email") ?? ""),
-      password: String(formData.get("password") ?? ""),
-      redirect: false,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
+      }),
     });
-
+    const payload = await response.json().catch(() => ({}));
     setLoading(false);
 
-    if (result?.error) {
-      setError("That email and password did not match.");
+    if (!response.ok) {
+      setError(payload.error ?? "That email and password did not match.");
       return;
     }
 

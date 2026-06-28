@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import type { User } from "@prisma/client";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 const nav = [
   ["Dashboard", "/dashboard/"],
@@ -13,7 +13,7 @@ const nav = [
   ["Report Card", "/report-card/"],
 ];
 
-export function PlatformShell({ user, active, children }: { user: Pick<User, "name" | "email" | "entitlement">; active: string; children: ReactNode }) {
+export function PlatformShell({ user, active, children }: { user: { name: string; email: string; entitlement: string }; active: string; children: ReactNode }) {
   return (
     <div className="min-h-screen bg-surface-page text-vfText-strong lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="sticky top-0 z-30 border-b border-white/10 bg-[#0E1A2B] px-5 py-4 text-white lg:h-screen lg:border-b-0 lg:py-7">
@@ -42,6 +42,7 @@ export function PlatformShell({ user, active, children }: { user: Pick<User, "na
               <p className="truncate text-xs text-[#8EA4C7]">{user.entitlement.replace("_", " ")}</p>
             </div>
           </div>
+          <LogoutButton />
         </div>
       </aside>
       <main className="min-w-0 px-5 py-7 md:px-8 lg:px-10">{children}</main>
