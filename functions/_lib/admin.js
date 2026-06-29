@@ -3,6 +3,21 @@ import { ensureReadinessLockSchema } from './readiness-locks.js';
 
 export async function ensureAdminSchema(env) {
   if (!env.DB) return;
+  await env.DB.prepare(`create table if not exists support_requests (
+    id text primary key,
+    user_id text,
+    type text,
+    severity text,
+    name text,
+    email text,
+    page_url text,
+    message text,
+    steps text,
+    browser text,
+    source text,
+    status text not null default 'new',
+    created_at text not null default (datetime('now'))
+  )`).run();
   await env.DB.prepare(`create table if not exists admin_notes (
     id text primary key,
     user_id text not null references users(id) on delete cascade,
@@ -21,6 +36,7 @@ export async function ensureAdminSchema(env) {
   await env.DB.prepare('create index if not exists idx_admin_notes_user on admin_notes(user_id, created_at)').run();
   await env.DB.prepare('create index if not exists idx_admin_activity_user on admin_activity_log(user_id, created_at)').run();
   await env.DB.prepare('create index if not exists idx_admin_activity_admin on admin_activity_log(admin_email, created_at)').run();
+  await env.DB.prepare('create index if not exists idx_support_requests_created on support_requests(created_at)').run();
   await addColumn(env, 'memberships', 'plan', 'text');
   await addColumn(env, 'memberships', 'stripe_price_id', 'text');
   await ensureReadinessLockSchema(env);

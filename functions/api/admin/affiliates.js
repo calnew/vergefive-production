@@ -1,9 +1,9 @@
-import { getAuth, isAdminEmail, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { getAuth, isAdminUser, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
 import { createAffiliate, markCommissionPaid, normalizeAffiliateCode } from '../../_lib/affiliates.js';
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
-  return auth && isAdminEmail(auth.user.email, context.env) ? auth : null;
+  return auth && await isAdminUser(auth.user.email, context.env) ? auth : null;
 }
 
 export async function onRequestGet(context) {

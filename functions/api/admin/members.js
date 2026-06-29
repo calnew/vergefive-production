@@ -1,8 +1,8 @@
-import { getAuth, isAdminEmail, json } from '../../_lib/auth.js';
+import { getAuth, isAdminUser, json } from '../../_lib/auth.js';
 
 export async function onRequestGet(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth || !isAdminEmail(auth.user.email, context.env)) return json({ error: 'Admin access required.' }, 403);
+  if (!auth || !await isAdminUser(auth.user.email, context.env)) return json({ error: 'Admin access required.' }, 403);
 
   const rows = await context.env.DB.prepare(
     `select

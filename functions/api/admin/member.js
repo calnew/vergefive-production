@@ -1,4 +1,4 @@
-import { getAuth, isAdminEmail, json, cleanLimited } from '../../_lib/auth.js';
+import { getAuth, isAdminUser, json, cleanLimited } from '../../_lib/auth.js';
 import { ensureAdminSchema } from '../../_lib/admin.js';
 
 function parseJson(value, fallback) {
@@ -12,7 +12,7 @@ function parseJson(value, fallback) {
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
-  return auth && isAdminEmail(auth.user.email, context.env) ? auth : null;
+  return auth && await isAdminUser(auth.user.email, context.env) ? auth : null;
 }
 
 async function ensureVisibilityAuditTable(env) {

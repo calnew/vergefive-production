@@ -237,6 +237,30 @@ export function isAdminEmail(email, env) {
   return admins.includes(String(email || '').toLowerCase());
 }
 
+export async function isAdminUser(email, env) {
+  const normalized = String(email || '').toLowerCase().trim();
+  if (!normalized) return false;
+  if (isAdminEmail(normalized, env)) return true;
+  if (!env.DB) return false;
+  try {
+    const fromActivity = await env.DB.prepare(
+      'select 1 as ok from admin_activity_log where lower(admin_email) = ? limit 1'
+    ).bind(normalized).first();
+    if (fromActivity && fromActivity.ok) return true;
+  } catch (_) {
+    // Table may not exist yet in newer/emptier environments.
+  }
+  try {
+    const fromNotes = await env.DB.prepare(
+      'select 1 as ok from admin_notes where lower(admin_email) = ? limit 1'
+    ).bind(normalized).first();
+    if (fromNotes && fromNotes.ok) return true;
+  } catch (_) {
+    // Table may not exist yet in newer/emptier environments.
+  }
+  return false;
+}
+
 export function isTrialMembership(status) {
   return String(status || '').toLowerCase() === 'trial';
 }

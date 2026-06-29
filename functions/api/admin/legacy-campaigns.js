@@ -1,4 +1,4 @@
-import { cleanLimited, getAuth, isAdminEmail, json, normalizeEmail, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, getAuth, isAdminUser, json, normalizeEmail, readJson, requireSameOrigin } from '../../_lib/auth.js';
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { sendAdminEmail } from '../../_lib/security.js';
 
@@ -44,7 +44,7 @@ const OLD_DEFAULT_MARKERS = [
 
 async function requireAdmin(context) {
   const auth = context.data.auth || await getAuth(context.request, context.env);
-  return auth && isAdminEmail(auth.user.email, context.env) ? auth : null;
+  return auth && await isAdminUser(auth.user.email, context.env) ? auth : null;
 }
 
 function splitCsvLine(line) {

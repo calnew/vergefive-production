@@ -1,4 +1,4 @@
-import { getAuth, isAdminEmail, isTrialExpired, isTrialMembership, redirect } from './_lib/auth.js';
+import { getAuth, isAdminUser, isTrialExpired, isTrialMembership, redirect } from './_lib/auth.js';
 import { isAdvancedReadinessPath, readinessLockForPath, recordMemberPageAccess } from './_lib/readiness-locks.js';
 
 const PROTECTED_PREFIXES = [
@@ -189,7 +189,7 @@ export async function onRequest(context) {
     return redirect(`/login/?next=${encodeURIComponent(url.pathname + url.search)}`);
   }
 
-  const isAdmin = isAdminEmail(auth.user.email, context.env);
+  const isAdmin = await isAdminUser(auth.user.email, context.env);
 
   if (isAdminPath(url.pathname)) {
     if (!isAdmin) {
