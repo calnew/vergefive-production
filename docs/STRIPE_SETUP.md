@@ -26,3 +26,27 @@ Webhook endpoint:
 Compliance language:
 
 Verge Five sells readiness tools and guided fixes. It does not guarantee approvals, funding, or lender decisions.
+
+Production vs. Dev naming:
+
+- Production already uses the canonical variable names above.
+- Dev/Preview must use the same names so canonical billing routes stay identical:
+  - `STRIPE_SECRET_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
+  - `STRIPE_PRICE_ID`
+  - `STRIPE_PRICE_ID_ANNUAL`
+  - optional `STRIPE_PRICE_ID_MONTHLY` (to force a separate monthly override)
+
+Live deployment rule (do not hardcode secrets in code):
+
+- Cloudflare Pages stores these as encrypted secrets and does not expose values for readback, so set them in each env directly.
+- Required production config is already present on `vergefive` production.
+- Dev preview must be set by running:
+
+  - `npx.cmd wrangler pages secret put STRIPE_SECRET_KEY --project-name vergefive --env preview`
+  - `npx.cmd wrangler pages secret put STRIPE_WEBHOOK_SECRET --project-name vergefive --env preview`
+  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID --project-name vergefive --env preview`
+  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID_ANNUAL --project-name vergefive --env preview`
+  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID_MONTHLY --project-name vergefive --env preview` (optional)
+
+Use live `cs_live_*` or test `cs_test_*` `STRIPE_PRICE_ID*` values as appropriate per your target env; never expose keys client-side.
