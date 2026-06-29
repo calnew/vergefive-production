@@ -1,17 +1,22 @@
 # Verge Five Stripe test setup
 
-Create these Stripe test-mode prices and add the IDs to the environment.
+Create these Stripe test-mode recurring prices and add the IDs to environment vars.
 
-- Self-Serve product
-  - `STRIPE_PRICE_SELF_SERVE_YEARLY`: $297/year recurring
-  - `STRIPE_PRICE_SELF_SERVE_MONTHLY`: $29/month recurring
-- Done-With-You product/price
-  - `STRIPE_PRICE_DONE_WITH_YOU`: $997 one-time
+- Monthly plan price: `STRIPE_PRICE_ID` **or** `STRIPE_PRICE_ID_MONTHLY` (optional explicit override)
+- Annual plan price: `STRIPE_PRICE_ID_ANNUAL`
+
+Notes:
+
+- `STRIPE_PRICE_ID` is the canonical fallback for the monthly plan when
+  `STRIPE_PRICE_ID_MONTHLY` is not set.
+- If you do not use `STRIPE_PRICE_ID_MONTHLY`, keep it unset and rely on
+  `STRIPE_PRICE_ID` only.
 
 Checkout behavior:
 
-- Self-Serve starts a subscription checkout with the selected yearly or monthly price.
-- Done-With-You starts a subscription checkout with Self-Serve plus the $997 one-time price on the first invoice.
+- Membership checkout uses:
+  - `/api/billing/create-checkout-session` for monthly (`STRIPE_PRICE_ID_MONTHLY` or fallback `STRIPE_PRICE_ID`) and
+  - `/api/billing/create-checkout-session` for annual (`STRIPE_PRICE_ID_ANNUAL`).
 
 Webhook endpoint:
 

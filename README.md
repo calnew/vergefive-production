@@ -36,9 +36,9 @@ NEXT_PUBLIC_APP_URL="http://localhost:3010"
 
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
-STRIPE_PRICE_SELF_SERVE_YEARLY="price_..."
-STRIPE_PRICE_SELF_SERVE_MONTHLY="price_..."
-STRIPE_PRICE_DONE_WITH_YOU="price_..."
+STRIPE_PRICE_ID="price_..."             # $29/month recurring (fallback)
+STRIPE_PRICE_ID_MONTHLY="price_..."      # optional explicit override for monthly
+STRIPE_PRICE_ID_ANNUAL="price_..."       # $497/year recurring
 ```
 
 3. Run migrations and seed the demo account:
