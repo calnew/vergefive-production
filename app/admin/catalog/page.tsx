@@ -4,7 +4,7 @@ import { AdminAffiliatesLive } from "@/components/admin/admin-live-panels";
 export default function AdminCatalogPage() {
   return (
     <>
-      <AdminPageHeader eyebrow="Catalog" title="Catalog and affiliate visibility" description="Read-only placeholder for account catalog work, with existing affiliate data surfaced from Cloudflare/D1." />
+      <AdminPageHeader eyebrow="Catalog" title="Catalog and affiliate visibility" description="Affiliate and catalog-side migration visibility backed by the existing Cloudflare/D1 records." />
       <AdminAffiliatesLive />
     </>
   );

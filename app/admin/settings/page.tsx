@@ -4,7 +4,7 @@ import { AdminSystemLive } from "@/components/admin/admin-live-panels";
 export default function AdminSettingsPage() {
   return (
     <>
-      <AdminPageHeader eyebrow="Settings" title="Admin settings" description="Read-only settings placeholder. No configuration or destructive action is wired." />
+      <AdminPageHeader eyebrow="Settings" title="Admin settings" description="Backend route and migration settings visibility for the existing admin platform. Destructive configuration remains intentionally limited." />
       <AdminSystemLive />
     </>
   );

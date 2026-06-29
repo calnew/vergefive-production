@@ -4,7 +4,7 @@ import { AdminScansLive } from "@/components/admin/admin-live-panels";
 export default function AdminReportsPage() {
   return (
     <>
-      <AdminPageHeader eyebrow="Reports" title="Reports and exports" description="Read-only report visibility for now. Export actions remain intentionally unwired." />
+      <AdminPageHeader eyebrow="Reports" title="Reports and exports" description="Live report visibility from the existing backend. Export actions remain intentionally unwired." />
       <AdminScansLive />
     </>
   );

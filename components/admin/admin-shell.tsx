@@ -49,9 +49,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="mt-5 rounded-3xl border border-white/10 bg-white/[0.06] p-4 lg:absolute lg:bottom-6 lg:left-6 lg:right-6">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#8EA4C7]">Layout pass</p>
-          <p className="mt-2 text-sm font-bold text-white">Placeholder data only</p>
-          <p className="mt-1 text-xs leading-5 text-[#AEBFD8]">Backend actions, Stripe, email, and imports are intentionally not wired yet.</p>
+          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#8EA4C7]">Live backend</p>
+          <p className="mt-2 text-sm font-bold text-white">Cloudflare admin routes retained</p>
+          <p className="mt-1 text-xs leading-5 text-[#AEBFD8]">This admin shell fronts the existing member, support, affiliate, billing, and migration APIs instead of a parallel placeholder system.</p>
         </div>
       </aside>
 
@@ -70,7 +70,7 @@ export function AdminPageHeader({ eyebrow, title, description }: { eyebrow: stri
         <h1 className="mt-2 font-display text-4xl font-bold tracking-[-0.05em] text-brand-navy md:text-5xl">{title}</h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-vfText-body md:text-base">{description}</p>
       </div>
-      <div className="rounded-2xl border border-vfBorder bg-white px-4 py-3 text-sm font-bold text-vfText-body shadow-soft">No live admin actions</div>
+      <div className="rounded-2xl border border-vfBorder bg-white px-4 py-3 text-sm font-bold text-vfText-body shadow-soft">Live admin backend connected</div>
     </header>
   );
 }

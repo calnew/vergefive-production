@@ -5,7 +5,7 @@ export default async function AdminMemberDetailPage({ params }: { params: Promis
   const { id } = await params;
   return (
     <>
-      <AdminPageHeader eyebrow="Member detail" title="Member profile" description="Read-only member detail from the existing Cloudflare/D1 admin member endpoint." />
+      <AdminPageHeader eyebrow="Member detail" title="Member profile" description="Live member detail and admin actions backed by the existing Cloudflare/D1 member record." />
       <AdminMemberDetailLive memberId={id} />
     </>
   );
