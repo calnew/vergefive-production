@@ -21,7 +21,7 @@ export default async function FixListPage() {
       <div className="mx-auto max-w-7xl">
         <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Action Center</p>
         <h1 className="mt-2 font-display text-4xl font-bold tracking-[-0.05em] text-brand-navy md:text-5xl">Fix List</h1>
-        <p className="mt-3 max-w-3xl text-vfText-body">This is the approved 7-module program path: each module keeps the lesson-style layout, proof checklist, and category/vendor choices instead of a simplified repair page.</p>
+        <p className="mt-3 max-w-3xl text-vfText-body">This is the approved 5-module platform path: each module keeps the lesson-style layout, proof checklist, and category/account choices in the new sidebar experience.</p>
 
         {!scan ? (
           <Card className="mt-8">
@@ -35,7 +35,7 @@ export default async function FixListPage() {
             <section className="grid gap-4 md:grid-cols-3">
               <Card><CardContent className="p-6"><Badge variant="flagged">Open scan blockers</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{openCount}</p><p className="mt-2 text-sm text-vfText-body">Items the latest scan says should be fixed before stronger applications.</p></CardContent></Card>
               <Card><CardContent className="p-6"><Badge variant="ready">Completed fixes</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{doneCount}</p><p className="mt-2 text-sm text-vfText-body">Completed items raise readiness and can unlock better-fit account paths.</p></CardContent></Card>
-              <Card><CardContent className="p-6"><Badge variant="info">Module path</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">7</p><p className="mt-2 text-sm text-vfText-body">Modules inside the approved Verge Five flow, ending with funding as Module 7.</p></CardContent></Card>
+              <Card><CardContent className="p-6"><Badge variant="info">Module path</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">5</p><p className="mt-2 text-sm text-vfText-body">Modules inside the approved Verge Five sidebar flow.</p></CardContent></Card>
             </section>
 
             <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -43,8 +43,8 @@ export default async function FixListPage() {
                 <Card className="overflow-hidden border-0 bg-[linear-gradient(160deg,#0E1A2B,#17345F)] text-white">
                   <CardContent className="p-6">
                     <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#8FB4F5]">Program Path</p>
-                    <h2 className="mt-3 font-display text-2xl font-bold">7 modules</h2>
-                    <p className="mt-3 text-sm leading-6 text-[#AEBFD8]">Work from identity to legal, banking, readiness, vendors, cards, and funding.</p>
+                    <h2 className="mt-3 font-display text-2xl font-bold">5 modules</h2>
+                    <p className="mt-3 text-sm leading-6 text-[#AEBFD8]">Work from identity to legal setup, banking, readiness, and starter vendor/account paths.</p>
                   </CardContent>
                 </Card>
                 {programModules.map((module) => (

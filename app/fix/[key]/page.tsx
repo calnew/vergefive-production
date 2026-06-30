@@ -46,7 +46,7 @@ export default async function FixPage({ params }: { params: Promise<{ key: strin
             <Card className="overflow-hidden border-0 bg-[linear-gradient(160deg,#0E1A2B,#17345F)] text-white">
               <CardContent className="p-6">
                 <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#8FB4F5]">Program Path</p>
-                <h2 className="mt-3 font-display text-2xl font-bold">7-module path</h2>
+                <h2 className="mt-3 font-display text-2xl font-bold">5-module path</h2>
                 <p className="mt-2 text-sm leading-6 text-[#AEBFD8]">Section {navigation.index + 1} of {navigation.total}. Complete each foundation item in order.</p>
               </CardContent>
             </Card>
@@ -91,10 +91,10 @@ export default async function FixPage({ params }: { params: Promise<{ key: strin
                   <h1 className="mt-4 font-display text-4xl font-bold tracking-[-0.05em] text-brand-navy md:text-5xl">{content.title}</h1>
                   <p className="mt-3 max-w-3xl text-lg leading-8 text-vfText-body">{issue?.detail ?? content.description}</p>
                   <div className="mt-6 flex flex-wrap gap-3">
-                    {issue ? <form action={updateIssueStatus.bind(null, issue.id, "done", "/fix-list/")}><Button type="submit">Mark Complete</Button></form> : null}
-                    {issue ? <form action={updateIssueStatus.bind(null, issue.id, "progress", `/fix/${content.key}/`)}><Button type="submit" variant="outline">Mark Progress</Button></form> : null}
-                    <Button asChild variant="outline"><Link href="/fix-list/">Back to Fix List</Link></Button>
-                    <Button asChild><Link href="/account-matches/">Account Matches</Link></Button>
+                    <Button asChild variant="outline"><Link href="/dashboard/">Back to Dashboard</Link></Button>
+                    {issue ? <form action={updateIssueStatus.bind(null, issue.id, "done", "/dashboard/")}><Button type="submit">Mark Complete</Button></form> : null}
+                    <Button asChild variant="outline"><Link href={selectedPath?.href ?? "/account-matches/"}>Choose Provider</Link></Button>
+                    <Button asChild><Link href={`/support?topic=fix&from=${encodeURIComponent(content.key)}`}>Get Help</Link></Button>
                   </div>
                 </div>
               </CardContent>
