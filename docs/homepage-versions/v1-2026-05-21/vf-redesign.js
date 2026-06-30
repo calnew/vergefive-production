@@ -257,6 +257,21 @@
       appConfig=config||appConfig;
       loadTurnstile(appConfig.turnstileSiteKey);
     }).catch(function(){});
+    var checkoutInFlight = false;
+    function startCheckout(plan){
+      if(checkoutInFlight) return;
+      checkoutInFlight = true;
+      var selectedPlan = plan || selectedMembershipPlan();
+      setSelectedPlan(selectedPlan);
+      message('Opening secure Stripe checkout...');
+      postJson('/api/billing/create-checkout-session',{plan:selectedPlan,affiliateCode:checkoutAffiliateCode()})
+        .then(function(data){if(data.url)location.href=data.url;else throw new Error('Checkout URL was not returned.')})
+        .catch(function(err){
+          if(/login/i.test(err.message)){location.href='/login/?next='+encodeURIComponent('/membership/?plan='+selectedPlan+'&checkout=continue');return}
+          message(err.message,true);
+        })
+        .finally(function(){ checkoutInFlight = false; });
+    }
     if(location.pathname==='/membership/'){
       setSelectedPlan(selectedMembershipPlan());
       syncAffiliateInput();
@@ -265,10 +280,7 @@
       if(params.get('trial')==='locked')message('That section is part of the paid platform. Upgrade to unlock the full buildout.');
       if(params.get('checkout')==='continue'){
         var continuePlan=selectedMembershipPlan();
-        message('Opening secure Stripe checkout...');
-        postJson('/api/billing/create-checkout-session',{plan:continuePlan,affiliateCode:checkoutAffiliateCode()})
-          .then(function(data){if(data.url)location.href=data.url;else throw new Error('Checkout URL was not returned.')})
-          .catch(function(err){message(err.message,true)});
+        startCheckout(continuePlan);
       }
     }
     document.querySelectorAll('[data-auth-form]').forEach(function(form){
@@ -302,14 +314,7 @@
     document.querySelectorAll('[data-start-checkout]').forEach(function(btn){
       btn.addEventListener('click',function(){
         var plan=btn.getAttribute('data-plan')||selectedMembershipPlan();
-        setSelectedPlan(plan);
-        message('Opening secure Stripe checkout...');
-        postJson('/api/billing/create-checkout-session',{plan:plan,affiliateCode:checkoutAffiliateCode()})
-          .then(function(data){if(data.url)location.href=data.url;else throw new Error('Checkout URL was not returned.')})
-          .catch(function(err){
-            if(/login/i.test(err.message)){location.href='/login/?next='+encodeURIComponent('/membership/?plan='+plan+'&checkout=continue');return}
-            message(err.message,true);
-          });
+        startCheckout(plan);
       });
     });
     document.querySelectorAll('[data-customer-portal]').forEach(function(btn){
