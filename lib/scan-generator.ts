@@ -1,4 +1,4 @@
-import type { AccountCategory, AccountTier, IssueSeverity } from "@prisma/client";
+import type { AccountCategory, AccountTier, IssueSeverity } from "@/lib/scan-types";
 
 type ScanInput = {
   name: string;

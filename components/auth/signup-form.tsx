@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
@@ -42,6 +42,19 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
   }
 
   const planLabel = plan === "done-with-you" ? "Done-With-You" : "Self-Serve";
+
+  if (plan === "done-with-you") {
+    return (
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8">
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-vfText-muted">Done-With-You</p>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-[-0.04em] text-brand-navy">Talk to a specialist first.</h1>
+          <p className="mt-4 text-sm leading-6 text-vfText-body">This offer needs the correct dedicated Stripe Price and onboarding path before self-service checkout is enabled. Send a support request so it does not create the wrong subscription.</p>
+          <Button asChild className="mt-6"><Link href="/support?topic=done-with-you">Request Done-With-You help</Link></Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md">

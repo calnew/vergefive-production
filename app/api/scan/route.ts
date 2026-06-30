@@ -42,6 +42,10 @@ export async function POST(request: Request) {
       userId = guest.id;
     }
 
+    if (!userId) {
+      return NextResponse.json({ ok: false, error: "Could not create a scan user." }, { status: 500 });
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { entitlement: true } });
     const generated = generateScanResult(input);
     const business = await prisma.business.create({

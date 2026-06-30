@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,6 +11,7 @@ const nav = [
   ["Account Matches", "/account-matches/"],
   ["Full Buildout", "/buildout/"],
   ["Report Card", "/report-card/"],
+  ["Support", "/support/"],
 ];
 
 export function PlatformShell({ user, active, children }: { user: { name: string; email: string; entitlement: string }; active: string; children: ReactNode }) {

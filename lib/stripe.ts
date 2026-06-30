@@ -1,4 +1,4 @@
-import Stripe from "stripe";
+﻿import Stripe from "stripe";
 
 export type CheckoutPlan = "self-serve" | "done-with-you";
 export type BillingPeriod = "yearly" | "monthly";
@@ -26,18 +26,14 @@ export function entitlementForPlan(plan: CheckoutPlan) {
 }
 
 export function checkoutLineItems(plan: CheckoutPlan, billing: BillingPeriod) {
-  const selfServePrice = billing === "monthly" ? process.env.STRIPE_PRICE_SELF_SERVE_MONTHLY : process.env.STRIPE_PRICE_SELF_SERVE_YEARLY;
-  const doneWithYouPrice = process.env.STRIPE_PRICE_DONE_WITH_YOU;
-
+  const selfServePrice = billing === "monthly" ? process.env.STRIPE_PRICE_ID_MONTHLY || process.env.STRIPE_PRICE_ID : process.env.STRIPE_PRICE_ID_ANNUAL;
   if (!selfServePrice) {
-    throw new Error(`Missing ${billing === "monthly" ? "STRIPE_PRICE_SELF_SERVE_MONTHLY" : "STRIPE_PRICE_SELF_SERVE_YEARLY"}.`);
+    throw new Error(`Missing ${billing === "monthly" ? "STRIPE_PRICE_ID_MONTHLY or STRIPE_PRICE_ID" : "STRIPE_PRICE_ID_ANNUAL"}.`);
   }
 
-  if (plan === "done-with-you" && !doneWithYouPrice) {
-    throw new Error("Missing STRIPE_PRICE_DONE_WITH_YOU.");
+  if (plan === "done-with-you") {
+    throw new Error("Done-With-You checkout is handled through support until a dedicated canonical Stripe Price is configured.");
   }
 
-  const items = [{ price: selfServePrice, quantity: 1 }];
-  if (plan === "done-with-you") items.push({ price: doneWithYouPrice!, quantity: 1 });
-  return items;
+  return [{ price: selfServePrice, quantity: 1 }];
 }

@@ -1,4 +1,6 @@
-﻿import Link from "next/link";
+﻿export const dynamic = "force-dynamic";
+
+import Link from "next/link";
 
 import { PlatformShell } from "@/components/platform/platform-shell";
 import { PlatformPaywall } from "@/components/platform/paywall";

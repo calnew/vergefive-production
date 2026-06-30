@@ -1,19 +1,23 @@
-import { clean, json } from './auth.js';
+﻿import { clean, json } from './auth.js';
 
 const STRIPE_API = 'https://api.stripe.com/v1';
 const STRIPE_VERSION = '2026-02-25.clover';
 
-export async function stripeRequest(env, path, body) {
+export async function stripeRequest(env, path, body, options = {}) {
   if (!env.STRIPE_SECRET_KEY) {
     return json({ error: 'Stripe secret key is not configured.' }, 500);
   }
+  const headers = {
+    authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+    'stripe-version': STRIPE_VERSION,
+    'content-type': 'application/x-www-form-urlencoded'
+  };
+  if (options.idempotencyKey) {
+    headers['Idempotency-Key'] = String(options.idempotencyKey);
+  }
   const response = await fetch(`${STRIPE_API}${path}`, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'stripe-version': STRIPE_VERSION,
-      'content-type': 'application/x-www-form-urlencoded'
-    },
+    headers,
     body: encodeForm(body)
   });
   const data = await response.json();
@@ -42,6 +46,21 @@ export async function stripeGet(env, path, params) {
   return data;
 }
 
+
+export function isDevStripeRequest(request) {
+  const host = new URL(request.url).hostname.toLowerCase();
+  return host.includes('localhost') || host.includes('127.0.0.1') || host.includes('pages.dev') || host.includes('-dev.') || host.includes('dev.');
+}
+
+export function requireDevStripeTestMode(request, env) {
+  if (!isDevStripeRequest(request)) return null;
+  const key = String(env.STRIPE_SECRET_KEY || '');
+  if (!key) return null;
+  if (!key.startsWith('sk_test_')) {
+    return json({ error: 'Dev checkout must use a Stripe test-mode secret key.' }, 500);
+  }
+  return null;
+}
 export function encodeForm(obj, prefix) {
   const pairs = [];
   Object.entries(obj || {}).forEach(([key, value]) => {

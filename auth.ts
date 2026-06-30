@@ -1,11 +1,9 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import type { Entitlement } from "@prisma/client";
 import { compare } from "bcryptjs";
 
+import { entitlementValues, type Entitlement } from "@/lib/entitlement";
 import { prisma } from "@/lib/prisma";
-
-const entitlementValues: Entitlement[] = ["free", "self_serve", "done_with_you"];
 
 function normalizeEntitlement(value: unknown): Entitlement {
   return entitlementValues.includes(value as Entitlement) ? (value as Entitlement) : "free";

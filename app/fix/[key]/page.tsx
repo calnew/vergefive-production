@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -35,7 +37,7 @@ export default async function FixPage({ params }: { params: Promise<{ key: strin
                 <form action={updateIssueStatus.bind(null, issue.id, "done", "/dashboard/")}><Button type="submit">Mark Complete</Button></form>
                 <form action={updateIssueStatus.bind(null, issue.id, "progress", `/fix/${issue.key}/`)}><Button type="submit" variant="outline">Mark Progress</Button></form>
                 <Button asChild variant="outline"><a href={content.providers[0]?.href ?? "#"} target="_blank" rel="noreferrer">Choose provider</a></Button>
-                <Button asChild variant="outline"><Link href="/account/settings/">Get Help</Link></Button>
+                <Button asChild variant="outline"><Link href={`/support?topic=fix&from=${encodeURIComponent(issue.key)}`}>Get Help</Link></Button>
               </div>
             </div>
           </CardContent>

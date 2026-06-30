@@ -1,5 +1,5 @@
-import type { Entitlement } from "@prisma/client";
 import type { DefaultSession } from "next-auth";
+import type { Entitlement } from "@/lib/entitlement";
 
 declare module "next-auth" {
   interface User {

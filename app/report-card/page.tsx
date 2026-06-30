@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 
 import { ReportDownloadButton } from "@/app/report-card/report-download-button";

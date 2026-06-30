@@ -1,12 +1,12 @@
-# Verge Five canonical backend data model migration map
+﻿# Verge Five canonical backend data model migration map
 
-This document maps the older Cloudflare Pages Functions / D1 backend concepts into the new canonical Next.js + Prisma/Postgres backend.
+This document maps the live Cloudflare/D1 backend into the current Next.js/Cloudflare Worker migration without creating a parallel production platform.
 
 ## Architecture decision
 
-- New source of truth: Next.js App Router + Prisma/Postgres + Auth.js.
-- Canonical Stripe path: `/api/stripe/*`.
-- Old Cloudflare Functions/D1 backend remains as a reference until feature parity is complete.
+- Active source of truth during this migration: existing Cloudflare/D1 member, admin, support, affiliate, email, and billing backend, fronted by the Next.js App Router on Cloudflare Workers.
+- Canonical Stripe path: `/api/billing/create-checkout-session`, `/api/billing/create-portal-session`, `/api/billing/webhook`, `/api/billing/checkout-success`, and `/api/billing/send-access-email`.
+- `/api/stripe/*` remains disabled/no-mutation until Bill explicitly approves a future migration; it is not the active billing backend.
 - Member-facing pages must not mention AI. Internal fields may keep implementation-oriented names only where needed.
 - Access and billing are separate: `User.entitlement` and `User.billingStatus`, plus the detailed `Membership` record.
 
@@ -58,5 +58,5 @@ The migration adds fields needed for imported users, memberships, billing state,
 1. Auth session storage: keep Auth.js JWT sessions or move to database sessions later.
 2. Lesson/page progress: the new app is issue/fix based; old page-level progress may need a separate model only if the 5-module lesson flow needs granular page resume.
 3. Runtime: Prisma/Postgres on Cloudflare Workers may still require an edge-compatible database path or a Node/Vercel runtime decision before full backend deployment.
-4. Stripe path retirement: old `/api/billing/*` should remain reference-only until `/api/stripe/*` includes duplicate-session protection, affiliate metadata, access-email recovery, and webhook parity.
+4. Future Stripe path migration: keep `/api/billing/*` canonical unless a later migration proves `/api/stripe/*` has duplicate-session protection, affiliate metadata, access-email recovery, webhook parity, and explicit production approval.
 5. Email events: open/click/delivery depends on Resend webhook support and provider event mapping.

@@ -1,3 +1,5 @@
+﻿export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -42,8 +44,8 @@ export default async function ScanResultsPage() {
   const allowedUserId = session?.user?.id ?? lightUserId;
   if (!allowedUserId || scan.business.userId !== allowedUserId) redirect("/scan");
 
-  const readyCount = scan.accountMatches.filter((match) => match.tier === "ready").length;
-  const unlockCount = scan.accountMatches.filter((match) => match.tier === "unlock_next").length;
+  const readyCount = scan.accountMatches.filter((match: (typeof scan.accountMatches)[number]) => match.tier === "ready").length;
+  const unlockCount = scan.accountMatches.filter((match: (typeof scan.accountMatches)[number]) => match.tier === "unlock_next").length;
 
   return (
     <main className="min-h-screen bg-surface-page px-5 py-8 md:px-8">
@@ -72,7 +74,7 @@ export default async function ScanResultsPage() {
               </div>
               <div className="mt-7 rounded-2xl bg-unlock-surface p-5 text-unlock">
                 <p className="font-display text-2xl font-bold">{scan.issues.length} problem areas found</p>
-                <p className="mt-1 text-sm font-bold">Unlocking the fixes can add up to {scan.issues.reduce((sum, issue) => sum + (pointMap[issue.key] ?? 4), 0)} readiness points.</p>
+                <p className="mt-1 text-sm font-bold">Unlocking the fixes can add up to {scan.issues.reduce((sum: number, issue: (typeof scan.issues)[number]) => sum + (pointMap[issue.key] ?? 4), 0)} readiness points.</p>
               </div>
             </CardContent>
           </Card>
@@ -84,11 +86,11 @@ export default async function ScanResultsPage() {
                 <Badge variant="flagged">{scan.issues.length} flagged</Badge>
               </div>
               <div className="grid gap-3">
-                {scan.issues.map((issue) => (
+                {scan.issues.map((issue: (typeof scan.issues)[number]) => (
                   <div key={issue.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-2xl border border-vfBorder bg-white p-4">
                     <div className="min-w-0">
                       <h3 className="font-display text-lg font-bold text-brand-navy">{issue.title}</h3>
-                      <p className="mt-1 text-sm text-vfText-body">Could add up to <b>{pointMap[issue.key] ?? 4} points</b> when corrected.</p>
+                <p className="mt-1 text-sm text-vfText-body">Could add up to <b>{pointMap[issue.key] ?? 4} points</b> when corrected.</p>
                     </div>
                     <Badge variant={issue.severity === "high" ? "flagged" : "unlock"}>{issue.severity}</Badge>
                   </div>
@@ -100,14 +102,14 @@ export default async function ScanResultsPage() {
 
         <section className="relative mt-8 overflow-hidden rounded-3xl border border-vfBorder bg-white p-6 shadow-soft md:p-8">
           <div className="grid gap-6 blur-[5px] lg:grid-cols-3">
-            {scan.issues.map((issue) => (
+            {scan.issues.map((issue: (typeof scan.issues)[number]) => (
               <div key={issue.id} className="rounded-2xl border border-vfBorder bg-surface-muted p-5">
                 <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-blue">Locked fix</p>
                 <h3 className="mt-3 font-display text-xl font-bold text-brand-navy">{issue.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-vfText-body">Step-by-step instructions, provider options, proof checklist, and completion tracking are locked.</p>
               </div>
             ))}
-            {scan.accountMatches.map((match) => (
+            {scan.accountMatches.map((match: (typeof scan.accountMatches)[number]) => (
               <div key={match.id} className="rounded-2xl border border-vfBorder bg-surface-muted p-5">
                 <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-ready">Account match</p>
                 <h3 className="mt-3 font-display text-xl font-bold text-brand-navy">{match.name}</h3>
@@ -128,7 +130,7 @@ export default async function ScanResultsPage() {
               <h2 className="mt-5 font-display text-3xl font-bold tracking-[-0.04em]">Unlock your fixes and 90+ account matches.</h2>
               <p className="mt-3 text-sm leading-6 text-[#AEBFD8]">Your free scan found {scan.issues.length} problem areas, {readyCount} ready-now matches, and {unlockCount} unlock-next matches. Upgrade to see the exact correction path.</p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes — $297/yr</Link></Button>
+                <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes â€” $297/yr</Link></Button>
                 <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/#pricing">See plans</Link></Button>
               </div>
             </div>
