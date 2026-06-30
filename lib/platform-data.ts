@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 
 import { getD1RequestAuth, entitlementFromD1, type D1Env } from "@/lib/d1-auth";
 
@@ -102,7 +102,7 @@ type IssueStatus = "todo" | "progress" | "done";
 export type PlatformIssue = { id: string; key: string; title: string; detail: string; severity: IssueSeverity; impactRank: number; status: IssueStatus };
 export type PlatformAccountMatch = { id: string; name: string; category: string; tier: string; reason: string; unlockReason: string | null; faceBg: string };
 export type PlatformUser = { id: string; email: string; name: string; entitlement: string };
-export type PlatformScan = { id: string; business: { name: string }; readinessScore: number; grade: string; signalsTotal: number; signalsClean: number; issues: PlatformIssue[]; accountMatches: PlatformAccountMatch[] };
+export type PlatformScan = { id: string; business: { name: string; legalName?: string; tradeName?: string; entityType?: string; address?: string; phone?: string; website?: string; email?: string }; readinessScore: number; grade: string; signalsTotal: number; signalsClean: number; issues: PlatformIssue[]; accountMatches: PlatformAccountMatch[] };
 export type PlatformData = { user: PlatformUser; allowed: boolean; scan: PlatformScan | null };
 
 function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
@@ -179,7 +179,16 @@ export async function getPlatformData(): Promise<PlatformData> {
   const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
   const scan: PlatformScan = {
     id: String(audit?.id || "d1-profile-scan"),
-    business: { name: businessName },
+    business: {
+      name: businessName,
+      legalName: String(profile?.business_name || ""),
+      tradeName: String(profile?.trade_name || ""),
+      entityType: String(profile?.entity_type || ""),
+      address: String(profile?.address || ""),
+      phone: String(profile?.phone || ""),
+      website: String(profile?.website || ""),
+      email: String(profile?.email || ""),
+    },
     readinessScore: Math.max(0, Math.min(100, score)),
     grade: String(audit?.label || result.label || gradeForScore(score)),
     signalsTotal: 9,
