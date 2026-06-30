@@ -50,3 +50,23 @@ Live deployment rule (do not hardcode secrets in code):
   - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID_MONTHLY --project-name vergefive --env preview` (optional)
 
 Use live `cs_live_*` or test `cs_test_*` `STRIPE_PRICE_ID*` values as appropriate per your target env; never expose keys client-side.
+
+## Worker dev secret setup
+
+The current Next.js Worker target is `vergefive-next-dev`. Cloudflare Pages production already has the live Stripe/email names, but encrypted secret values cannot be read back or copied out by Wrangler. Add the same names to the Worker explicitly.
+
+For dev/test mode, provide Stripe test-mode values only:
+
+```powershell
+npx.cmd wrangler secret put STRIPE_SECRET_KEY
+npx.cmd wrangler secret put STRIPE_WEBHOOK_SECRET
+npx.cmd wrangler secret put STRIPE_PRICE_ID
+npx.cmd wrangler secret put STRIPE_PRICE_ID_ANNUAL
+npx.cmd wrangler secret put STRIPE_PRICE_ID_MONTHLY
+npx.cmd wrangler secret put RESEND_API_KEY
+npx.cmd wrangler secret put EMAIL_FROM
+npx.cmd wrangler secret put SITE_URL
+npx.cmd wrangler secret put ADMIN_EMAILS
+```
+
+Use `STRIPE_PRICE_ID_MONTHLY` for the monthly test Price, `STRIPE_PRICE_ID_ANNUAL` for the annual test Price, and keep `STRIPE_PRICE_ID` as the optional monthly fallback. Do not put `sk_live_` into the dev Worker.
