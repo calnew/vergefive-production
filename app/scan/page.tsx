@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -36,8 +36,8 @@ export default async function ScanPage() {
 
   return (
     <PlatformShell user={user} active="Run Scan">
-      <div className="mx-auto max-w-5xl">
-        <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Refresh your readiness</p>
+      <div className="mx-auto max-w-6xl">
+        <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Visibility Engine</p>
         <ScanForm paid initialValues={{
           name: profile?.business_name || profile?.trade_name || "",
           entityType: profile?.entity_type || "",

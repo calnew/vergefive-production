@@ -53,12 +53,20 @@ export function ScanForm({ initialValues = {}, paid = false }: { initialValues?:
   }
 
   return (
-    <Card className="mx-auto max-w-3xl overflow-hidden">
+    <Card className="mx-auto max-w-5xl overflow-hidden">
       <CardContent className="p-0">
         <div className="bg-[linear-gradient(160deg,#0E1A2B,#16325A)] p-8 text-white md:p-10">
-          <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#7FA3E6]">Business Visibility Scan</p>
-          <h1 className="mt-3 font-display text-4xl font-bold tracking-[-0.05em] md:text-5xl">{paid ? "Re-run your scan." : "Run the free scan."}</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#AEBFD8]">Enter the public business details vendors and lenders usually compare. Verge Five will score the profile, flag problem areas, and update what unlocks next.</p>
+          <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#7FA3E6]">Business Visibility Audit</p>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-[-0.05em] md:text-5xl">{paid ? "Re-run your business visibility audit." : "Run the business visibility audit."}</h1>
+          <p className="mt-4 max-w-2xl leading-7 text-[#AEBFD8]">Enter the public business details vendors, card issuers, lenders, and directories compare. Verge Five will score the profile, flag problem areas, and route you into the correct fix module and account category.</p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {["Identity records", "Approval blockers", "Account categories"].map((item) => (
+              <div key={item} className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <p className="text-sm font-extrabold text-white">{item}</p>
+                <p className="mt-1 text-xs leading-5 text-[#AEBFD8]">Checked against the scan-first Verge Five path.</p>
+              </div>
+            ))}
+          </div>
         </div>
         <form className="grid gap-5 p-6 md:grid-cols-2 md:p-8" onSubmit={onSubmit}>
           {fields.map(([name, label, placeholder]) => (
@@ -70,7 +78,7 @@ export function ScanForm({ initialValues = {}, paid = false }: { initialValues?:
           {error ? <p className="rounded-xl bg-flagged-surface px-4 py-3 text-sm font-bold text-flagged md:col-span-2">{error}</p> : null}
           <div className="md:col-span-2">
             <Button type="submit" size="lg" disabled={scanning} className="w-full md:w-auto">
-              {scanning ? "Scanning..." : paid ? "Re-run Scan" : "Run my free scan"}
+              {scanning ? "Scanning..." : paid ? "Re-run Audit" : "Run my visibility audit"}
             </Button>
             {scanning ? (
               <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-bold text-brand-blue">

@@ -482,3 +482,190 @@ export function accountStatus(item: AccountCatalogItem, openIssueKeys: Set<strin
   return { tone: "ready", label: "Ready to review", blockers: [] };
 }
 
+export type ProgramLesson = {
+  key: string;
+  label: string;
+  route: string;
+  issueKeys?: string[];
+};
+
+export type ProgramModulePath = {
+  phase: string;
+  module: string;
+  summary: string;
+  sections: ProgramLesson[];
+};
+
+export type LessonVideo = {
+  title: string;
+  src: string;
+  poster: string;
+};
+
+export type LessonResource = {
+  label: string;
+  href: string;
+};
+
+export type LessonSection = {
+  key: string;
+  phase: string;
+  module: string;
+  route: string;
+  tags: string[];
+  title: string;
+  description: string;
+  videos: LessonVideo[];
+  why: string[];
+  warningTitle: string;
+  warning: string;
+  guideTitle: string;
+  guide: string;
+  checklist: string[];
+  proof: string[];
+  resources: LessonResource[];
+  accountPath?: "vendor" | "cards" | "funding";
+  matcherSignals?: string[];
+};
+
+export type AccountPathCard = {
+  key: "vendor" | "cards" | "funding";
+  eyebrow: string;
+  title: string;
+  description: string;
+  href: string;
+  examples: string[];
+  readiness: string[];
+};
+
+export type AccountBucket = {
+  key: string;
+  title: string;
+  description: string;
+  path: "vendor" | "cards" | "funding";
+  groups: string[];
+};
+
+export const proofHelperText = "Save proof before you continue. Proof can be a screenshot, confirmation email, PDF, bank letter, invoice, listing page, or saved record that shows this step is complete. Progress note: checked items are saved in this browser and synced to your member account when you are logged in.";
+
+export const beforeYouLeaveText = "Finish the checklist items on this page. The platform sequence depends on completing each foundation item in order.";
+
+export const programModules: ProgramModulePath[] = [
+  { phase: "Module 1", module: "Business Identity", summary: "Phone, 411, address, website, and domain-email records must match before applications.", sections: [
+    { key: "nap", label: "NAP overview", route: "/nap-overview/" },
+    { key: "phones", label: "Phone + 411", route: "/phones-and-411/" },
+    { key: "address", label: "Business address", route: "/business-address/" },
+    { key: "website", label: "Website + domain email", route: "/website-domain-email/", issueKeys: ["email"] },
+  ] },
+  { phase: "Module 2", module: "Legal Setup", summary: "Entity, Secretary of State, and EIN records create the legal identity vendors compare.", sections: [
+    { key: "llc", label: "LLC vs corporation", route: "/llc-vs-corporation/" },
+    { key: "sos", label: "Secretary of State contact list", route: "/contact-list/" },
+    { key: "ein", label: "EIN from IRS", route: "/ein/" },
+  ] },
+  { phase: "Module 3", module: "Banking Foundation", summary: "Business banking and bank-rating habits support card, vendor, and funding readiness.", sections: [
+    { key: "bank", label: "Bank account", route: "/bank-account/" },
+    { key: "bank-rating", label: "Bank rating", route: "/bank-rating/" },
+  ] },
+  { phase: "Module 4", module: "Business Plan + Report", summary: "A practical plan and saved progress report give members a record to show where they are.", sections: [
+    { key: "business-plan", label: "Business plan", route: "/business-plan/" },
+    { key: "business-plan-report", label: "Progress report", route: "/business-plan-report/" },
+  ] },
+  { phase: "Module 5", module: "Approval Readiness", summary: "Bureaus, comparable credit, and the 12-point criteria decide whether to apply or wait.", sections: [
+    { key: "bureaus", label: "Business bureaus", route: "/equifax-business/" },
+    { key: "comparable-credit", label: "Comparable credit", route: "/comparable-credit/" },
+    { key: "criteria", label: "12-point criteria", route: "/business-credit-criteria/" },
+  ] },
+  { phase: "Module 6", module: "Vendor + Credit Path", summary: "Choose starter vendors first, then move into revolving card paths when the profile is ready.", sections: [
+    { key: "net30", label: "Starter vendor credit readiness", route: "/about-net-30/" },
+    { key: "cards", label: "Revolving business credit cards", route: "/revolving-business-credit-cards/" },
+  ] },
+  { phase: "Module 7", module: "Funding Path", summary: "Funding is last: use bank records, proof, and secured-loan readiness before conversations.", sections: [
+    { key: "funding", label: "CD-secured business loans", route: "/cd-business-loans/" },
+  ] },
+];
+
+const defaultTags = ["Member lesson", "7-module path", "Checklist"];
+
+function lesson(input: Omit<LessonSection, "tags" | "why" | "warningTitle" | "warning" | "guideTitle" | "guide" | "checklist" | "proof" | "resources"> & Partial<Pick<LessonSection, "tags" | "why" | "warningTitle" | "warning" | "guideTitle" | "guide" | "checklist" | "proof" | "resources">>): LessonSection {
+  return {
+    tags: defaultTags,
+    why: [
+      "Vendors, card issuers, lenders, and bureaus compare this signal before trusting an application.",
+      "Mismatched records make a real business look unfinished or risky.",
+      "This section should be completed before moving to the next account category.",
+    ],
+    warningTitle: "Do not skip this foundation step",
+    warning: "If this record is incomplete or inconsistent, applying can create avoidable denials, manual reviews, or stale profile data.",
+    guideTitle: "Guide",
+    guide: "Use one exact business identity, save proof, and update every profile that uses this information.",
+    checklist: ["Review the current record.", "Update the record to match the business identity.", "Save proof before moving forward.", "Use the same information on applications."],
+    proof: ["Screenshot or saved record", "Confirmation email or PDF", "Profile page showing the corrected information"],
+    resources: [{ label: "Get help with this section", href: "/support?topic=fix" }],
+    ...input,
+  };
+}
+
+const lessonBase: Record<string, LessonSection> = {
+  nap: lesson({ key: "nap", phase: "Module 1", module: "Business Identity", route: "/nap-overview/", title: "NAP consistency overview", description: "Start here before fixing individual records. Name, address, and phone consistency is the thread that ties the platform together.", videos: [{ title: "Start here: NAP overview", src: "/uploads/start-here-nap-overview.webm", poster: "/posters/nap.png" }], checklist: ["Write down the exact legal/public business name.", "Choose the exact address format.", "Choose the primary business phone number.", "Choose the website and domain email to use on applications."] }),
+  phones: lesson({ key: "phones", phase: "Module 1", module: "Business Identity", route: "/phones-and-411/", title: "Phone & 411 listing", description: "Make the business phone signal look like a real business line and keep it consistent everywhere.", videos: [{ title: "Business phone setup", src: "/uploads/phones-and-411-phone-recreated.webm", poster: "/posters/phones-a.jpg" }, { title: "411 and public listing", src: "/uploads/phones-and-411-411-recreated.webm", poster: "/posters/phones-b.jpg" }], checklist: ["Choose the primary business number.", "Set caller ID or business name display.", "Add or verify a public 411/business listing.", "Update the website, bank profile, and applications with the same number."], proof: ["Phone account screenshot", "Caller ID/business name screenshot", "Directory or 411 listing screenshot"] }),
+  address: lesson({ key: "address", phase: "Module 1", module: "Business Identity", route: "/business-address/", title: "Business address", description: "Use one business-appropriate address format across records so vendors see a stable operating profile.", videos: [{ title: "Business address rules", src: "/uploads/business-address-recreated.webm", poster: "/posters/address.png" }], checklist: ["Choose the exact business address format.", "Update the website contact page.", "Check state or public records.", "Match bank and vendor application profiles."] }),
+  website: lesson({ key: "website", phase: "Module 1", module: "Business Identity", route: "/website-domain-email/", title: "Website + domain email", description: "The website and domain email should support the same business identity shown in records and applications.", videos: [{ title: "Website and domain email", src: "/uploads/newpage87229491-recreated.webm", poster: "/posters/website.png" }], checklist: ["Confirm the domain is active.", "Add matching name, address, and phone to the site.", "Create or confirm a domain email address.", "Use the same email on account applications."] }),
+  llc: lesson({ key: "llc", phase: "Module 2", module: "Legal Setup", route: "/llc-vs-corporation/", title: "LLC vs corporation", description: "Confirm the entity structure and legal name before matching EIN, banking, and account applications.", videos: [{ title: "Legal entity setup", src: "/uploads/newpagea5b34995-lesson.webm", poster: "/posters/llc.png" }], checklist: ["Confirm the legal business name.", "Confirm entity type and state.", "Check active/good-standing status.", "Save the formation or state-record proof."] }),
+  sos: lesson({ key: "sos", phase: "Module 2", module: "Legal Setup", route: "/contact-list/", title: "Secretary of State contact list", description: "Use the state record to confirm the business is active and that public details support the identity used elsewhere.", videos: [{ title: "Secretary of State contact list", src: "/uploads/contact-list-lesson.webm", poster: "/posters/sos.png" }], checklist: ["Find the state business lookup page.", "Search the exact legal business name.", "Confirm status is active or in good standing.", "Save the state record proof."] }),
+  ein: lesson({ key: "ein", phase: "Module 2", module: "Legal Setup", route: "/ein/", title: "EIN from IRS", description: "Make sure the EIN belongs to the same legal business identity used on records, banking, and applications.", videos: [{ title: "EIN identity match", src: "/uploads/ein-recreated.webm", poster: "/posters/ein.jpg" }], checklist: ["Locate or request the EIN confirmation.", "Compare legal name to state records.", "Save the EIN letter.", "Use the same identity on bank and vendor profiles."] }),
+  bank: lesson({ key: "bank", phase: "Module 3", module: "Banking Foundation", route: "/bank-account/", title: "Business bank account", description: "Open or verify a business bank account that matches the company identity and supports operating activity.", videos: [{ title: "Business bank account", src: "/uploads/bank-account-recreated.webm", poster: "/posters/bank.jpg" }], checklist: ["Open or confirm the business checking account.", "Match the legal business identity.", "Confirm address and phone in the bank profile.", "Save account proof or a statement."] }),
+  "bank-rating": lesson({ key: "bank-rating", phase: "Module 3", module: "Banking Foundation", route: "/bank-rating/", title: "Bank rating", description: "Use consistent banking activity and average-balance discipline before higher-value account applications.", videos: [{ title: "Bank rating lesson", src: "/uploads/bank-rating-lesson.webm", poster: "/posters/bankrating.png" }, { title: "Your bank rating", src: "/uploads/your-bank-rating-lesson.webm", poster: "/posters/bankrating.png" }], checklist: ["Choose a realistic average-balance target.", "Track banking activity over time.", "Save recent business statements.", "Delay applications during weak periods."] }),
+  "business-plan": lesson({ key: "business-plan", phase: "Module 4", module: "Business Plan + Report", route: "/business-plan/", title: "Business plan", description: "Build a practical business plan that supports credit, vendor, and funding conversations.", videos: [{ title: "Business plan", src: "/uploads/business-plan-recreated.webm", poster: "/posters/businessplan.png" }], checklist: ["Describe the business and customer.", "Write the product/service offer.", "List operating needs and expenses.", "Define credit or funding purpose."] }),
+  "business-plan-report": lesson({ key: "business-plan-report", phase: "Module 4", module: "Business Plan + Report", route: "/business-plan-report/", title: "Progress report", description: "Save a record of what has been completed, what is still open, and what the business is ready to pursue next.", videos: [{ title: "Progress report", src: "/uploads/newpage7c157847-lesson.webm", poster: "/posters/businessplan.png" }], checklist: ["Record completed sections.", "Attach or note saved proof.", "List remaining blockers.", "Choose the next account category."] }),
+  bureaus: lesson({ key: "bureaus", phase: "Module 5", module: "Approval Readiness", route: "/equifax-business/", title: "Business bureaus", description: "Understand business bureau/profile checks before assuming an account will report or approve.", videos: [{ title: "Business bureaus", src: "/uploads/equifax-business-lesson.webm", poster: "/posters/bureaus.png" }], checklist: ["Check business profile/bureau presence.", "Compare name, address, phone, and EIN details.", "Record any mismatches.", "Choose vendors that fit the reporting goal."] }),
+  "comparable-credit": lesson({ key: "comparable-credit", phase: "Module 5", module: "Approval Readiness", route: "/comparable-credit/", title: "Comparable credit", description: "Use starter history and realistic account sequencing before jumping into stronger accounts.", videos: [{ title: "Comparable credit", src: "/uploads/comparable-credit-lesson.webm", poster: "/posters/criteria.png" }], checklist: ["Review current account history.", "Choose starter vendors that fit the business.", "Track payment proof.", "Move to cards only when readiness improves."] }),
+  criteria: lesson({ key: "criteria", phase: "Module 5", module: "Approval Readiness", route: "/business-credit-criteria/", title: "12-point business credit criteria", description: "Use the full readiness checklist to decide whether to apply now, fix first, or build more proof.", videos: [{ title: "Business credit criteria", src: "/uploads/newpage7c157847-lesson.webm", poster: "/posters/criteria.png" }], checklist: ["Review identity consistency.", "Review legal and EIN proof.", "Review bank and website/email proof.", "Review bureau/profile and application timing."] }),
+  net30: lesson({ key: "net30", phase: "Module 6", module: "Vendor + Credit Path", route: "/about-net-30/", title: "Starter vendor credit readiness", description: "Choose Net 30 and starter vendors by category after the foundation is ready enough for review.", videos: [{ title: "Starter Net 30 vendors", src: "/uploads/about-net-30-recreated.webm", poster: "/posters/net30.jpg" }], accountPath: "vendor", matcherSignals: ["Legal entity active", "EIN saved", "Business phone listed", "Address matches", "Website live", "Domain email ready", "Business bank account", "Application timing clean", "Operational use case", "Proof folder ready", "No random applications", "Payment tracking plan"] }),
+  cards: lesson({ key: "cards", phase: "Module 6", module: "Vendor + Credit Path", route: "/revolving-business-credit-cards/", title: "Revolving business credit cards", description: "Move into secured, store, fleet, traditional, or corporate card paths only when the profile supports that category.", videos: [{ title: "Revolving business credit cards", src: "/uploads/revolving-business-credit-cards-recreated.webm", poster: "/posters/criteria.png" }], accountPath: "cards", matcherSignals: ["Business bank account", "Bank rating pattern", "Domain email", "Website live", "Identity records match", "Starter history", "Card purpose clear", "Application timing clean", "Owner/personal-credit risk reviewed", "No recent denials", "Proof folder ready", "Statements available", "Category selected", "Next step documented"] }),
+  funding: lesson({ key: "funding", phase: "Module 7", module: "Funding Path", route: "/cd-business-loans/", title: "CD-secured business loans", description: "Review secured loan and funding paths after identity, banking, statements, and purpose are documented.", videos: [{ title: "CD-secured business loans", src: "/uploads/cd-business-loans-lesson.webm", poster: "/posters/bankrating.png" }], accountPath: "funding", matcherSignals: ["Business bank account", "Bank rating reviewed", "Statements available", "Funding purpose clear", "Business plan saved", "Revenue/cash-flow proof", "Collateral/deposit option reviewed", "Identity records match", "Tax/documentation path known", "No unrealistic approval promise", "Bank relationship noted", "Application timing clean", "Use of funds written", "Proof folder ready", "Fallback path selected", "Next conversation planned"] }),
+};
+
+export const lessonSections: Record<string, LessonSection> = {
+  ...lessonBase,
+  email: { ...lessonBase.website, key: "email", title: "Domain email", description: "Use a domain email that matches the website and business identity before account applications." },
+};
+
+export const programLessons = programModules.flatMap((module) => module.sections.map((section) => ({ ...section, phase: module.phase, module: module.module })));
+export const lessonProgressOrder = programLessons.map((section) => section.key);
+
+export function findProgramLesson(key: string) {
+  return programLessons.find((section) => section.key === key || section.issueKeys?.includes(key));
+}
+
+export function getLessonSection(key: string) {
+  const programLesson = findProgramLesson(key);
+  return lessonSections[key] ?? (programLesson ? lessonSections[programLesson.key] : undefined);
+}
+
+export function getLessonNavigation(key: string) {
+  const programLesson = findProgramLesson(key);
+  const normalizedKey = programLesson?.key ?? key;
+  const index = lessonProgressOrder.indexOf(normalizedKey);
+  const safeIndex = index >= 0 ? index : 0;
+  const previousKey = lessonProgressOrder[safeIndex - 1];
+  const nextKey = lessonProgressOrder[safeIndex + 1];
+  return {
+    index: safeIndex,
+    total: lessonProgressOrder.length,
+    percent: Math.round(((safeIndex + 1) / lessonProgressOrder.length) * 100),
+    previous: previousKey ? lessonSections[previousKey] : undefined,
+    next: nextKey ? lessonSections[nextKey] : undefined,
+  };
+}
+
+export const accountPathCards: AccountPathCard[] = [
+  { key: "vendor", eyebrow: "Module 6 / Vendor path", title: "Vendor & Net 30 accounts", description: "Starter vendors, operating vendors, industrial suppliers, retail/wholesale, and fleet accounts.", href: "/account-matches/#vendors", examples: ["Uline", "Quill", "Grainger", "HD Supply", "Amazon Business", "BP Business Solutions"], readiness: ["Entity + EIN", "Phone/address match", "Website or domain email", "Business bank account"] },
+  { key: "cards", eyebrow: "Module 6 / Card path", title: "Business credit cards", description: "Secured cards, store/project cards, fleet cards, traditional business cards, and corporate/no-PG review paths.", href: "/account-matches/#cards", examples: ["Bank of America secured", "Chase Ink", "Capital One Spark", "Amex Business", "Ramp", "Brex"], readiness: ["Bank account", "Bank-rating pattern", "12-point criteria", "Comparable history"] },
+  { key: "funding", eyebrow: "Module 7 / Funding path", title: "Funding and secured-loan paths", description: "CD-secured loans, bank relationship conversations, SBA/community lender paths, and documentation readiness.", href: "/account-matches/#funding", examples: ["CD-secured loan", "SBA Lender Match", "CDFI lender", "Equipment financing", "Bank line review"], readiness: ["Statements", "Use of funds", "Business plan", "Collateral/deposit path"] },
+];
+
+export const accountBuckets: AccountBucket[] = [
+  { key: "vendors", title: "Vendor and Net 30 options", description: "Start here when the business identity is clean enough for operating accounts and payment-history builders.", path: "vendor", groups: ["Starter Net 30 vendors", "Office supply vendors", "Industrial/building vendors", "Retail/wholesale vendors", "Fleet and fuel cards", "Technology vendors"] },
+  { key: "cards", title: "Credit card and revolving options", description: "Use this section after banking, criteria, and comparable-credit signals support a card path.", path: "cards", groups: ["Secured business credit cards", "Traditional business credit cards", "Corporate/no-PG cards", "Store/project/fleet cards"] },
+  { key: "funding", title: "Funding and secured-loan options", description: "Use this last, after the member has proof, statements, purpose, and a realistic lender conversation path.", path: "funding", groups: ["Funding and secured-loan paths"] },
+];
