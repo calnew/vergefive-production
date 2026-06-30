@@ -3,49 +3,63 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
-import { gradeForScore, issuePointMap, unlockKeyForMatch } from "@/lib/platform-data";
-import { prisma } from "@/lib/prisma";
+import { getD1RequestAuth } from "@/lib/d1-auth";
+import { gradeForScore, issuePointMap } from "@/lib/platform-data";
 
 export async function updateIssueStatus(issueId: string, status: "todo" | "progress" | "done", redirectTo?: string) {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  const { auth, env } = await getD1RequestAuth();
+  if (!auth?.user?.id) redirect("/login");
+  if (!auth.active) redirect("/upgrade");
 
-  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { entitlement: true } });
-  if (!user || (user.entitlement !== "self_serve" && user.entitlement !== "done_with_you")) redirect("/upgrade");
+  const audit = await env.DB.prepare(
+    `select id, score, result_json
+     from visibility_audits
+     where user_id = ?
+     order by created_at desc
+     limit 1`
+  ).bind(auth.user.id).first<{ id: string; score?: number; result_json?: string }>();
 
-  const issue = await prisma.issue.findFirst({
-    where: { id: issueId, scan: { business: { userId: session.user.id } } },
-    include: { scan: { include: { issues: true, accountMatches: true } } },
-  });
+  if (!audit?.id || !audit.result_json) redirect("/fix-list/");
 
-  if (!issue) redirect("/fix-list/");
+  const result = JSON.parse(String(audit.result_json || "{}")) as {
+    issues?: Array<Record<string, unknown>>;
+    score?: number;
+    readinessScore?: number;
+    signalsClean?: number;
+    signalsTotal?: number;
+    label?: string;
+    grade?: string;
+  };
+  const issues = Array.isArray(result.issues) ? result.issues : [];
+  const index = issues.findIndex((item) => String(item.id || `d1-${item.key || ""}`) === issueId);
+  if (index < 0) redirect("/fix-list/");
 
-  await prisma.issue.update({ where: { id: issue.id }, data: { status } });
+  issues[index] = { ...issues[index], status };
 
-  const updatedIssues = issue.scan.issues.map((item: (typeof issue.scan.issues)[number]) => (item.id === issue.id ? { ...item, status } : item));
-  const completedPoints = updatedIssues.filter((item: (typeof updatedIssues)[number]) => item.status === "done").reduce((sum: number, item: (typeof updatedIssues)[number]) => sum + (issuePointMap[item.key] ?? 4), 0);
-  const score = Math.min(100, Math.max(issue.scan.readinessScore, 56) + completedPoints);
-  const clean = Math.min(issue.scan.signalsTotal, Math.max(issue.scan.signalsClean, 5) + updatedIssues.filter((item: (typeof updatedIssues)[number]) => item.status === "done").length);
+  const baseScore = Number(audit.score || result.score || result.readinessScore || 56);
+  const completedPoints = issues
+    .filter((item) => item.status === "done")
+    .reduce((sum, item) => sum + (issuePointMap[String(item.key)] ?? 4), 0);
+  const score = Math.min(100, Math.max(baseScore, 56) + completedPoints);
+  const total = Number(result.signalsTotal || 9);
+  const clean = Math.min(total, Math.max(Number(result.signalsClean || 5), 5) + issues.filter((item) => item.status === "done").length);
+  const grade = gradeForScore(score);
 
-  await prisma.scan.update({ where: { id: issue.scanId }, data: { readinessScore: score, grade: gradeForScore(score), signalsClean: clean } });
-
-  const completedKeys = new Set(updatedIssues.filter((item: (typeof updatedIssues)[number]) => item.status === "done").map((item: (typeof updatedIssues)[number]) => item.key));
-  const unlockNames = issue.scan.accountMatches.filter((match: (typeof issue.scan.accountMatches)[number]) => {
-    const key = unlockKeyForMatch(match.name);
-    return match.tier === "unlock_next" && key && completedKeys.has(key);
-  }).map((match: (typeof issue.scan.accountMatches)[number]) => match.name);
-
-  if (unlockNames.length) {
-    await prisma.accountMatch.updateMany({
-      where: { scanId: issue.scanId, name: { in: unlockNames } },
-      data: { tier: "ready", faceBg: "from-[#0E1A2B] via-[#17623B] to-[#31B36A]" },
-    });
-  }
+  result.issues = issues;
+  result.score = score;
+  result.readinessScore = score;
+  result.signalsClean = clean;
+  result.label = grade;
+  result.grade = grade;
+  await env.DB.prepare(
+    `update visibility_audits
+     set score = ?, label = ?, result_json = ?
+     where id = ? and user_id = ?`
+  ).bind(score, grade, JSON.stringify(result), audit.id, auth.user.id).run();
 
   revalidatePath("/dashboard/");
   revalidatePath("/fix-list/");
-  revalidatePath(`/fix/${issue.key}/`);
+  revalidatePath(`/fix/${String(issues[index].key)}/`);
   revalidatePath("/account-matches/");
   revalidatePath("/report-card/");
 
