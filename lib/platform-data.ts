@@ -149,6 +149,47 @@ function defaultMatches(): PlatformAccountMatch[] {
   ];
 }
 
+export function issuesFromResult(result: Record<string, unknown>): PlatformIssue[] {
+  const rawIssues = Array.isArray(result.issues) ? result.issues : [];
+  if (rawIssues.length) {
+    return rawIssues.map((item, index) => {
+      const issue = item && typeof item === "object" ? item as Record<string, unknown> : {};
+      const key = String(issue.key || ["phones", "email", "address", "bank-rating", "website"][index] || `issue-${index + 1}`);
+      const severity = String(issue.severity || (index < 3 ? "high" : index === 3 ? "med" : "low"));
+      const status = String(issue.status || "todo");
+      return {
+        id: String(issue.id || `d1-${key}`),
+        key,
+        title: String(issue.title || issueFixContent[key]?.title || "Readiness issue"),
+        detail: String(issue.detail || issueFixContent[key]?.saw || "This readiness signal needs review."),
+        severity: (["high", "med", "low"].includes(severity) ? severity : "low") as IssueSeverity,
+        impactRank: Number(issue.impactRank || index + 1),
+        status: (["todo", "progress", "done"].includes(status) ? status : "todo") as IssueStatus,
+      };
+    });
+  }
+  return defaultIssues(result);
+}
+
+export function matchesFromResult(result: Record<string, unknown>): PlatformAccountMatch[] {
+  const rawMatches = Array.isArray(result.accountMatches) ? result.accountMatches : [];
+  if (rawMatches.length) {
+    return rawMatches.map((item, index) => {
+      const match = item && typeof item === "object" ? item as Record<string, unknown> : {};
+      return {
+        id: String(match.id || `d1-match-${index + 1}`),
+        name: String(match.name || "Account match"),
+        category: String(match.category || "vendor_net30"),
+        tier: String(match.tier || "unlock_next"),
+        reason: String(match.reason || "Match is based on the current readiness profile."),
+        unlockReason: match.unlockReason === undefined || match.unlockReason === null ? null : String(match.unlockReason),
+        faceBg: String(match.faceBg || "linear-gradient(135deg,#0E1A2B,#2563EB)"),
+      };
+    });
+  }
+  return defaultMatches();
+}
+
 function signalsCleanFromResult(result: Record<string, unknown>, score: number) {
   const signals = result.signals && typeof result.signals === "object" ? Object.values(result.signals as Record<string, unknown>) : [];
   if (signals.length) return signals.filter(Boolean).length;
@@ -191,10 +232,10 @@ export async function getPlatformData(): Promise<PlatformData> {
     },
     readinessScore: Math.max(0, Math.min(100, score)),
     grade: String(audit?.label || result.label || gradeForScore(score)),
-    signalsTotal: 9,
+    signalsTotal: Number(result.signalsTotal || 9),
     signalsClean: signalsCleanFromResult(result, score),
-    issues: defaultIssues(result),
-    accountMatches: defaultMatches(),
+    issues: issuesFromResult(result),
+    accountMatches: matchesFromResult(result),
   };
 
   return { user, allowed, scan };
