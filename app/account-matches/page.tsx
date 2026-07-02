@@ -1,12 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-
 import { PlatformShell } from "@/components/platform/platform-shell";
 import { PlatformPaywall } from "@/components/platform/paywall";
-import { Badge, Card, CardContent, CreditCardFace } from "@/components/ui";
+import { Card, CardContent } from "@/components/ui";
 import { accountBuckets, accountCatalog, accountPathCards, accountStatus, fixPlaybooks } from "@/lib/platform-catalog";
 import { getPlatformData } from "@/lib/platform-data";
+import { AccountMatchesClient } from "./account-matches-client";
 
 export default async function AccountMatchesPage() {
   const { user, allowed, scan } = await getPlatformData();
@@ -17,6 +16,29 @@ export default async function AccountMatchesPage() {
   const readyCount = accountCatalog.filter((item) => accountStatus(item, openIssueKeys, completedKeys).tone === "ready").length;
   const lockedCount = accountCatalog.filter((item) => accountStatus(item, openIssueKeys, completedKeys).tone === "locked").length;
   const groupCount = new Set(accountCatalog.map((item) => item.group)).size;
+  const accounts = accountBuckets.flatMap((bucket) => {
+    const items = accountCatalog.filter((item) => bucket.groups.includes(item.group));
+    return items.map((item) => {
+      const status = accountStatus(item, openIssueKeys, completedKeys);
+      return {
+        bucketKey: bucket.key as "vendor" | "cards" | "funding",
+        bucketTitle: bucket.title,
+        name: item.name,
+        group: item.group,
+        type: item.type,
+        gradient: item.gradient,
+        why: item.why,
+        requirements: item.requirements,
+        recommended: item.recommended,
+        timing: item.timing,
+        blockerLinks: status.blockers.map((blockerKey) => ({
+          key: blockerKey,
+          label: fixPlaybooks[blockerKey]?.shortTitle ?? blockerKey,
+        })),
+        status,
+      };
+    });
+  });
 
   return (
     <PlatformShell user={user} active="Account Matches">
@@ -29,87 +51,19 @@ export default async function AccountMatchesPage() {
           <Card className="mt-8">
             <CardContent className="p-8">
               <p className="font-bold text-vfText-body">Run a scan first to generate account matches.</p>
-              <Link className="mt-4 inline-block font-bold text-brand-blue" href="/scan/">Run Scan</Link>
+              <a className="mt-4 inline-block font-bold text-brand-blue" href="/scan/">Run Scan</a>
             </CardContent>
           </Card>
         ) : null}
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <Card><CardContent className="p-6"><Badge variant="ready">Ready to review</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{readyCount}</p><p className="mt-2 text-sm text-vfText-body">No current scan blocker tied to the account requirement.</p></CardContent></Card>
-          <Card><CardContent className="p-6"><Badge variant="flagged">Fix first</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{lockedCount}</p><p className="mt-2 text-sm text-vfText-body">Current scan blockers should be handled before applying.</p></CardContent></Card>
-          <Card><CardContent className="p-6"><Badge variant="info">Categories</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{groupCount}</p><p className="mt-2 text-sm text-vfText-body">Starter vendors, operating vendors, cards, fleet, tech, and funding paths.</p></CardContent></Card>
-        </section>
-
-        <section className="mt-8 grid gap-4 lg:grid-cols-3">
-          {accountPathCards.map((path) => (
-            <Card key={path.key} className="overflow-hidden">
-              <CardContent className="p-6">
-                <Badge variant="unlock">{path.eyebrow}</Badge>
-                <h2 className="mt-3 font-display text-2xl font-bold text-brand-navy">{path.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-vfText-body">{path.description}</p>
-                <div className="mt-5 rounded-2xl bg-surface-muted p-4">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Examples</p>
-                  <p className="mt-2 text-sm font-bold leading-6 text-vfText-body">{path.examples.join(" / ")}</p>
-                </div>
-                <Link className="mt-5 inline-block rounded-xl bg-brand-blue px-4 py-2 text-sm font-extrabold text-white" href={path.href}>View choices</Link>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-
-        <div className="mt-10 grid gap-10">
-          {accountBuckets.map((bucket) => {
-            const items = accountCatalog.filter((item) => bucket.groups.includes(item.group));
-            return (
-              <section key={bucket.key} id={bucket.key}>
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <Badge variant="info">{bucket.path === "vendor" ? "Vendor matcher" : bucket.path === "cards" ? "Card matcher" : "Funding matcher"}</Badge>
-                    <h2 className="mt-3 font-display text-2xl font-bold text-brand-navy">{bucket.title}</h2>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-vfText-body">{bucket.description}</p>
-                  </div>
-                  <Badge variant="outline">{items.length} options</Badge>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {bucket.groups.map((group) => <span key={group} className="rounded-full bg-white px-4 py-2 text-xs font-extrabold text-vfText-body ring-1 ring-vfBorder">{group}</span>)}
-                </div>
-                <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                  {items.map((item) => {
-                    const status = accountStatus(item, openIssueKeys, completedKeys);
-                    return (
-                      <Card key={`${bucket.key}-${item.name}`}>
-                        <CardContent className="p-5">
-                          <CreditCardFace memberName={user.name} cardTypeLabel={item.type} gradient={item.gradient} locked={status.tone === "locked"} />
-                          <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <Badge variant={status.tone === "ready" ? "ready" : status.tone === "review" ? "info" : "flagged"}>{status.label}</Badge>
-                            <Badge variant="outline">{item.group}</Badge>
-                          </div>
-                          <h3 className="mt-3 font-display text-xl font-bold text-brand-navy">{item.name}</h3>
-                          <p className="mt-2 text-sm leading-6 text-vfText-body">{item.why}</p>
-                          <div className="mt-4 rounded-2xl bg-surface-muted p-3">
-                            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Requirements</p>
-                            <p className="mt-2 text-sm font-bold text-vfText-body">{item.requirements.join(" / ")}</p>
-                          </div>
-                          {status.blockers.length ? (
-                            <div className="mt-3 rounded-2xl bg-unlock-surface p-3 text-sm font-bold text-unlock">
-                              Fix first: {status.blockers.map((blockerKey, index) => <span key={blockerKey}>{index ? ", " : ""}<Link href={`/fix/${blockerKey}/`} className="underline">{fixPlaybooks[blockerKey]?.shortTitle ?? blockerKey}</Link></span>)}
-                            </div>
-                          ) : (
-                            <div className="mt-3 rounded-2xl bg-ready-surface p-3 text-sm font-bold text-ready">{item.timing}</div>
-                          )}
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <Link href={item.applyHref} className="rounded-xl bg-brand-blue px-4 py-2 text-sm font-extrabold text-white">Open category</Link>
-                            <Link href={`/support?topic=account&from=${encodeURIComponent(item.name)}`} className="rounded-xl border border-vfBorder px-4 py-2 text-sm font-extrabold text-brand-blue">Get help</Link>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        <AccountMatchesClient
+          userName={user.name}
+          readyCount={readyCount}
+          lockedCount={lockedCount}
+          groupCount={groupCount}
+          pathCards={accountPathCards}
+          accounts={accounts}
+        />
       </div>
     </PlatformShell>
   );

@@ -245,7 +245,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: index < 2 ? ["ein", "phones", "address"] : ["ein", "phones", "address", "website"],
     timing: "Use after the foundation is clean enough for starter vendor review.",
     why: "Starter path for building controlled payment history when the profile is consistent.",
-    applyHref: "/starter-net-30-vendors/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#0E1A2B,#2563EB)" : "linear-gradient(135deg,#0E1A2B,#15803D)",
   })),
   ...[
@@ -268,7 +268,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["ein", "address", "phones", index > 4 ? "website" : "email"],
     timing: "Use for routine purchasing history after identity records line up.",
     why: "Office vendors should support real business operations and clean payment behavior.",
-    applyHref: "/office-and-cleaning/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#1E3A8A,#38BDF8)" : "linear-gradient(135deg,#111827,#64748B)",
   })),
   ...[
@@ -288,7 +288,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["ein", "address", "bank", "website"],
     timing: "Use when the business activity supports project, trade, or operational purchases.",
     why: "Industrial accounts often expect a more complete operating profile.",
-    applyHref: "/building-and-industrial/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#713F12,#B45309)" : "linear-gradient(135deg,#0F172A,#334155)",
   })),
   ...[
@@ -312,7 +312,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["ein", "phones", "address", "website"],
     timing: "Use after the core identity signals are consistent and the account fits the business.",
     why: "Retail and wholesale accounts should support inventory or operating needs, not random applications.",
-    applyHref: "/retail-and-wholesale/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#172554,#2563EB)" : "linear-gradient(135deg,#0E1A2B,#0F766E)",
   })),
   ...[
@@ -335,7 +335,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["llc", "ein", "phones", "address", "bank"],
     timing: "Use when the company has real driving, fleet, delivery, or service vehicle needs.",
     why: "Fleet accounts work best when the business use case is clear and identity records match.",
-    applyHref: "/gas-fleet-and-auto/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#7F1D1D,#DC2626)" : "linear-gradient(135deg,#111827,#F59E0B)",
   })),
   ...[
@@ -353,7 +353,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["ein", "website", "email", "criteria"],
     timing: "Use when website/email and business purpose are credible.",
     why: "Technology vendors often expect a cleaner business presence and stronger verification signals.",
-    applyHref: "/high-tech-auto-vendors/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#312E81,#7C3AED)" : "linear-gradient(135deg,#0F172A,#2563EB)",
   })),
   ...[
@@ -370,7 +370,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["bank", "address", "phones"],
     timing: "Use when a deposit-backed bridge is safer than unsecured applications.",
     why: "Secured cards can fit earlier if the business profile is consistent and cash deposit is available.",
-    applyHref: "/starter-cards/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#0E1A2B,#64748B)" : "linear-gradient(135deg,#0E1A2B,#15803D)",
   })),
   ...[
@@ -393,7 +393,7 @@ export const accountCatalog: AccountCatalogItem[] = [
     fixKeys: ["bank", "bank-rating", "criteria", "phones", "address"],
     timing: "Use only after profile, bank, and criteria checks are strong enough for review.",
     why: "Traditional cards are better saved until the business can support underwriting checks.",
-    applyHref: "/general-credit-cards/",
+    applyHref: "/account-matches/",
     gradient: index % 2 ? "linear-gradient(135deg,#1E1B4B,#2563EB)" : "linear-gradient(135deg,#111827,#B45309)",
   })),
   ...[
