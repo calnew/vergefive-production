@@ -48,7 +48,7 @@ function CreditCardFace({
         </div>
       </div>
       {locked ? (
-        <div className="absolute inset-0 z-20 grid place-items-center bg-[#0E1A2B]/70 text-center backdrop-blur-sm">
+        <div className="absolute inset-0 z-20 grid place-items-center bg-[#0E1A2B]/40 text-center">
           <div className="flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-bold">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>
             Locked
