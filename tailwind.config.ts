@@ -72,6 +72,19 @@ const config: Config = {
           muted: "#F4F7FC",
           dark: "#0E1A2B",
         },
+        sidebar: {
+          DEFAULT: "#0E1A2B",
+          border: "#1B2C46",
+          active: "#1B2C46",
+          hover: "#16263D",
+          muted: "#9FB0CA",
+        },
+        ondark: {
+          blue: "#7FA3E6",
+          body: "#AEBFD8",
+          soft: "#BCD0EA",
+          green: "#7FE0AA",
+        },
         vfBorder: {
           DEFAULT: "#E5EAF1",
           subtle: "#EAEEF4",

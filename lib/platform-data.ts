@@ -1,6 +1,8 @@
 ﻿import { redirect } from "next/navigation";
 
 import { getD1RequestAuth, entitlementFromD1, type D1Env } from "@/lib/d1-auth";
+import { mergeFixStatuses, pageProgressPercent, readinessFrom, type FixStatus, type Readiness } from "@/lib/readiness";
+import { programLessons } from "@/lib/platform-catalog";
 
 export const issuePointMap: Record<string, number> = {
   phones: 10,
@@ -103,7 +105,14 @@ export type PlatformIssue = { id: string; key: string; title: string; detail: st
 export type PlatformAccountMatch = { id: string; name: string; category: string; tier: string; reason: string; unlockReason: string | null; faceBg: string };
 export type PlatformUser = { id: string; email: string; name: string; entitlement: string };
 export type PlatformScan = { id: string; business: { name: string; legalName?: string; tradeName?: string; entityType?: string; address?: string; phone?: string; website?: string; email?: string }; readinessScore: number; grade: string; signalsTotal: number; signalsClean: number; issues: PlatformIssue[]; accountMatches: PlatformAccountMatch[] };
-export type PlatformData = { user: PlatformUser; allowed: boolean; scan: PlatformScan | null };
+export type PlatformData = {
+  user: PlatformUser;
+  allowed: boolean;
+  scan: PlatformScan | null;
+  fixStatuses: Record<string, FixStatus>;
+  readiness: Readiness;
+  pageProgress: { percent: number; visitedCount: number };
+};
 
 function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
   if (!value) return fallback;
@@ -121,6 +130,28 @@ async function safeFirst(env: D1Env, sql: string, ...bindings: unknown[]) {
     return null;
   }
 }
+
+async function safeAll(env: D1Env, sql: string, ...bindings: unknown[]) {
+  try {
+    const { results } = await env.DB.prepare(sql).bind(...bindings).all<D1Row>();
+    return results ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function parseKeys(value: unknown): string[] {
+  try {
+    const parsed = JSON.parse(String(value ?? "[]"));
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Issue keys the scan generator can emit; any of these absent from the latest
+// audit means the scan verified that signal clean.
+const SCANNABLE_ISSUE_KEYS = ["phones", "email", "address", "bank-rating", "website"];
 
 function defaultIssues(result: Record<string, unknown>): PlatformIssue[] {
   const redFlags = Array.isArray(result.redFlags) ? result.redFlags.map(String) : [];
@@ -190,12 +221,6 @@ export function matchesFromResult(result: Record<string, unknown>): PlatformAcco
   return defaultMatches();
 }
 
-function signalsCleanFromResult(result: Record<string, unknown>, score: number) {
-  const signals = result.signals && typeof result.signals === "object" ? Object.values(result.signals as Record<string, unknown>) : [];
-  if (signals.length) return signals.filter(Boolean).length;
-  return Math.max(0, Math.min(9, Math.round((score / 100) * 9)));
-}
-
 export async function getPlatformData(): Promise<PlatformData> {
   const { auth, env } = await getD1RequestAuth();
   if (!auth) redirect("/login");
@@ -208,15 +233,29 @@ export async function getPlatformData(): Promise<PlatformData> {
   };
   const allowed = !!auth.active;
 
-  const [profile, audit] = await Promise.all([
+  const [profile, audit, signalRows, progressRows] = await Promise.all([
     safeFirst(env, "select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1", auth.user.id),
     safeFirst(env, "select id, business_name, score, label, result_json, created_at from visibility_audits where user_id = ? order by created_at desc limit 1", auth.user.id),
+    safeAll(env, "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')", auth.user.id),
+    safeAll(env, "select page_path from lesson_progress where user_id = ?", auth.user.id),
   ]);
 
-  if (!audit && !profile) return { user, allowed, scan: null };
+  const doneKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys);
+  const progressKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys);
+  const auditResult = parseJson(audit?.result_json);
+  const auditIssues = audit ? issuesFromResult(auditResult) : [];
+  const issueStatuses: Record<string, FixStatus> = {};
+  for (const issue of auditIssues) issueStatuses[issue.key] = issue.status;
+  const scanCleanKeys = audit ? SCANNABLE_ISSUE_KEYS.filter((key) => !auditIssues.some((issue) => issue.key === key)) : [];
 
-  const result = parseJson(audit?.result_json);
-  const score = Number(audit?.score || result.score || 56);
+  const fixStatuses = mergeFixStatuses({ scanCleanKeys, issueStatuses, progressKeys, doneKeys });
+  const readiness = readinessFrom(fixStatuses);
+  const visitedCount = progressRows.length;
+  const pageProgress = { percent: pageProgressPercent(fixStatuses, visitedCount, programLessons.length), visitedCount };
+
+  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, readiness, pageProgress };
+
+  const result = auditResult;
   const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
   const scan: PlatformScan = {
     id: String(audit?.id || "d1-profile-scan"),
@@ -230,15 +269,15 @@ export async function getPlatformData(): Promise<PlatformData> {
       website: String(profile?.website || ""),
       email: String(profile?.email || ""),
     },
-    readinessScore: Math.max(0, Math.min(100, score)),
-    grade: String(audit?.label || result.label || gradeForScore(score)),
-    signalsTotal: Number(result.signalsTotal || 9),
-    signalsClean: signalsCleanFromResult(result, score),
-    issues: issuesFromResult(result),
+    readinessScore: readiness.score,
+    grade: readiness.label,
+    signalsTotal: readiness.total,
+    signalsClean: readiness.doneCount,
+    issues: auditIssues.map((issue) => ({ ...issue, status: fixStatuses[issue.key] ?? issue.status })),
     accountMatches: matchesFromResult(result),
   };
 
-  return { user, allowed, scan };
+  return { user, allowed, scan, fixStatuses, readiness, pageProgress };
 }
 
 export function gradeForScore(score: number) {
