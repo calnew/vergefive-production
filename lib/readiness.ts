@@ -72,9 +72,30 @@ export function assignedPathFor(score: number) {
 export function readinessFrom(fixStatuses: Record<string, FixStatus>): Readiness {
   const signalStatuses = signalStatusesFrom(fixStatuses);
   const doneCount = CORE_SIGNAL_KEYS.filter((key) => signalStatuses[key] === "done").length;
-  const score = Math.min(96, Math.round((doneCount / CORE_SIGNAL_KEYS.length) * 100));
+  // In-progress signals (including scan-detected ones) earn half credit so a
+  // fresh scan with real business details doesn't start at zero.
+  const progressCount = CORE_SIGNAL_KEYS.filter((key) => signalStatuses[key] === "progress").length;
+  const score = Math.min(96, Math.round(((doneCount + progressCount * 0.5) / CORE_SIGNAL_KEYS.length) * 100));
   const { label, color } = scoreLabel(score);
   return { score, label, color, assignedPath: assignedPathFor(score), doneCount, total: CORE_SIGNAL_KEYS.length, signalStatuses };
+}
+
+// Maps the scan result's detected-signal booleans to fix keys that deserve
+// partial credit (the signal was seen, but the fix isn't verified complete).
+const DETECTED_SIGNAL_FIX_KEYS: Record<string, string> = {
+  phone: "phones",
+  address: "address",
+  website: "website",
+  email: "email",
+  entity: "llc",
+  bank: "bank",
+};
+
+export function detectedKeysFromScanSignals(signals: unknown): string[] {
+  if (!signals || typeof signals !== "object") return [];
+  return Object.entries(signals as Record<string, unknown>)
+    .filter(([name, value]) => value === true && DETECTED_SIGNAL_FIX_KEYS[name])
+    .map(([name]) => DETECTED_SIGNAL_FIX_KEYS[name]);
 }
 
 // Page progress is an engagement metric, deliberately separate from the
@@ -87,16 +108,19 @@ export function pageProgressPercent(fixStatuses: Record<string, FixStatus>, visi
 }
 
 // Merge order (later wins): scan-verified clean signals -> scan issue
-// statuses -> member progress saved in readiness_signals.
+// statuses -> scan-detected partial credit -> member progress saved in
+// readiness_signals. Detected keys only upgrade todo -> progress.
 export function mergeFixStatuses(input: {
   scanCleanKeys?: string[];
   issueStatuses?: Record<string, FixStatus>;
+  detectedKeys?: string[];
   progressKeys?: string[];
   doneKeys?: string[];
 }): Record<string, FixStatus> {
   const out: Record<string, FixStatus> = {};
   for (const key of input.scanCleanKeys ?? []) out[key] = "done";
   for (const [key, status] of Object.entries(input.issueStatuses ?? {})) out[key] = status;
+  for (const key of input.detectedKeys ?? []) if ((out[key] ?? "todo") === "todo") out[key] = "progress";
   for (const key of input.progressKeys ?? []) if (out[key] !== "done") out[key] = "progress";
   for (const key of input.doneKeys ?? []) out[key] = "done";
   return out;

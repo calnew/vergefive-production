@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getD1RequestAuth, type D1Env } from "@/lib/d1-auth";
-import { mergeFixStatuses, readinessFrom, type FixStatus } from "@/lib/readiness";
+import { detectedKeysFromScanSignals, mergeFixStatuses, readinessFrom, type FixStatus } from "@/lib/readiness";
 
 const SIGNALS_TABLE_DDL = `create table if not exists readiness_signals (
   user_id text not null,
@@ -73,7 +73,8 @@ export async function updateFixStatus(key: string, status: FixStatus, redirectTo
         issueStatuses[String(item.key ?? "")] = (["todo", "progress", "done"].includes(itemStatus) ? itemStatus : "todo") as FixStatus;
       }
       const scanCleanKeys = ["phones", "email", "address", "bank-rating", "website"].filter((candidate) => !issues.some((item) => String(item.key ?? "") === candidate));
-      const readiness = readinessFrom(mergeFixStatuses({ scanCleanKeys, issueStatuses, progressKeys: [...progressKeys], doneKeys: [...doneKeys] }));
+      const detectedKeys = detectedKeysFromScanSignals((result as Record<string, unknown>).signals);
+      const readiness = readinessFrom(mergeFixStatuses({ scanCleanKeys, issueStatuses, detectedKeys, progressKeys: [...progressKeys], doneKeys: [...doneKeys] }));
 
       result.issues = issues;
       result.score = readiness.score;

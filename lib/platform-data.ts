@@ -1,7 +1,7 @@
 ﻿import { redirect } from "next/navigation";
 
 import { getD1RequestAuth, entitlementFromD1, type D1Env } from "@/lib/d1-auth";
-import { mergeFixStatuses, pageProgressPercent, readinessFrom, type FixStatus, type Readiness } from "@/lib/readiness";
+import { detectedKeysFromScanSignals, mergeFixStatuses, pageProgressPercent, readinessFrom, type FixStatus, type Readiness } from "@/lib/readiness";
 import { programLessons } from "@/lib/platform-catalog";
 
 export const issuePointMap: Record<string, number> = {
@@ -247,8 +247,9 @@ export async function getPlatformData(): Promise<PlatformData> {
   const issueStatuses: Record<string, FixStatus> = {};
   for (const issue of auditIssues) issueStatuses[issue.key] = issue.status;
   const scanCleanKeys = audit ? SCANNABLE_ISSUE_KEYS.filter((key) => !auditIssues.some((issue) => issue.key === key)) : [];
+  const detectedKeys = detectedKeysFromScanSignals(auditResult.signals);
 
-  const fixStatuses = mergeFixStatuses({ scanCleanKeys, issueStatuses, progressKeys, doneKeys });
+  const fixStatuses = mergeFixStatuses({ scanCleanKeys, issueStatuses, detectedKeys, progressKeys, doneKeys });
   const readiness = readinessFrom(fixStatuses);
   const visitedCount = progressRows.length;
   const pageProgress = { percent: pageProgressPercent(fixStatuses, visitedCount, programLessons.length), visitedCount };

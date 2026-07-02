@@ -23,7 +23,7 @@ const fields: [keyof ScanInitialValues, string, string][] = [
   ["email", "Business email", "owner@example.com"],
 ];
 
-export function ScanForm({ initialValues = {}, paid = false }: { initialValues?: ScanInitialValues; paid?: boolean }) {
+export function ScanForm({ initialValues = {}, paid = false, showHero = true }: { initialValues?: ScanInitialValues; paid?: boolean; showHero?: boolean }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [scanning, setScanning] = useState(false);
@@ -55,6 +55,7 @@ export function ScanForm({ initialValues = {}, paid = false }: { initialValues?:
   return (
     <Card className="mx-auto max-w-5xl overflow-hidden">
       <CardContent className="p-0">
+        {showHero ? (
         <div className="bg-[linear-gradient(160deg,#0E1A2B,#16325A)] p-8 text-white md:p-10">
           <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#7FA3E6]">Business Visibility Audit</p>
           <h1 className="mt-3 font-display text-4xl font-bold tracking-[-0.05em] md:text-5xl">{paid ? "Re-run your business visibility audit." : "Run the business visibility audit."}</h1>
@@ -68,6 +69,12 @@ export function ScanForm({ initialValues = {}, paid = false }: { initialValues?:
             ))}
           </div>
         </div>
+        ) : (
+        <div className="border-b border-vfBorder p-6 md:px-8">
+          <h2 className="font-display text-lg font-bold text-vfText-strong">We&apos;ll scan this business profile</h2>
+          <p className="mt-1 text-sm leading-6 text-vfText-body">Confirm the public details below — the scan compares them the way vendors, card issuers, and directories do.</p>
+        </div>
+        )}
         <form className="grid gap-5 p-6 md:grid-cols-2 md:p-8" onSubmit={onSubmit}>
           {fields.map(([name, label, placeholder]) => (
             <label key={name} className="grid gap-2 text-sm font-bold text-vfText-strong">
