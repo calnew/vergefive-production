@@ -38,6 +38,44 @@ export type AccountCatalogItem = {
 
 export const canonicalFixOrder = ["phones", "address", "website", "email", "llc", "ein", "bank", "bank-rating", "criteria", "net30"];
 
+// The member-facing fix list groups the eleven fixes into three phases.
+// The "website" row carries the "email" issue key (one website + domain-email
+// signal); the five-module view lives in programModules below.
+export type FixListItem = { key: string; title: string; tagline: string; defaultSeverity: "high" | "med" | "low" };
+export type FixListPhase = { phase: string; title: string; items: FixListItem[] };
+
+export const fixListPhases: FixListPhase[] = [
+  {
+    phase: "Phase 1",
+    title: "Foundation",
+    items: [
+      { key: "nap", title: "NAP Consistency Overview", tagline: "Name, address, and phone — one exact identity everywhere.", defaultSeverity: "med" },
+      { key: "phones", title: "Phone & 411 Fix", tagline: "Business line, caller ID, and public 411 listing.", defaultSeverity: "high" },
+      { key: "address", title: "Business Address Fix", tagline: "One address format across records, website, and bank.", defaultSeverity: "high" },
+      { key: "website", title: "Website & Domain Email Fix", tagline: "Live domain, matching site details, and domain email.", defaultSeverity: "high" },
+    ],
+  },
+  {
+    phase: "Phase 2",
+    title: "Legal & Banking",
+    items: [
+      { key: "llc", title: "Entity Type & Legal Name", tagline: "Entity type, legal name, and state record match.", defaultSeverity: "high" },
+      { key: "sos", title: "State Record Check", tagline: "State record active and consistent with public identity.", defaultSeverity: "med" },
+      { key: "ein", title: "EIN Identity Match", tagline: "EIN tied to the same legal business identity.", defaultSeverity: "high" },
+      { key: "bank", title: "Business Bank Account", tagline: "Business checking that matches the company identity.", defaultSeverity: "high" },
+      { key: "bank-rating", title: "Bank Rating", tagline: "Balance pattern and banking habits before applications.", defaultSeverity: "med" },
+    ],
+  },
+  {
+    phase: "Phase 3",
+    title: "Credit Readiness",
+    items: [
+      { key: "criteria", title: "12-Point Readiness Criteria", tagline: "The full readiness check before broader applications.", defaultSeverity: "med" },
+      { key: "net30", title: "Starter Vendor Readiness", tagline: "Starter vendor selection once the foundation is ready.", defaultSeverity: "med" },
+    ],
+  },
+];
+
 export const fixModules: FixModule[] = [
   {
     phase: "Phase 1",
