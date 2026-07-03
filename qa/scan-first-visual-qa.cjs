@@ -49,9 +49,15 @@ async function api(request, route, body) {
 async function ensureUser(request) {
   if (fs.existsSync(CREDS_FILE)) {
     const creds = JSON.parse(fs.readFileSync(CREDS_FILE, 'utf8'));
-    const login = await api(request, '/api/auth/login', { email: creds.email, password: creds.password });
-    if (login.status === 200) return { creds, mode: 'login' };
-    console.warn(`login failed (${login.status}) — registering a fresh QA user`);
+    // D1 can flap with transient internal errors; retry login before giving up.
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      const login = await api(request, '/api/auth/login', { email: creds.email, password: creds.password });
+      if (login.status === 200) return { creds, mode: 'login' };
+      console.warn(`login attempt ${attempt} failed (${login.status})`);
+      if (login.status === 401) break; // bad creds — re-register
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+    }
+    console.warn('login exhausted — registering a fresh QA user');
   }
   const creds = {
     email: `qa-scan-first-${Date.now()}@example.com`,
