@@ -290,16 +290,6 @@ export function gradeForScore(score: number) {
   return "Needs work";
 }
 
-export function scoreWithCompleted(baseScore: number, issues: { key: string; status: string }[]) {
-  const points = issues.filter((issue) => issue.status === "done").reduce((sum, issue) => sum + (issuePointMap[issue.key] ?? 4), 0);
-  return Math.min(100, baseScore + points);
-}
-
-export function progressPercent(issues: { status: string }[]) {
-  if (!issues.length) return 0;
-  return Math.round((issues.filter((issue) => issue.status === "done").length / issues.length) * 100);
-}
-
 export function unlockKeyForMatch(name: string) {
   if (name.includes("Capital One")) return "phones";
   if (name.includes("Amazon")) return "address";
