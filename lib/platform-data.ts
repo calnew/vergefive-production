@@ -112,6 +112,7 @@ export type PlatformData = {
   fixStatuses: Record<string, FixStatus>;
   readiness: Readiness;
   pageProgress: { percent: number; visitedCount: number };
+  lessonProgress: Record<string, number[]>;
 };
 
 function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
@@ -237,7 +238,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     safeFirst(env, "select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1", auth.user.id),
     safeFirst(env, "select id, business_name, score, label, result_json, created_at from visibility_audits where user_id = ? order by created_at desc limit 1", auth.user.id),
     safeAll(env, "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')", auth.user.id),
-    safeAll(env, "select page_path from lesson_progress where user_id = ?", auth.user.id),
+    safeAll(env, "select page_path, completed_indexes from lesson_progress where user_id = ?", auth.user.id),
   ]);
 
   const doneKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys);
@@ -253,8 +254,17 @@ export async function getPlatformData(): Promise<PlatformData> {
   const readiness = readinessFrom(fixStatuses);
   const visitedCount = progressRows.length;
   const pageProgress = { percent: pageProgressPercent(fixStatuses, visitedCount, programLessons.length), visitedCount };
+  const lessonProgress: Record<string, number[]> = {};
+  for (const row of progressRows) {
+    try {
+      const parsed = JSON.parse(String(row.completed_indexes ?? "[]"));
+      lessonProgress[String(row.page_path)] = Array.isArray(parsed) ? parsed.map(Number).filter(Number.isInteger) : [];
+    } catch {
+      lessonProgress[String(row.page_path)] = [];
+    }
+  }
 
-  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, readiness, pageProgress };
+  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, readiness, pageProgress, lessonProgress };
 
   const result = auditResult;
   const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
@@ -278,7 +288,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     accountMatches: matchesFromResult(result),
   };
 
-  return { user, allowed, scan, fixStatuses, readiness, pageProgress };
+  return { user, allowed, scan, fixStatuses, readiness, pageProgress, lessonProgress };
 }
 
 export function gradeForScore(score: number) {
