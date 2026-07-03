@@ -89,14 +89,6 @@ export const issueFixContent: Record<string, {
   },
 };
 
-export const buildoutModules = [
-  { title: "Business Identity", sections: 4, description: "Phone, address, website, domain email, and public profile consistency." },
-  { title: "Legal Foundation", sections: 3, description: "Entity setup, EIN, state records, and legal name alignment." },
-  { title: "Banking Foundation", sections: 3, description: "Business banking, balance habits, and bank-rating readiness." },
-  { title: "Approval Readiness", sections: 4, description: "Readiness criteria, profile cleanup, and application timing." },
-  { title: "Account Strategy", sections: 5, description: "Net 30 vendors, cards, funding paths, and account sequencing." },
-];
-
 type D1Row = Record<string, unknown>;
 type IssueSeverity = "high" | "med" | "low";
 type IssueStatus = "todo" | "progress" | "done";

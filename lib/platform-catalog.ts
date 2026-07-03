@@ -511,6 +511,64 @@ export const accountCatalog: AccountCatalogItem[] = [
   })),
 ];
 
+// The Full Buildout page's five-module map. Section keys resolve to /fix/[key]/
+// unless an explicit href points elsewhere (report card, account matches).
+export type BuildoutSection = { key: string; title: string; purpose: string; fixKeys: string[]; href?: string };
+export type BuildoutModule = { module: string; title: string; subtitle: string; sections: BuildoutSection[] };
+
+export const buildoutModules: BuildoutModule[] = [
+  {
+    module: "Module 1",
+    title: "Business Identity",
+    subtitle: "Make your business findable and consistent.",
+    sections: [
+      { key: "nap", title: "NAP overview", purpose: "One exact name, address, and phone before touching individual records.", fixKeys: ["nap"] },
+      { key: "phones", title: "Phone & 411", purpose: "A real business line with caller ID and a public listing.", fixKeys: ["phones"] },
+      { key: "address", title: "Business address", purpose: "One address format across every public and banking record.", fixKeys: ["address"] },
+      { key: "website", title: "Website & domain email", purpose: "A live domain with matching details and domain email.", fixKeys: ["website", "email"] },
+    ],
+  },
+  {
+    module: "Module 2",
+    title: "Legal Setup",
+    subtitle: "Lock in the legal foundation.",
+    sections: [
+      { key: "llc", title: "LLC vs corporation", purpose: "Confirm the entity type and exact legal name.", fixKeys: ["llc"] },
+      { key: "sos", title: "Secretary of State record", purpose: "Verify the state record is active and consistent.", fixKeys: ["sos"] },
+      { key: "ein", title: "EIN from IRS", purpose: "Tie the EIN to the same legal identity everywhere.", fixKeys: ["ein"] },
+    ],
+  },
+  {
+    module: "Module 3",
+    title: "Banking Foundation",
+    subtitle: "Build a credible banking profile.",
+    sections: [
+      { key: "bank", title: "Business bank account", purpose: "Open and match the business checking account.", fixKeys: ["bank"] },
+      { key: "bank-rating", title: "Bank rating + tracker", purpose: "Build the balance pattern lenders look for.", fixKeys: ["bank-rating"] },
+      { key: "bureaus", title: "Business credit bureaus", purpose: "Understand bureau profiles before expecting reporting.", fixKeys: ["bureaus"] },
+    ],
+  },
+  {
+    module: "Module 4",
+    title: "Business Plan + Report",
+    subtitle: "Document the business and generate a progress report.",
+    sections: [
+      { key: "business-plan", title: "Business plan", purpose: "A practical plan that supports credit and funding conversations.", fixKeys: ["business-plan"] },
+      { key: "report", title: "Progress report", purpose: "Save a member-safe record of what's done and what's next.", fixKeys: [], href: "/report-card/" },
+    ],
+  },
+  {
+    module: "Module 5",
+    title: "Approval Readiness",
+    subtitle: "Readiness, starter vendor credit, cards, and funding.",
+    sections: [
+      { key: "criteria", title: "12-point criteria", purpose: "The full readiness check before broader applications.", fixKeys: ["criteria"] },
+      { key: "net30", title: "Starter vendor credit", purpose: "Pick starter vendors that fit the business and report.", fixKeys: ["net30"] },
+      { key: "cards-funding", title: "Cards & funding paths", purpose: "Move into card and funding categories when signals support it.", fixKeys: [], href: "/account-matches/" },
+    ],
+  },
+];
+
 export const accountGroups = Array.from(new Set(accountCatalog.map((item) => item.group)));
 
 export function accountStatus(item: AccountCatalogItem, openIssueKeys: Set<string>, completedKeys: Set<string>): { tone: CatalogTone; label: string; blockers: string[] } {
