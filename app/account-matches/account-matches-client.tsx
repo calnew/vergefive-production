@@ -1,219 +1,253 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { Badge, Card, CardContent, CreditCardFace } from "@/components/ui";
+import { CreditCardFace } from "@/components/ui";
 
-type AccountTab = "all" | "vendor" | "cards" | "funding";
-
-type AccountCard = {
-  bucketKey: AccountTab;
-  bucketTitle: string;
+export type MatcherAccount = {
   name: string;
+  path: "vendor" | "cards" | "funding";
   group: string;
   type: string;
-  gradient: string;
-  why: string;
-  requirements: string[];
+  requires: string[];
   recommended: string[];
+  why: string;
   timing: string;
-  blockerLinks: { key: string; label: string }[];
-  status: {
-    tone: "ready" | "review" | "locked";
-    label: string;
-    blockers: string[];
-  };
+  gradient: string;
 };
 
-type PathCard = {
-  key: "vendor" | "cards" | "funding";
-  eyebrow: string;
-  title: string;
-  description: string;
-  examples: string[];
-  readiness: string[];
-};
+type Tab = "all" | "vendor" | "cards" | "funding";
+type Tier = "ready" | "almost" | "build";
 
-type AccountMatchesClientProps = {
-  userName: string;
-  readyCount: number;
-  lockedCount: number;
-  groupCount: number;
-  pathCards: PathCard[];
-  accounts: AccountCard[];
-};
-
-const tabs: { key: AccountTab; label: string; description: string }[] = [
-  { key: "all", label: "All Matches", description: "Every account path in one view." },
-  { key: "vendor", label: "Vendor & Net 30", description: "Starter tradelines and operating vendors." },
-  { key: "cards", label: "Credit & Secured Cards", description: "Secured, store, fleet, and revolving cards." },
-  { key: "funding", label: "Funding Options", description: "Funding paths after readiness improves." },
+const CORE_TOGGLES: { key: string; label: string }[] = [
+  { key: "llc", label: "Legal entity formed" },
+  { key: "ein", label: "EIN issued by IRS" },
+  { key: "phones", label: "Business phone number" },
+  { key: "address", label: "Valid business address" },
+  { key: "website", label: "Website + domain email" },
+  { key: "bank", label: "Business bank account" },
+  { key: "bank-rating", label: "Bank rating (Low-5+)" },
+  { key: "criteria", label: "12-point criteria met" },
+  { key: "net30", label: "Reporting tradelines" },
 ];
 
-function toneBadge(tone: AccountCard["status"]["tone"]) {
-  if (tone === "ready") return "ready";
-  if (tone === "review") return "info";
-  return "flagged";
-}
+const EXTRA_TOGGLES: { key: string; label: string; scope: "cards" | "funding" | "both" }[] = [
+  { key: "deposit", label: "Deposit available (secured)", scope: "cards" },
+  { key: "goodCredit", label: "Good personal credit", scope: "cards" },
+  { key: "pg", label: "Personal guarantee acceptable", scope: "cards" },
+  { key: "revenue", label: "Revenue / cash flow showing", scope: "both" },
+  { key: "reserve", label: "Cash reserve / CD funds", scope: "funding" },
+  { key: "collateral", label: "Collateral available", scope: "funding" },
+];
 
-function accountMatchNote(account: AccountCard) {
-  if (account.status.tone === "ready") return "You meet the visible prerequisites in this platform view. Review the terms before applying.";
-  if (account.blockerLinks.length) return `Build these items first: ${account.blockerLinks.map((item) => item.label).join(", ")}.`;
-  return "Review requirements and timing before applying.";
-}
+const SHORT_LABELS: Record<string, string> = {
+  llc: "entity", ein: "EIN", phones: "phone", address: "address", website: "website/email",
+  bank: "bank account", "bank-rating": "bank rating", criteria: "12-point criteria", net30: "tradelines",
+  deposit: "deposit", goodCredit: "good personal credit", pg: "personal guarantee",
+  revenue: "revenue/cash flow", reserve: "cash reserve / CD", collateral: "collateral",
+  reserveOrRevenue: "cash reserve or revenue",
+};
 
-export function AccountMatchesClient({
-  userName,
-  readyCount,
-  lockedCount,
-  groupCount,
-  pathCards,
-  accounts,
-}: AccountMatchesClientProps) {
-  const [activeTab, setActiveTab] = useState<AccountTab>("vendor");
-  const [selected, setSelected] = useState<AccountCard | null>(null);
+const TABS: { key: Tab; label: string; blurb: string }[] = [
+  { key: "all", label: "All categories", blurb: "Every account path in one view" },
+  { key: "vendor", label: "Vendor & Net 30", blurb: "Starter and operating vendors" },
+  { key: "cards", label: "Cards", blurb: "Secured, store, fleet, and traditional" },
+  { key: "funding", label: "Funding", blurb: "Secured loans and lender paths" },
+];
 
-  const visibleAccounts = useMemo(() => {
-    if (activeTab === "all") return accounts;
-    return accounts.filter((account) => account.bucketKey === activeTab);
-  }, [accounts, activeTab]);
+const TIER_META: Record<Tier, { label: string; className: string }> = {
+  ready: { label: "Ready now", className: "bg-ready-surface text-ready" },
+  almost: { label: "Almost ready", className: "bg-unlock-surface text-unlock" },
+  build: { label: "Build first", className: "bg-[#EEF1F6] text-vfText-body" },
+};
 
-  const activePathCards = activeTab === "all" ? pathCards : pathCards.filter((path) => path.key === activeTab);
+export function AccountMatchesClient({ userName, hasScan, scanSignals, accounts }: {
+  userName: string;
+  hasScan: boolean;
+  scanSignals: Record<string, boolean>;
+  accounts: MatcherAccount[];
+}) {
+  const [tab, setTab] = useState<Tab>("all");
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const [modal, setModal] = useState<MatcherAccount | null>(null);
+
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setModal(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [modal]);
+
+  const effective = useMemo(() => {
+    const state: Record<string, boolean> = {};
+    for (const { key } of CORE_TOGGLES) state[key] = overrides[key] ?? scanSignals[key] ?? false;
+    for (const { key } of EXTRA_TOGGLES) state[key] = overrides[key] ?? false;
+    return state;
+  }, [overrides, scanSignals]);
+
+  function satisfied(requirement: string) {
+    if (requirement === "reserveOrRevenue") return effective.reserve || effective.revenue;
+    return effective[requirement] ?? false;
+  }
+
+  function tierFor(account: MatcherAccount): { tier: Tier; missing: string[] } {
+    const missing = account.requires.filter((requirement) => !satisfied(requirement));
+    if (!missing.length) return { tier: "ready", missing };
+    if (missing.length <= 2) return { tier: "almost", missing };
+    return { tier: "build", missing };
+  }
+
+  const tiered = accounts.map((account) => ({ account, ...tierFor(account) }));
+  const shown = tiered.filter(({ account }) => tab === "all" || account.path === tab);
+  const counts = {
+    ready: shown.filter((entry) => entry.tier === "ready").length,
+    almost: shown.filter((entry) => entry.tier === "almost").length,
+    build: shown.filter((entry) => entry.tier === "build").length,
+  };
+  const readyCore = CORE_TOGGLES.filter(({ key }) => effective[key]).length;
+  const extrasForTab = EXTRA_TOGGLES.filter(({ scope }) => tab === "all" || scope === "both" || scope === tab);
+  const hasOverrides = Object.keys(overrides).length > 0;
 
   return (
-    <>
-      <section className="mt-8 grid gap-4 md:grid-cols-3">
-        <Card><CardContent className="p-6"><Badge variant="ready">Ready to review</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{readyCount}</p><p className="mt-2 text-sm text-vfText-body">No current scan blocker tied to the account requirement.</p></CardContent></Card>
-        <Card><CardContent className="p-6"><Badge variant="flagged">Fix first</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{lockedCount}</p><p className="mt-2 text-sm text-vfText-body">Current scan blockers should be handled before applying.</p></CardContent></Card>
-        <Card><CardContent className="p-6"><Badge variant="info">Categories</Badge><p className="mt-4 font-display text-4xl font-bold text-brand-navy">{groupCount}</p><p className="mt-2 text-sm text-vfText-body">Starter vendors, operating vendors, cards, fleet, tech, and funding paths.</p></CardContent></Card>
-      </section>
-
-      <section className="mt-8 grid gap-3 rounded-3xl border border-vfBorder bg-white p-3 shadow-soft md:grid-cols-4">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          const count = tab.key === "all" ? accounts.length : accounts.filter((account) => account.bucketKey === tab.key).length;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`rounded-2xl p-4 text-left transition ${isActive ? "bg-brand-blue text-white shadow-soft" : "bg-surface-muted text-vfText-body hover:bg-[#E8F0FF]"}`}
-            >
-              <span className="text-sm font-extrabold">{tab.label}</span>
-              <span className={`mt-1 block text-xs leading-5 ${isActive ? "text-white/80" : "text-vfText-muted"}`}>{tab.description}</span>
-              <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-extrabold ${isActive ? "bg-white/15 text-white" : "bg-white text-brand-blue"}`}>{count} options</span>
-            </button>
-          );
-        })}
-      </section>
-
-      <section className="mt-8 grid gap-4 lg:grid-cols-3">
-        {activePathCards.map((path) => (
-          <Card key={path.key} className="overflow-hidden">
-            <CardContent className="p-6">
-              <Badge variant="unlock">{path.eyebrow}</Badge>
-              <h2 className="mt-3 font-display text-2xl font-bold text-brand-navy">{path.title}</h2>
-              <p className="mt-3 text-sm leading-6 text-vfText-body">{path.description}</p>
-              <div className="mt-5 rounded-2xl bg-surface-muted p-4">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Examples</p>
-                <p className="mt-2 text-sm font-bold leading-6 text-vfText-body">{path.examples.join(" / ")}</p>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {path.readiness.map((item) => <span key={item} className="rounded-full bg-[#EEF3FE] px-3 py-1 text-xs font-extrabold text-brand-blue">{item}</span>)}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-
-      <section className="mt-10">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#0E1A2B,#1D3A64)] p-7 text-white shadow-soft md:p-9">
+        <div className="pointer-events-none absolute -right-14 -top-24 size-64 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden />
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div>
-            <Badge variant="info">{activeTab === "vendor" ? "Vendor matcher" : activeTab === "cards" ? "Card matcher" : activeTab === "funding" ? "Funding matcher" : "All account paths"}</Badge>
-            <h2 className="mt-3 font-display text-2xl font-bold text-brand-navy">
-              {activeTab === "all" ? "All account matches" : tabs.find((tab) => tab.key === activeTab)?.label}
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-vfText-body">Open each account card for prerequisites, match notes, and the next fixes to complete before applying.</p>
+            <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-ondark-blue">Account Matches</p>
+            <h1 className="mt-2 font-display text-3xl font-bold tracking-[-0.03em] md:text-4xl">Match accounts to your real readiness</h1>
+            <p className="mt-3 max-w-xl leading-7 text-ondark-body">Every account here is tiered against your scan signals. Toggle signals to see what unlocks next — matches are guidance, never approval promises.</p>
           </div>
-          <Badge variant="outline">{visibleAccounts.length} options</Badge>
+          <video className="aspect-video w-full rounded-2xl bg-black object-cover" controls preload="metadata" poster="/posters/net30.jpg?v=a831a29">
+            <source src="/uploads/about-net-30-recreated.webm?v=a831a29" type="video/webm" />
+          </video>
         </div>
-
-        <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {visibleAccounts.map((account) => (
-            <Card key={`${account.bucketKey}-${account.name}`} className="overflow-hidden">
-              <CardContent className="p-5">
-                <CreditCardFace memberName={userName} cardTypeLabel={account.type} gradient={account.gradient} locked={account.status.tone === "locked"} />
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <Badge variant={toneBadge(account.status.tone)}>{account.status.label}</Badge>
-                  <Badge variant="outline">{account.group}</Badge>
-                </div>
-                <h3 className="mt-3 font-display text-xl font-bold text-brand-navy">{account.name}</h3>
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-vfText-body">{account.why}</p>
-                <div className="mt-4 rounded-2xl bg-surface-muted p-3">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Required prerequisites</p>
-                  <p className="mt-2 text-sm font-bold text-vfText-body">{account.requirements.join(" / ")}</p>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setSelected(account)} className="rounded-xl bg-brand-blue px-4 py-2 text-sm font-extrabold text-white">View Details</button>
-                  <Link href={`/support?topic=account&from=${encodeURIComponent(account.name)}`} className="rounded-xl border border-vfBorder px-4 py-2 text-sm font-extrabold text-brand-blue">Get Help</Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {TABS.map((entry) => {
+            const readyInTab = tiered.filter(({ account, tier }) => tier === "ready" && (entry.key === "all" || account.path === entry.key)).length;
+            const active = tab === entry.key;
+            return (
+              <button
+                key={entry.key}
+                type="button"
+                onClick={() => setTab(entry.key)}
+                aria-pressed={active}
+                className={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${active ? "border-white/60 bg-white/15" : "border-white/15 bg-white/5 hover:bg-white/10"}`}
+              >
+                <p className="font-display text-sm font-bold">{entry.label}</p>
+                <p className="mt-0.5 text-xs text-ondark-body">{entry.blurb}</p>
+                <p className="mt-2 text-xs font-bold text-ondark-green">{readyInTab} ready</p>
+              </button>
+            );
+          })}
         </div>
       </section>
 
-      {selected ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#0E1A2B]/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`${selected.name} details`}>
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant={toneBadge(selected.status.tone)}>{selected.status.label}</Badge>
-                  <Badge variant="outline">{selected.group}</Badge>
-                </div>
-                <h2 className="mt-4 font-display text-3xl font-bold tracking-[-0.04em] text-brand-navy">{selected.name}</h2>
-                <p className="mt-3 text-sm leading-6 text-vfText-body">{selected.why}</p>
-              </div>
-              <button type="button" onClick={() => setSelected(null)} className="rounded-full border border-vfBorder px-3 py-1 text-sm font-extrabold text-vfText-muted">Close</button>
-            </div>
+      {!hasScan ? (
+        <div className="mt-5 rounded-2xl bg-unlock-surface p-5 text-sm font-bold text-unlock">
+          Run a scan first so the signals below reflect your real business profile. <Link href="/scan/" className="underline">Run Scan →</Link>
+        </div>
+      ) : null}
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl bg-surface-muted p-4">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Card type</p>
-                <p className="mt-2 font-bold text-vfText-body">{selected.type}</p>
-              </div>
-              <div className="rounded-2xl bg-surface-muted p-4">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Timing</p>
-                <p className="mt-2 font-bold text-vfText-body">{selected.timing}</p>
-              </div>
-              <div className="rounded-2xl bg-surface-muted p-4 md:col-span-2">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Required prerequisites</p>
-                <p className="mt-2 text-sm font-bold leading-6 text-vfText-body">{selected.requirements.join(" / ")}</p>
-              </div>
-              <div className="rounded-2xl bg-surface-muted p-4 md:col-span-2">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Recommended signals</p>
-                <p className="mt-2 text-sm font-bold leading-6 text-vfText-body">{selected.recommended.join(" / ")}</p>
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-unlock-surface p-4 text-sm leading-6 text-vfText-body">
-              <b className="text-brand-navy">Match note:</b> {accountMatchNote(selected)}
-            </div>
-
-            {selected.blockerLinks.length ? (
-              <div className="mt-5 flex flex-wrap gap-2">
-                {selected.blockerLinks.map((blocker) => (
-                  <Link key={blocker.key} href={`/fix/${blocker.key}/`} className="rounded-xl border border-vfBorder px-4 py-2 text-sm font-extrabold text-brand-blue" onClick={() => setSelected(null)}>
-                    Fix {blocker.label}
-                  </Link>
+      <div className="mt-5 grid gap-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-start">
+        <aside className="rounded-2xl border border-vfBorder bg-white p-5 shadow-soft lg:sticky lg:top-5">
+          <h2 className="font-display text-base font-bold text-vfText-strong">Your signals</h2>
+          <div className="mt-3 overflow-hidden rounded-full bg-[#EAEEF4]">
+            <div className="h-2 rounded-full bg-[linear-gradient(90deg,#2563EB,#22C55E)] transition-all" style={{ width: `${Math.round((readyCore / CORE_TOGGLES.length) * 100)}%` }} />
+          </div>
+          <p className="mt-2 text-xs font-bold text-vfText-body">{readyCore} of {CORE_TOGGLES.length} signals ready</p>
+          <div className="mt-4 grid gap-1.5">
+            {CORE_TOGGLES.map(({ key, label }) => (
+              <label key={key} className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 text-sm font-bold text-vfText-body transition hover:bg-surface-muted">
+                <input type="checkbox" checked={effective[key]} onChange={() => setOverrides((current) => ({ ...current, [key]: !effective[key] }))} className="size-4 accent-[#2563EB]" />
+                {label}
+              </label>
+            ))}
+          </div>
+          {extrasForTab.length ? (
+            <>
+              <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.16em] text-vfText-muted">Category signals</p>
+              <div className="mt-2 grid gap-1.5">
+                {extrasForTab.map(({ key, label }) => (
+                  <label key={key} className="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 text-sm font-bold text-vfText-body transition hover:bg-surface-muted">
+                    <input type="checkbox" checked={effective[key]} onChange={() => setOverrides((current) => ({ ...current, [key]: !effective[key] }))} className="size-4 accent-[#2563EB]" />
+                    {label}
+                  </label>
                 ))}
               </div>
-            ) : null}
+            </>
+          ) : null}
+          {hasOverrides ? (
+            <button type="button" onClick={() => setOverrides({})} className="mt-4 w-full rounded-xl border border-vfBorder px-3 py-2 text-sm font-bold text-brand-blue transition hover:border-brand-blue">
+              Reset to scan
+            </button>
+          ) : null}
+        </aside>
+
+        <div className="min-w-0">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-ready-surface p-4"><b className="font-display text-2xl text-ready">{counts.ready}</b><p className="text-sm font-bold text-ready">Ready now</p></div>
+            <div className="rounded-2xl bg-unlock-surface p-4"><b className="font-display text-2xl text-unlock">{counts.almost}</b><p className="text-sm font-bold text-unlock">Almost ready</p></div>
+            <div className="rounded-2xl bg-[#EEF1F6] p-4"><b className="font-display text-2xl text-vfText-body">{counts.build}</b><p className="text-sm font-bold text-vfText-body">Build first</p></div>
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {shown.map(({ account, tier, missing }) => (
+              <div key={`${account.group}-${account.name}`} className="flex flex-col rounded-2xl border border-vfBorder bg-white p-4 shadow-soft">
+                <CreditCardFace memberName={userName} cardTypeLabel={account.type} gradient={account.gradient} locked={tier === "build"} />
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${TIER_META[tier].className}`}>{TIER_META[tier].label}</span>
+                  <span className="text-xs font-bold text-vfText-muted">{account.group}</span>
+                </div>
+                <h3 className="mt-2 font-display text-base font-bold text-vfText-strong">{account.name}</h3>
+                <p className="mt-1 text-sm leading-6 text-vfText-body">{account.why}</p>
+                <p className={`mt-2 text-xs font-bold leading-5 ${missing.length ? "text-unlock" : "text-ready"}`}>
+                  {missing.length ? `Still need: ${missing.map((key) => SHORT_LABELS[key] ?? key).join(", ")}` : "You meet the prerequisites"}
+                </p>
+                <button type="button" onClick={() => setModal(account)} className="mt-auto pt-3 text-left text-sm font-bold text-brand-blue hover:underline">
+                  Learn more →
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {modal ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#0E1A2B]/60 p-4" onClick={() => setModal(null)} role="dialog" aria-modal="true" aria-label={modal.name}>
+          <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-[0_30px_80px_rgba(8,16,28,0.4)] md:p-7" onClick={(event) => event.stopPropagation()}>
+            {(() => {
+              const { tier, missing } = tierFor(modal);
+              return (
+                <>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${TIER_META[tier].className}`}>{TIER_META[tier].label}</span>
+                  <h2 className="mt-3 font-display text-2xl font-bold text-vfText-strong">{modal.name}</h2>
+                  <p className="mt-2 leading-7 text-vfText-body">{modal.why}</p>
+                  <div className="mt-4 grid gap-3 text-sm">
+                    <div className="rounded-xl bg-surface-muted p-3"><b className="text-vfText-strong">Account type:</b> <span className="text-vfText-body">{modal.type}</span></div>
+                    <div className="rounded-xl bg-surface-muted p-3">
+                      <b className="text-vfText-strong">Required signals:</b>
+                      <span className="text-vfText-body"> {modal.requires.map((key) => SHORT_LABELS[key] ?? key).join(", ")}</span>
+                    </div>
+                    <div className="rounded-xl bg-surface-muted p-3"><b className="text-vfText-strong">Recommended:</b> <span className="text-vfText-body">{modal.recommended.join(", ")}</span></div>
+                    {missing.length ? (
+                      <div className="rounded-xl bg-flagged-surface p-3 font-bold text-flagged">Match note: finish {missing.map((key) => SHORT_LABELS[key] ?? key).join(", ")} before applying here.</div>
+                    ) : (
+                      <div className="rounded-xl bg-ready-surface p-3 font-bold text-ready">Your signals meet this account&apos;s prerequisites.</div>
+                    )}
+                    <div className="rounded-xl bg-blue-50 p-3 text-brand-blue"><b>Timing:</b> {modal.timing}</div>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <Link href={`/support/?topic=account&name=${encodeURIComponent(modal.name)}`} className="rounded-xl bg-brand-blue px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#1D4ED8]">Get help with this account</Link>
+                    <button type="button" onClick={() => setModal(null)} className="rounded-xl border border-vfBorder px-4 py-2.5 text-sm font-bold text-vfText-body transition hover:border-brand-blue">Close</button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   );
 }

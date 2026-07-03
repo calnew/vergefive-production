@@ -2,69 +2,49 @@ export const dynamic = "force-dynamic";
 
 import { PlatformShell } from "@/components/platform/platform-shell";
 import { PlatformPaywall } from "@/components/platform/paywall";
-import { Card, CardContent } from "@/components/ui";
-import { accountBuckets, accountCatalog, accountPathCards, accountStatus, fixPlaybooks } from "@/lib/platform-catalog";
+import { accountBuckets, accountCatalog } from "@/lib/platform-catalog";
 import { getPlatformData } from "@/lib/platform-data";
-import { AccountMatchesClient } from "./account-matches-client";
+import { CORE_SIGNAL_KEYS } from "@/lib/readiness";
+import { AccountMatchesClient, type MatcherAccount } from "./account-matches-client";
+
+// fixKeys from the catalog use lesson keys; the matcher works in signal keys.
+const FIX_TO_SIGNAL: Record<string, string> = { email: "website" };
+
+function signalRequirements(fixKeys: string[], group: string, path: "vendor" | "cards" | "funding"): string[] {
+  const requires = new Set(fixKeys.map((key) => FIX_TO_SIGNAL[key] ?? key));
+  if (group.includes("Secured")) requires.add("deposit");
+  else if (group.includes("Corporate")) requires.add("revenue");
+  else if (path === "cards") requires.add("goodCredit");
+  if (path === "funding") requires.add("reserveOrRevenue");
+  return [...requires];
+}
 
 export default async function AccountMatchesPage() {
-  const { user, allowed, scan } = await getPlatformData();
+  const { user, allowed, scan, readiness } = await getPlatformData();
   if (!allowed) return <PlatformPaywall />;
 
-  const openIssueKeys = new Set((scan?.issues ?? []).filter((issue) => issue.status !== "done").map((issue) => issue.key));
-  const completedKeys = new Set((scan?.issues ?? []).filter((issue) => issue.status === "done").map((issue) => issue.key));
-  const readyCount = accountCatalog.filter((item) => accountStatus(item, openIssueKeys, completedKeys).tone === "ready").length;
-  const lockedCount = accountCatalog.filter((item) => accountStatus(item, openIssueKeys, completedKeys).tone === "locked").length;
-  const groupCount = new Set(accountCatalog.map((item) => item.group)).size;
-  const accounts = accountBuckets.flatMap((bucket) => {
-    const items = accountCatalog.filter((item) => bucket.groups.includes(item.group));
-    return items.map((item) => {
-      const status = accountStatus(item, openIssueKeys, completedKeys);
-      return {
-        bucketKey: bucket.key as "vendor" | "cards" | "funding",
-        bucketTitle: bucket.title,
+  const accounts: MatcherAccount[] = accountBuckets.flatMap((bucket) =>
+    accountCatalog
+      .filter((item) => bucket.groups.includes(item.group))
+      .map((item) => ({
         name: item.name,
+        path: bucket.path,
         group: item.group,
         type: item.type,
-        gradient: item.gradient,
-        why: item.why,
-        requirements: item.requirements,
+        requires: signalRequirements(item.fixKeys, item.group, bucket.path),
         recommended: item.recommended,
+        why: item.why,
         timing: item.timing,
-        blockerLinks: status.blockers.map((blockerKey) => ({
-          key: blockerKey,
-          label: fixPlaybooks[blockerKey]?.shortTitle ?? blockerKey,
-        })),
-        status,
-      };
-    });
-  });
+        gradient: item.gradient,
+      }))
+  );
+
+  const scanSignals: Record<string, boolean> = {};
+  for (const key of CORE_SIGNAL_KEYS) scanSignals[key] = readiness.signalStatuses[key] === "done";
 
   return (
-    <PlatformShell user={user} active="Account Matches">
-      <div className="mx-auto max-w-7xl">
-        <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Account Matches</p>
-        <h1 className="mt-2 font-display text-4xl font-bold tracking-[-0.05em] text-brand-navy md:text-5xl">Account Matches</h1>
-        <p className="mt-3 max-w-3xl text-vfText-body">Choose from the approved category structure: vendors and Net 30, business cards, and funding paths. Each category shows examples, readiness rules, and what must be fixed before applying.</p>
-
-        {!scan ? (
-          <Card className="mt-8">
-            <CardContent className="p-8">
-              <p className="font-bold text-vfText-body">Run a scan first to generate account matches.</p>
-              <a className="mt-4 inline-block font-bold text-brand-blue" href="/scan/">Run Scan</a>
-            </CardContent>
-          </Card>
-        ) : null}
-
-        <AccountMatchesClient
-          userName={user.name}
-          readyCount={readyCount}
-          lockedCount={lockedCount}
-          groupCount={groupCount}
-          pathCards={accountPathCards}
-          accounts={accounts}
-        />
-      </div>
+    <PlatformShell user={user} active="Account Matches" businessName={scan?.business.name}>
+      <AccountMatchesClient userName={user.name} hasScan={!!scan} scanSignals={scanSignals} accounts={accounts} />
     </PlatformShell>
   );
 }
