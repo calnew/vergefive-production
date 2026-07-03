@@ -6,7 +6,7 @@ import { ReportDownloadButton } from "@/app/report-card/report-download-button";
 import { PlatformShell } from "@/components/platform/platform-shell";
 import { PlatformPaywall } from "@/components/platform/paywall";
 import { Badge, Button, Card, CardContent, ProgressBar, ReadinessRing } from "@/components/ui";
-import { getPlatformData, issuePointMap, matchIsReady, progressPercent } from "@/lib/platform-data";
+import { getPlatformData, matchIsReady } from "@/lib/platform-data";
 
 type ProfileRow = { label: string; value: string; complete: boolean };
 type Qualification = { label: string; status: string; note: string; tone: "ready" | "review" | "wait" };
@@ -62,7 +62,7 @@ function buildQualifications(scan: NonNullable<Awaited<ReturnType<typeof getPlat
 
 function buildNextActions(scan: NonNullable<Awaited<ReturnType<typeof getPlatformData>>["scan"]>) {
   const openIssues = scan.issues.filter((issue) => issue.status !== "done").sort((a, b) => a.impactRank - b.impactRank);
-  const actions = openIssues.slice(0, 4).map((issue) => `Complete ${issue.title} before stronger applications. Potential readiness lift: ${issuePointMap[issue.key] ?? 4} points.`);
+  const actions = openIssues.slice(0, 4).map((issue) => `Complete ${issue.title} before stronger applications — every verified signal raises the readiness score.`);
   if (!actions.length) actions.push("Review all current issuer, vendor, and lender requirements. Apply selectively with matching records only.");
   if (!scan.accountMatches.some((match) => matchIsReady(match, scan.issues))) actions.push("Re-run the scan after saving fixes so the account matcher can re-tier ready-now paths.");
   return actions.slice(0, 5);
@@ -105,12 +105,13 @@ function reportStyles() {
   ].join("");
 }
 
-function buildReportText(args: { generated: string; stage: string; profile: ProfileRow[]; qualifications: Qualification[]; nextActions: string[]; progress: number; score: number; grade: string }) {
+function buildReportText(args: { generated: string; stage: string; path: string; profile: ProfileRow[]; qualifications: Qualification[]; nextActions: string[]; progress: number; score: number; grade: string }) {
   const lines = [
     "Verge Five member progress report",
     "",
     `Generated: ${args.generated}`,
     `Readiness stage: ${args.stage}`,
+    `Assigned path: ${args.path}`,
     `Readiness score: ${args.score}/100 (${args.grade})`,
     `Platform progress: ${args.progress}%`,
     "",
@@ -136,7 +137,7 @@ function buildReportHtml(args: { generated: string; stage: string; profile: Prof
 }
 
 export default async function ReportCardPage() {
-  const { user, allowed, scan } = await getPlatformData();
+  const { user, allowed, scan, readiness, pageProgress } = await getPlatformData();
   if (!allowed) return <PlatformPaywall />;
 
   if (!scan) {
@@ -156,9 +157,9 @@ export default async function ReportCardPage() {
   const profileDone = profile.filter((row) => row.complete).length;
   const qualifications = buildQualifications(scan);
   const nextActions = buildNextActions(scan);
-  const progress = progressPercent(scan.issues);
-  const stage = scan.grade;
-  const reportText = buildReportText({ generated, stage, profile, qualifications, nextActions, progress, score: scan.readinessScore, grade: scan.grade });
+  const progress = pageProgress.percent;
+  const stage = readiness.label;
+  const reportText = buildReportText({ generated, stage, path: readiness.assignedPath, profile, qualifications, nextActions, progress, score: readiness.score, grade: readiness.label });
   const reportHtml = buildReportHtml({ generated, stage, profile, qualifications, nextActions, progress, profileDone, profileTotal: profile.length });
   const snapshot = {
     businessName: scan.business.name,
@@ -198,8 +199,8 @@ export default async function ReportCardPage() {
           <div className="p-6 md:p-8">
             <div className="grid gap-3 md:grid-cols-3">
               <MetricCard label="Readiness stage" value={stage} />
-              <MetricCard label="Profile captured" value={`${profileDone} / ${profile.length}`} />
-              <MetricCard label="Score" value={`${scan.readinessScore}/100`} />
+              <MetricCard label="Assigned path" value={readiness.assignedPath} />
+              <MetricCard label="Score" value={`${readiness.score}/100`} />
             </div>
 
             <section className="mt-6 rounded-2xl border border-[#BFD8ED] bg-[#E8F2FB] p-5">
@@ -208,7 +209,7 @@ export default async function ReportCardPage() {
             </section>
 
             <section className="mt-8 grid gap-6 lg:grid-cols-[310px_minmax(0,1fr)]">
-              <Card><CardContent className="grid place-items-center p-8 text-center"><ReadinessRing value={scan.readinessScore} size={164} /><h2 className="mt-5 font-display text-3xl font-bold text-brand-navy">{scan.grade}</h2><p className="mt-2 text-vfText-body">{scan.signalsClean} of {scan.signalsTotal} signals clean.</p></CardContent></Card>
+              <Card><CardContent className="grid place-items-center p-8 text-center"><ReadinessRing value={readiness.score} size={164} color={readiness.color} /><h2 className="mt-5 font-display text-2xl font-bold" style={{ color: readiness.color }}>{readiness.label}</h2><p className="mt-2 text-vfText-body">{readiness.doneCount} of {readiness.total} signals clean · {profileDone} of {profile.length} profile fields saved.</p></CardContent></Card>
               <div>
                 <SectionTitle title="Business profile snapshot" meta="Member-entered progress" />
                 <div className="grid gap-2 sm:grid-cols-2">
