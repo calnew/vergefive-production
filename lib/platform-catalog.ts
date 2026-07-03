@@ -584,7 +584,7 @@ export type AccountBucket = {
   groups: string[];
 };
 
-export const proofHelperText = "Save proof before you continue. Proof can be a screenshot, confirmation email, PDF, bank letter, invoice, listing page, or saved record that shows this step is complete. Progress note: checked items are saved in this browser and synced to your member account when you are logged in.";
+export const proofHelperText = "Save proof before you continue. Proof can be a screenshot, confirmation email, PDF, bank letter, invoice, listing page, or saved record that shows this step is complete. Checked items save to your member account automatically.";
 
 export const beforeYouLeaveText = "Finish the checklist items on this page. The platform sequence depends on completing each foundation item in order.";
 
