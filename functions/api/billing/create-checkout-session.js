@@ -1,5 +1,6 @@
 ﻿import { getAuth, getCookie, json, readJson, requireDb, requireSameOrigin } from '../../_lib/auth.js';
 import { requireDevStripeTestMode, siteUrl, stripeGet, stripeRequest } from '../../_lib/stripe.js';
+
 import { attachReferralToUser, normalizeAffiliateCode, referralForUser } from '../../_lib/affiliates.js';
 
 const CHECKOUT_SESSION_LIST_LIMIT = 20;
