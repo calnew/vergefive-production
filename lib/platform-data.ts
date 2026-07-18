@@ -31,8 +31,9 @@ export const issueFixContent: Record<string, {
     steps: ["Choose a dedicated business phone number.", "Set the caller ID to the legal or public business name.", "Add the number to a public 411 or directory listing.", "Update the same phone number across website, bank, and vendor records."],
     proof: ["Screenshot of caller ID or phone account", "Screenshot of directory listing", "Website contact page showing the same number"],
     providers: [
-      { name: "TurnCom360 Business Phone", description: "Business phone setup and caller ID support.", href: "https://turncom360.com/" },
-      { name: "U.S. Business Directory", description: "Use a listing source that can display consistent public business details.", href: "https://www.bbb.org/" },
+      { name: "TurnCom360", description: "Done-for-you business phone setup with caller ID, greetings, routing, and voicemail support.", href: "https://www.turncom360.com/" },
+      { name: "RingCentral", description: "DIY business phone system with professional calling features.", href: "https://www.ringcentral.com/" },
+      { name: "Grasshopper", description: "DIY virtual business phone option for solo and mobile-first owners.", href: "https://grasshopper.com/" },
     ],
   },
   email: {
@@ -302,3 +303,4 @@ export function matchIsReady(match: { tier: string; name: string }, issues: { ke
   const key = unlockKeyForMatch(match.name);
   return Boolean(key && issues.some((issue) => issue.key === key && issue.status === "done"));
 }
+
