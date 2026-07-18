@@ -71,6 +71,7 @@ export function AccountMatchesClient({ userName, hasScan, scanSignals, accounts 
   const [tab, setTab] = useState<Tab>("all");
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const [modal, setModal] = useState<MatcherAccount | null>(null);
+  const [showBuild, setShowBuild] = useState(false);
 
   useEffect(() => {
     if (!modal) return;
@@ -108,6 +109,48 @@ export function AccountMatchesClient({ userName, hasScan, scanSignals, accounts 
   const readyCore = CORE_TOGGLES.filter(({ key }) => effective[key]).length;
   const extrasForTab = EXTRA_TOGGLES.filter(({ scope }) => tab === "all" || scope === "both" || scope === tab);
   const hasOverrides = Object.keys(overrides).length > 0;
+
+  type Entry = { account: MatcherAccount; tier: Tier; missing: string[] };
+  const readyEntries = shown.filter((entry) => entry.tier === "ready");
+  const almostEntries = shown.filter((entry) => entry.tier === "almost");
+  const buildEntries = shown.filter((entry) => entry.tier === "build");
+
+  const renderFullCard = ({ account, tier, missing }: Entry) => (
+    <div key={`${account.group}-${account.name}`} className="flex flex-col rounded-2xl border border-vfBorder bg-white p-4 shadow-soft">
+      <CreditCardFace memberName={userName} cardTypeLabel={account.type} gradient={account.gradient} locked={tier === "build"} />
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${TIER_META[tier].className}`}>{TIER_META[tier].label}</span>
+        <span className="text-xs font-bold text-vfText-muted">{account.group}</span>
+      </div>
+      <h3 className="mt-2 font-display text-base font-bold text-vfText-strong">{account.name}</h3>
+      <p className="mt-1 text-sm leading-6 text-vfText-body">{account.why}</p>
+      <p className={`mt-2 text-xs font-bold leading-5 ${missing.length ? "text-unlock" : "text-ready"}`}>
+        {missing.length ? `Still need: ${missing.map((key) => SHORT_LABELS[key] ?? key).join(", ")}` : "You meet the prerequisites"}
+      </p>
+      <button type="button" onClick={() => setModal(account)} className="mt-auto pt-3 text-left text-sm font-bold text-brand-blue hover:underline">
+        Learn more →
+      </button>
+    </div>
+  );
+
+  const renderRow = ({ account, tier, missing }: Entry) => (
+    <button
+      key={`${account.group}-${account.name}`}
+      type="button"
+      onClick={() => setModal(account)}
+      className="flex w-full items-start gap-3 rounded-2xl border border-vfBorder bg-white p-3.5 text-left shadow-soft transition hover:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+    >
+      <span className={`mt-0.5 shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${TIER_META[tier].className}`}>{TIER_META[tier].label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-display text-sm font-bold text-vfText-strong">{account.name}</span>
+        <span className="mt-0.5 block text-xs font-bold text-vfText-muted">{account.group}</span>
+        <span className={`mt-1 block text-xs font-bold leading-5 ${missing.length ? "text-unlock" : "text-ready"}`}>
+          {missing.length ? `Still need: ${missing.map((key) => SHORT_LABELS[key] ?? key).join(", ")}` : "You meet the prerequisites"}
+        </span>
+      </span>
+      <span className="mt-0.5 shrink-0 text-sm font-bold text-brand-blue" aria-hidden>→</span>
+    </button>
+  );
 
   return (
     <div>
@@ -192,25 +235,59 @@ export function AccountMatchesClient({ userName, hasScan, scanSignals, accounts 
             <div className="rounded-2xl bg-[#EEF1F6] p-4"><b className="font-display text-2xl text-vfText-body">{counts.build}</b><p className="text-sm font-bold text-vfText-body">Build first</p></div>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {shown.map(({ account, tier, missing }) => (
-              <div key={`${account.group}-${account.name}`} className="flex flex-col rounded-2xl border border-vfBorder bg-white p-4 shadow-soft">
-                <CreditCardFace memberName={userName} cardTypeLabel={account.type} gradient={account.gradient} locked={tier === "build"} />
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${TIER_META[tier].className}`}>{TIER_META[tier].label}</span>
-                  <span className="text-xs font-bold text-vfText-muted">{account.group}</span>
+          <section className="mt-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="font-display text-lg font-bold text-vfText-strong">Your ready accounts</h2>
+              <span className="shrink-0 text-sm font-bold text-ready">{readyEntries.length} ready now</span>
+            </div>
+            <p className="mt-1 text-sm leading-6 text-vfText-body">You meet the prerequisites for these — start here.</p>
+            {readyEntries.length ? (
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {readyEntries.map(renderFullCard)}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-2xl border border-dashed border-vfBorder bg-white p-5 text-sm font-bold leading-6 text-vfText-body">
+                No accounts are fully ready yet. Clear the items under “Almost there” to unlock your first matches.
+              </div>
+            )}
+          </section>
+
+          {almostEntries.length ? (
+            <section className="mt-8">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="font-display text-lg font-bold text-vfText-strong">Almost there</h2>
+                <span className="shrink-0 text-sm font-bold text-unlock">{almostEntries.length}</span>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-vfText-body">One or two signals away. Finish these to move them into Ready.</p>
+              <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                {almostEntries.map(renderRow)}
+              </div>
+            </section>
+          ) : null}
+
+          {buildEntries.length ? (
+            <section className="mt-8">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg font-bold text-vfText-strong">Keep building</h2>
+                  <p className="mt-1 text-sm leading-6 text-vfText-body">Longer-term targets that need more foundation in place.</p>
                 </div>
-                <h3 className="mt-2 font-display text-base font-bold text-vfText-strong">{account.name}</h3>
-                <p className="mt-1 text-sm leading-6 text-vfText-body">{account.why}</p>
-                <p className={`mt-2 text-xs font-bold leading-5 ${missing.length ? "text-unlock" : "text-ready"}`}>
-                  {missing.length ? `Still need: ${missing.map((key) => SHORT_LABELS[key] ?? key).join(", ")}` : "You meet the prerequisites"}
-                </p>
-                <button type="button" onClick={() => setModal(account)} className="mt-auto pt-3 text-left text-sm font-bold text-brand-blue hover:underline">
-                  Learn more →
+                <button
+                  type="button"
+                  onClick={() => setShowBuild((current) => !current)}
+                  aria-expanded={showBuild}
+                  className="shrink-0 rounded-xl border border-vfBorder px-3.5 py-2 text-sm font-bold text-brand-blue transition hover:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+                >
+                  {showBuild ? "Hide" : `Show all ${buildEntries.length}`}
                 </button>
               </div>
-            ))}
-          </div>
+              {showBuild ? (
+                <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                  {buildEntries.map(renderRow)}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
         </div>
       </div>
 

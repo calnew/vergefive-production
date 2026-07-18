@@ -1,4 +1,4 @@
-export type CatalogTone = "ready" | "review" | "locked";
+﻿export type CatalogTone = "ready" | "review" | "locked";
 
 export type FixPlaybook = {
   key: string;
@@ -49,7 +49,7 @@ export const fixListPhases: FixListPhase[] = [
     phase: "Phase 1",
     title: "Foundation",
     items: [
-      { key: "nap", title: "NAP Consistency Overview", tagline: "Name, address, and phone — one exact identity everywhere.", defaultSeverity: "med" },
+      { key: "nap", title: "NAP Consistency Overview", tagline: "Name, address, and phone â€” one exact identity everywhere.", defaultSeverity: "med" },
       { key: "phones", title: "Phone & 411 Fix", tagline: "Business line, caller ID, and public 411 listing.", defaultSeverity: "high" },
       { key: "address", title: "Business Address Fix", tagline: "One address format across records, website, and bank.", defaultSeverity: "high" },
       { key: "website", title: "Website & Domain Email Fix", tagline: "Live domain, matching site details, and domain email.", defaultSeverity: "high" },
@@ -120,7 +120,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The business phone signal must look like a real business line and be consistent across public records before account applications.",
     whatToFix: ["Dedicated business phone number", "Caller ID/business name match", "Public 411 or business directory listing", "Same number on website, bank, and applications"],
     doFirst: ["Pick the primary business number.", "Set the caller ID to the public business name.", "Add or verify a public business listing.", "Update every application/profile with the same number."],
-    setupOptions: ["TurnCom360 Business Phone Setup", "Grasshopper Business Line", "Business VoIP Setup Review", "Caller ID / Business Name Match", "411 Listing Support", "Done-For-You Phone Signal Fix"],
+    setupOptions: ["TurnCom360", "RingCentral", "Grasshopper"],
     proof: ["Phone account screenshot", "Caller ID/business name screenshot", "Directory/411 listing screenshot", "Website contact page with matching phone"],
     unlocks: ["Starter Net 30 vendors", "Fleet/fuel account readiness", "Higher-trust vendor verification", "Cleaner business identity review"],
     training: "Compact lesson: why phone type, caller ID, and directory consistency matter before vendor applications.",
@@ -135,7 +135,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The business address should match across website, public records, bank records, and account applications.",
     whatToFix: ["One exact address format", "Commercial/business-appropriate address use", "Website and directory consistency", "Bank and vendor application consistency"],
     doFirst: ["Choose the exact address format.", "Update the website/contact profile.", "Match state, bank, and vendor profiles.", "Save proof before applying."],
-    setupOptions: ["Business Address Review", "Address Consistency Cleanup", "Business Address Setup Guidance", "Records Match Review", "Done-For-You Address Cleanup"],
+    setupOptions: ["Regus", "Davinci", "Alliance Virtual Offices"],
     proof: ["Website contact screenshot", "State/business profile record", "Bank profile or application screenshot", "Directory listing screenshot"],
     unlocks: ["Grainger-style vendor reviews", "Home improvement/project accounts", "Business bank and bureau profile consistency"],
     training: "Compact lesson: why mailbox, home, and inconsistent address signals can slow underwriting.",
@@ -150,7 +150,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The business needs a credible website/domain signal that matches the company identity.",
     whatToFix: ["Active business domain", "Website with matching name, address, and phone", "Contact page", "Professional public presence"],
     doFirst: ["Confirm the domain is active.", "Add business identity details to the site.", "Make the contact page match records.", "Keep the site live before applications."],
-    setupOptions: ["Website Setup", "Website Credibility Review", "Business Profile Cleanup", "Done-For-You Web Presence Setup"],
+    setupOptions: ["TurnCom360", "Wix", "Webflow"],
     proof: ["Homepage screenshot", "Contact page screenshot", "Domain/DNS screenshot", "Business profile screenshot"],
     unlocks: ["Quill and Staples-style reviews", "Technology vendors", "Credit card readiness checks"],
     training: "Compact lesson: how a real web presence supports automated verification.",
@@ -165,7 +165,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The primary contact email should use the business domain instead of a free mailbox.",
     whatToFix: ["Domain email address", "Email shown on website/contact profiles", "Application contact email consistency", "Free email kept only as backup"],
     doFirst: ["Create a domain email account.", "Put it on the website contact page.", "Update vendor/bank profiles.", "Save proof before applying."],
-    setupOptions: ["Domain Email Setup", "Google Workspace Setup", "Microsoft 365 Business Email Setup", "Business Profile Cleanup", "Done-For-You Web Presence Setup"],
+    setupOptions: ["TurnCom360", "Google Workspace", "Microsoft 365"],
     proof: ["Domain email inbox screenshot", "Website contact page screenshot", "Updated business profile screenshot"],
     unlocks: ["Website/domain-dependent vendors", "Card path review", "Professional identity confidence"],
     training: "Compact lesson: why domain email is different from simply having any email address.",
@@ -180,7 +180,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "Legal setup should match the name, entity type, and state record used everywhere else.",
     whatToFix: ["Entity type review", "State filing check", "Legal/public name match", "Ownership/contact consistency"],
     doFirst: ["Confirm the legal entity type.", "Check the state record.", "Match the public business name.", "Save the state record proof."],
-    setupOptions: ["Entity Type Review", "State Filing Check", "Business Name Match Review", "Entity Setup Guidance"],
+    setupOptions: ["CorpNet", "Bizee", "BizFilings"],
     proof: ["State entity record", "Articles/formation document", "Business name match screenshot"],
     unlocks: ["EIN alignment", "Business bank setup", "Most vendor/category applications"],
     training: "Compact lesson: entity consistency before EIN, bank, and vendor records.",
@@ -195,7 +195,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The EIN should connect to the same legal business identity used on records and applications.",
     whatToFix: ["EIN confirmation", "IRS letter saved", "Legal name match", "Bank/vendor identity match"],
     doFirst: ["Locate or request the EIN letter.", "Compare legal name formatting.", "Save proof.", "Use the same identity on bank/vendor profiles."],
-    setupOptions: ["EIN Verification Checklist", "IRS Letter Proof Save", "EIN Identity Match Review", "EIN Setup Guidance"],
+    setupOptions: ["IRS EIN application", "Done-for-you EIN help"],
     proof: ["IRS EIN letter", "State record", "Bank profile using matching name"],
     unlocks: ["Starter Net 30 vendors", "Business bank profile", "Credit bureau/profile tools"],
     training: "Compact lesson: why EIN proof matters before applications.",
@@ -210,7 +210,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "A business bank account should be open and match the same company identity used publicly.",
     whatToFix: ["Business checking account", "Bank profile name/address match", "Operating deposits", "Account proof saved"],
     doFirst: ["Open or confirm the business checking account.", "Match the company identity.", "Use it consistently.", "Save proof before card/funding applications."],
-    setupOptions: ["Business Bank Account Checklist", "Bank Profile Match Review", "Banking Setup Guidance", "Bank Account Proof Save"],
+    setupOptions: ["FDIC BankFind", "Credit Union Locator", "SBA Lender Match"],
     proof: ["Bank welcome/profile screen", "Business bank statement", "Profile details showing matching business identity"],
     unlocks: ["Bank-rating work", "Credit card readiness", "Funding path review"],
     training: "Compact lesson: banking as a stability signal, not just a place for deposits.",
@@ -225,7 +225,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The bank relationship and average balance signal should be stronger before higher-value account applications.",
     whatToFix: ["Average balance target", "90-day banking pattern", "Statement proof", "Application timing"],
     doFirst: ["Pick a realistic average-balance target.", "Track balances over time.", "Avoid applying during weak balance periods.", "Save statements/proof."],
-    setupOptions: ["Bank Profile Match Review", "Banking Setup Guidance", "Bank Rating Review", "Bank Account Proof Save"],
+    setupOptions: [],
     proof: ["Recent business bank statement", "Balance tracker", "Application timing note"],
     unlocks: ["Capital One Spark", "Chase Ink", "American Express Business", "Bank funding conversations"],
     training: "Compact lesson: how bank activity affects readiness without guaranteeing funding.",
@@ -240,7 +240,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "The business should pass the core identity, banking, profile, and timing checks before broader applications.",
     whatToFix: ["Identity consistency", "Bureau/profile checks", "Business website/email", "Bank and vendor history", "Application timing"],
     doFirst: ["Review all readiness criteria.", "Fix mismatched records first.", "Delay applications until blockers are cleared.", "Save proof for every completed item."],
-    setupOptions: ["Business Credit Criteria Review", "Profile Cleanup Review", "Application Timing Review", "Done-For-You Readiness Review"],
+    setupOptions: ["D-U-N-S Number", "NAV.com", "Done-for-you readiness review"],
     proof: ["Criteria checklist", "Profile screenshots", "Saved fix proof", "Application readiness notes"],
     unlocks: ["Traditional business cards", "Corporate/no-PG review", "Funding readiness paths"],
     training: "Compact lesson: how readiness criteria protects against wasted applications.",
@@ -255,7 +255,7 @@ export const fixPlaybooks: Record<string, FixPlaybook> = {
     scanFinding: "Starter vendors should be selected after identity, EIN, address, website/email, and bank signals are ready enough for review.",
     whatToFix: ["Vendor category selection", "Requirements check", "Application timing", "Reporting expectations"],
     doFirst: ["Choose a vendor category that matches the business.", "Check required signals.", "Apply only when identity records match.", "Track payment history and reporting."],
-    setupOptions: ["Starter Vendor Account Review", "Vendor Category Selection", "Net 30 Timing Guidance", "Application Prep Review"],
+    setupOptions: ["Account Matches", "Done-for-you tradeline help"],
     proof: ["Vendor approval/terms screenshot", "Invoice/payment proof", "Reporting or account status screenshot"],
     unlocks: ["Starter Net 30 vendors", "Retail/wholesale vendors", "Fleet and fuel cards", "Credit card readiness"],
     training: "Compact lesson: use vendor accounts to build clean payment history, not random applications.",
@@ -603,6 +603,25 @@ export type LessonResource = {
   href: string;
 };
 
+export type LessonModuleOptionIntro = {
+  kicker: string;
+  title: string;
+  sub: string;
+};
+
+export type LessonModuleOption = {
+  name: string;
+  kind: "provider" | "diy" | "help";
+  badgeText: string;
+  description: string;
+  bestFor: string;
+  href?: string;
+  openLabel?: string;
+  price?: string;
+  note?: string;
+  brandColor?: string;
+};
+
 export type LessonSection = {
   key: string;
   phase: string;
@@ -620,6 +639,8 @@ export type LessonSection = {
   checklist: string[];
   proof: string[];
   resources: LessonResource[];
+  optionIntro?: LessonModuleOptionIntro;
+  moduleOptions?: LessonModuleOption[];
   accountPath?: "vendor" | "cards" | "funding";
   matcherSignals?: string[];
 };
@@ -715,10 +736,104 @@ const lessonBase: Record<string, LessonSection> = {
   funding: lesson({ key: "funding", phase: "Phase 5", module: "Starter Vendor Credit", route: "/cd-business-loans/", title: "CD-secured business loans", description: "Review secured loan and funding paths after identity, banking, statements, and purpose are documented.", videos: [{ title: "CD-secured business loans", src: "/uploads/cd-business-loans-lesson.webm?v=a831a29", poster: "/posters/bankrating.png?v=a831a29" }], accountPath: "funding", matcherSignals: ["Business bank account", "Bank rating reviewed", "Statements available", "Funding purpose clear", "Business plan saved", "Revenue/cash-flow proof", "Collateral/deposit option reviewed", "Identity records match", "Tax/documentation path known", "No unrealistic approval promise", "Bank relationship noted", "Application timing clean", "Use of funds written", "Proof folder ready", "Fallback path selected", "Next conversation planned"] }),
 };
 
+export const lessonOptionContent: Record<string, { optionIntro: LessonModuleOptionIntro; moduleOptions: LessonModuleOption[] }> = {
+  nap: {
+    optionIntro: { kicker: "Optional awareness", title: "Listing consistency tools you may see", sub: "You do not have to buy a listing service to continue. These are tools people use to check or sync business listings across directories." },
+    moduleOptions: [
+      { name: "Yext", brandColor: "#0F1B2D", kind: "diy", badgeText: "Listing sync", href: "https://www.yext.com/", openLabel: "Open Yext", description: "Sync business details across maps, directories, and discovery platforms.", note: "Awareness only - not required to continue.", bestFor: "Many listings to manage" },
+      { name: "BrightLocal", brandColor: "#0B6EB5", kind: "diy", badgeText: "Citation audit", href: "https://www.brightlocal.com/", openLabel: "Open BrightLocal", description: "Build, audit, and clean up local business citations and directory records.", note: "Awareness only - not required to continue.", bestFor: "Auditing citations" },
+      { name: "Moz Local", brandColor: "#1f4e79", kind: "diy", badgeText: "Listing accuracy", href: "https://moz.com/products/local", openLabel: "Open Moz Local", description: "Manage business listing accuracy across directories and local search.", note: "Awareness only - not required to continue.", bestFor: "Local search accuracy" },
+    ],
+  },
+  phones: {
+    optionIntro: { kicker: "Choose your phone setup", title: "Business phone options", sub: "Compare the monthly cost and how much setup work you want to handle yourself." },
+    moduleOptions: [
+      { name: "TurnCom360", brandColor: "#0F1B2D", kind: "provider", badgeText: "Done for you", price: "$35/month flat rate", href: "https://www.turncom360.com/", openLabel: "Open TurnCom360", description: "Complete business phone system with a mobile app, professional calling features, and the business presence that helps the company look established.", note: "Done for you: they set up the system, greetings, routing, and voicemail.", bestFor: "Want it set up for you" },
+      { name: "RingCentral", brandColor: "#0B6EB5", kind: "diy", badgeText: "DIY setup", price: "$30-$80/month", href: "https://www.ringcentral.com/", openLabel: "Open RingCentral", description: "Business phone system with calling features appropriate for a professional presence.", note: "You have to configure the greetings, routing, voicemail, and call flow yourself.", bestFor: "Doing it yourself" },
+      { name: "Grasshopper", brandColor: "#00A36C", kind: "diy", badgeText: "DIY setup", price: "$30-$80/month", href: "https://grasshopper.com/", openLabel: "Open Grasshopper", description: "Virtual phone option for separating business calls from personal calls.", note: "You have to configure the greetings, extensions, voicemail, and call handling yourself.", bestFor: "Solo / mobile-first" },
+    ],
+  },
+  address: {
+    optionIntro: { kicker: "Choose your resource", title: "Recommended address options", sub: "Google each address first. Confirm it is a real commercial building with office, coworking, or meeting-room access." },
+    moduleOptions: [
+      { name: "Regus", brandColor: "#0F1B2D", kind: "provider", badgeText: "Workspace access", price: "From about $2/day", href: "https://www.regus.com/", openLabel: "Open Regus", description: "Office and virtual office option for a professional business address.", note: "Before using the address, confirm the exact building on Google Maps and verify office, coworking, or meeting-room access is available.", bestFor: "Want workspace access" },
+      { name: "Davinci", brandColor: "#D6263A", kind: "provider", badgeText: "Meeting rooms", price: "From about $50/month", href: "https://www.davincivirtual.com/", openLabel: "Open Davinci", description: "Virtual office and business address resource with meeting room options.", note: "Before using the address, Google the exact location and make sure it is a commercial building, not a post office, postal store, or mailbox-only location.", bestFor: "Need meeting rooms" },
+      { name: "Alliance Virtual Offices", brandColor: "#1f4e79", kind: "provider", badgeText: "Office access", price: "From about $40/month", href: "https://www.alliancevirtualoffices.com/", openLabel: "Open Alliance Virtual Offices", description: "Commercial virtual office address with mail handling and access to meeting rooms or office space.", note: "Before using the address, confirm the exact location on Google Maps and verify it is a staffed business center with workspace access.", bestFor: "Want a staffed center" },
+    ],
+  },
+  website: {
+    optionIntro: { kicker: "Choose your website path", title: "Website and email options", sub: "TurnCom360 is the done-for-you path. Wix and Webflow are DIY paths, so the owner must handle domain, email, SSL, content, and page setup." },
+    moduleOptions: [
+      { name: "TurnCom360", brandColor: "#0F1B2D", kind: "provider", badgeText: "Done for you", price: "Website + domain + email", href: "https://www.turncom360.com/", openLabel: "Open TurnCom360", description: "Professional website setup for business owners who want everything handled for them.", note: "TurnCom360 builds the site, adds the content, sets up the domain, business email, SSL, core pages, and gives the finished site a professional look and feel.", bestFor: "Want it handled for you" },
+      { name: "Wix", brandColor: "#0F1B2D", kind: "diy", badgeText: "DIY builder", price: "Website platform", href: "https://www.wix.com/", openLabel: "Open Wix", description: "Website builder option for creating a business site yourself.", note: "You have to build the website, write or add the content, connect the domain, set up SSL, create business email, and make every page look professional yourself.", bestFor: "Doing it yourself" },
+      { name: "Webflow", brandColor: "#1f4e79", kind: "diy", badgeText: "DIY or designer", price: "Polished site", href: "https://webflow.com/", openLabel: "Open Webflow", description: "Website platform option for a more polished business web presence.", note: "You or your designer still have to build the pages, add content, connect the domain, set up SSL, business email, service pages, Privacy Policy, and Terms of Service.", bestFor: "Want a polished site" },
+    ],
+  },
+  llc: {
+    optionIntro: { kicker: "Choose your filing resource", title: "Entity filing options", sub: "Use a filing service if you want help preparing documents, but verify the final approved record with the Secretary of State." },
+    moduleOptions: [
+      { name: "CorpNet", brandColor: "#0F1B2D", kind: "provider", badgeText: "Filing support", href: "https://www.corpnet.com/", openLabel: "Open CorpNet", description: "Business filing service for forming or maintaining an entity.", note: "Useful when you want filing help, compliance reminders, and support with state paperwork.", bestFor: "Want filing help" },
+      { name: "Bizee", brandColor: "#0B6EB5", kind: "provider", badgeText: "Formation service", href: "https://bizee.com/", openLabel: "Open Bizee", description: "Online business formation service for LLCs, corporations, and registered-agent add-ons.", note: "Good for a guided filing path, but review add-ons carefully and save the final state-approved documents.", bestFor: "Guided filing path" },
+      { name: "BizFilings", brandColor: "#1f4e79", kind: "provider", badgeText: "Wolters Kluwer", href: "https://www.wolterskluwer.com/en/solutions/bizfilings", openLabel: "Open BizFilings", description: "Entity filing service for LLC, corporation, registered agent, EIN, and compliance support.", note: "Useful if you want a more established filing provider with formation guidance.", bestFor: "Established provider" },
+    ],
+  },
+  ein: {
+    optionIntro: { kicker: "Get or verify your EIN with the IRS", title: "EIN stands for Employer Identification Number", sub: "Apply directly through the IRS. Do not pay a third-party site just to get an EIN unless you are intentionally using a filing service." },
+    moduleOptions: [
+      { name: "IRS - Apply for an EIN", brandColor: "#1f4e79", kind: "provider", badgeText: "Free official", href: "https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online", openLabel: "Open IRS EIN application", description: "Apply directly with the IRS at no cost, under your exact legal business name.", note: "Do not pay a third-party site just to get an EIN unless you are intentionally using a filing service.", bestFor: "No EIN yet" },
+      { name: "Done-for-you EIN help", kind: "help", badgeText: "Done for you", description: "Request help and we guide getting or correcting your EIN under the exact legal name.", bestFor: "Want it handled" },
+    ],
+  },
+  bank: {
+    optionIntro: { kicker: "Choose your banking resource", title: "Business banking research options", sub: "Use these resources to find legitimate banks, credit unions, and lending paths. Pick the institution that fits your business and documentation." },
+    moduleOptions: [
+      { name: "FDIC BankFind", brandColor: "#1f4e79", kind: "diy", badgeText: "Find a bank", href: "https://banks.data.fdic.gov/bankfind-suite/bankfind", openLabel: "Open FDIC BankFind", description: "Look up FDIC-insured community and regional banks near you.", bestFor: "Finding local banks" },
+      { name: "Credit Union Locator", brandColor: "#0B6EB5", kind: "diy", badgeText: "Credit unions", href: "https://mapping.ncua.gov/", openLabel: "Find credit unions", description: "Locate local credit unions with business banking support.", bestFor: "Member-owned options" },
+      { name: "SBA Lender Match", brandColor: "#0F1B2D", kind: "diy", badgeText: "SBA lending", href: "https://www.sba.gov/funding-programs/loans/lender-match", openLabel: "Search SBA Lender Match", description: "Match with SBA-approved lenders for future financing.", bestFor: "Planning ahead for credit" },
+    ],
+  },
+  bureaus: {
+    optionIntro: { kicker: "Check what is reporting", title: "Business bureau and monitoring resources", sub: "Use these as checkpoints. The goal is to see whether the company is visible, whether records match, and whether trade activity is starting to appear." },
+    moduleOptions: [
+      { name: "Creditsafe", brandColor: "#0F1B2D", kind: "diy", badgeText: "Report resource", href: "https://www.creditsafe.com/", openLabel: "Open Creditsafe", description: "Business credit report resource for company visibility, risk indicators, payment data, and profile information.", note: "Use it to see whether the company is visible and whether details look consistent.", bestFor: "Visibility check" },
+      { name: "Equifax Business", brandColor: "#0B6EB5", kind: "diy", badgeText: "Bureau", href: "https://www.equifax.com/business/", openLabel: "Open Equifax Business", description: "Business credit bureau resource for understanding reports, risk signals, and data used in commercial decisions.", note: "Use it to understand bureau reporting and identify records that may need correction.", bestFor: "Bureau reporting" },
+      { name: "NAV.com", brandColor: "#D6263A", kind: "diy", badgeText: "Monitoring", href: "https://www.nav.com/", openLabel: "Open NAV.com", description: "Monitoring resource to review business credit info, track profile activity, and see selected bureau data by plan.", note: "Use it before and after building trade accounts so you can monitor what appears over time.", bestFor: "Ongoing monitoring" },
+    ],
+  },
+  criteria: {
+    optionIntro: { kicker: "Confirm readiness", title: "Business credit readiness resources", sub: "Use these to check visibility and avoid applying before the profile is ready." },
+    moduleOptions: [
+      { name: "D-U-N-S Number (Dun & Bradstreet)", brandColor: "#0F1B2D", kind: "provider", badgeText: "Bureau listing", href: "https://www.dnb.com/duns-number/get-a-duns.html", openLabel: "Get a D-U-N-S", description: "Get listed with D&B so vendors and lenders can find your business.", bestFor: "Not listed with bureaus" },
+      { name: "NAV.com", brandColor: "#D6263A", kind: "provider", badgeText: "Monitoring", href: "https://www.nav.com/", openLabel: "Open NAV.com", description: "Monitor what appears on your business credit profile across bureaus.", bestFor: "Track visibility" },
+      { name: "Done-for-you readiness review", kind: "help", badgeText: "Done for you", description: "Request help and we run the full 12-point check before you apply.", bestFor: "Want a second set of eyes" },
+    ],
+  },
+  "business-plan": {
+    optionIntro: { kicker: "Choose your planning resource", title: "Business plan options", sub: "Use a builder or template to prepare the plan. Review a sample first to understand the format." },
+    moduleOptions: [
+      { name: "LivePlan", brandColor: "#0F1B2D", kind: "diy", badgeText: "Plan builder", href: "https://www.liveplan.com/", openLabel: "Open LivePlan", description: "Guided business-plan software with prompts, forecasting, and review.", note: "Best if you want help building the full plan and numbers in one tool.", bestFor: "Build the whole plan" },
+      { name: "Bplans", brandColor: "#0B6EB5", kind: "diy", badgeText: "Examples", href: "https://www.bplans.com/sample-business-plans/directory/", openLabel: "View examples", description: "Sample business plans and planning guidance by industry.", note: "Best for seeing how other plans are structured before writing your own.", bestFor: "See real examples" },
+      { name: "SCORE template", brandColor: "#1f4e79", kind: "diy", badgeText: "Free template", href: "https://www.score.org/resource/business-planning-financial-statements-template-gallery", openLabel: "Open template", description: "Free startup plan template with marketing, operations, and financials.", note: "Best if you want a free worksheet and mentor-style structure.", bestFor: "Free worksheet" },
+    ],
+  },
+  net30: {
+    optionIntro: { kicker: "Match your readiness", title: "Find vendors you qualify for", sub: "Use the Account Match finder to see which reporting vendors you are ready for now." },
+    moduleOptions: [
+      { name: "Account Matches", brandColor: "#0B6EB5", kind: "provider", badgeText: "Vendor library", href: "/account-matches/", openLabel: "Open Account Matches", description: "Review the full vendor, card, and funding library only after the foundation signals are ready.", bestFor: "Choose account path" },
+      { name: "Done-for-you tradeline help", kind: "help", badgeText: "Done for you", description: "Request help and we guide opening your first reporting accounts in the right order.", bestFor: "Want hands-on help" },
+    ],
+  },
+};
 export const lessonSections: Record<string, LessonSection> = {
   ...lessonBase,
-  email: { ...lessonBase.website, key: "email", title: "Domain email", description: "Use a domain email that matches the website and business identity before account applications." },
+  email: { ...lessonBase.website, ...lessonOptionContent.website, key: "email", title: "Domain email", description: "Use a domain email that matches the website and business identity before account applications." },
 };
+
+for (const [lessonKey, optionContent] of Object.entries(lessonOptionContent)) {
+  if (lessonSections[lessonKey]) {
+    lessonSections[lessonKey] = { ...lessonSections[lessonKey], ...optionContent };
+  }
+}
 
 export const programLessons = programModules.flatMap((module) => module.sections.map((section) => ({ ...section, phase: module.phase, module: module.module })));
 export const lessonProgressOrder = programLessons.map((section) => section.key);
@@ -759,3 +874,4 @@ export const accountBuckets: AccountBucket[] = [
   { key: "cards", title: "Credit card and revolving options", description: "Use this section after banking, criteria, and comparable-credit signals support a card path.", path: "cards", groups: ["Secured business credit cards", "Traditional business credit cards", "Corporate/no-PG cards", "Store/project/fleet cards"] },
   { key: "funding", title: "Funding and secured-loan options", description: "Use this last, after the member has proof, statements, purpose, and a realistic lender conversation path.", path: "funding", groups: ["Funding and secured-loan paths"] },
 ];
+

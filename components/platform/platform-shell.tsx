@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CreditCard, FileText, Layers, LayoutDashboard, LifeBuoy, ListChecks, Radar } from "lucide-react";
+import { ClipboardList, CreditCard, FileText, Layers, LayoutDashboard, LifeBuoy, ListChecks, Map, Radar } from "lucide-react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 
 const nav = [
   { label: "Dashboard", href: "/dashboard/", icon: LayoutDashboard },
   { label: "Run Scan", href: "/scan/", icon: Radar },
+  { label: "Roadmap", href: "/roadmap/", icon: Map },
   { label: "Fix List", href: "/fix-list/", icon: ListChecks },
   { label: "Account Matches", href: "/account-matches/", icon: CreditCard },
+  { label: "Application Tracker", href: "/application-tracker/", icon: ClipboardList },
   { label: "Full Buildout", href: "/buildout/", icon: Layers },
   { label: "Report Card", href: "/report-card/", icon: FileText },
   { label: "Support", href: "/support/", icon: LifeBuoy },

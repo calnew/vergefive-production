@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { ImpactPill, StatusPill } from "@/components/platform/pills";
 import { StatePicker } from "@/components/platform/state-picker";
 import { Button, Card, CardContent } from "@/components/ui";
 import { beforeYouLeaveText, fixPlaybooks, getLessonNavigation, getLessonSection } from "@/lib/platform-catalog";
-import { issueFixContent, getPlatformData } from "@/lib/platform-data";
+import { getPlatformData } from "@/lib/platform-data";
 
 export default async function FixPage({ params, searchParams }: { params: Promise<{ key: string }>; searchParams: Promise<{ completed?: string }> }) {
   const [{ key }, { completed }] = await Promise.all([params, searchParams]);
@@ -29,9 +29,9 @@ export default async function FixPage({ params, searchParams }: { params: Promis
   const navigation = getLessonNavigation(key);
   const justCompleted = completed === "1" && status === "done";
 
-  const providers = issueFixContent[content.key]?.providers ?? [];
-  const setupOptions = playbook?.setupOptions ?? [];
-  const hasOptions = providers.length > 0 || setupOptions.length > 0;
+  const moduleOptions = content.moduleOptions ?? [];
+  const optionIntro = content.optionIntro ?? { kicker: "Recommended setup options", title: "Choose how to handle this", sub: "Do it yourself, use a recommended provider, or request help." };
+  const hasOptions = moduleOptions.length > 0;
   const scanFinding = issue?.detail ?? playbook?.scanFinding;
   const pagePath = `/fix/${content.key}/`;
   const nextLink = navigation.next ? { href: `/fix/${navigation.next.key}/`, label: navigation.next.title } : { href: "/account-matches/", label: "Account Matches" };
@@ -40,10 +40,10 @@ export default async function FixPage({ params, searchParams }: { params: Promis
     <PlatformShell user={user} active="Fix List" businessName={scan?.business.name}>
       <div className="mx-auto max-w-[860px]">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-vfText-muted">{content.phase} · {content.module}</p>
+          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-vfText-muted">{content.phase} Â· {content.module}</p>
           <div className="flex gap-2">
-            <Button asChild size="sm" variant="outline"><Link href={navigation.previous ? `/fix/${navigation.previous.key}/` : "/fix-list/"}>← {navigation.previous ? "Previous" : "Fix list"}</Link></Button>
-            <Button asChild size="sm" variant="outline"><Link href={nextLink.href}>Next →</Link></Button>
+            <Button asChild size="sm" variant="outline"><Link href={navigation.previous ? `/fix/${navigation.previous.key}/` : "/fix-list/"}>â† {navigation.previous ? "Previous" : "Fix list"}</Link></Button>
+            <Button asChild size="sm" variant="outline"><Link href={nextLink.href}>Next â†’</Link></Button>
           </div>
         </div>
         <div className="mt-3 overflow-hidden rounded-full bg-white ring-1 ring-vfBorder">
@@ -54,7 +54,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
           {justCompleted ? (
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[linear-gradient(135deg,#15803D,#22C55E)] p-6 text-white shadow-soft">
               <div>
-                <p className="font-display text-lg font-bold">Nice — this fix is marked complete.</p>
+                <p className="font-display text-lg font-bold">Nice â€” this fix is marked complete.</p>
                 <p className="mt-1 text-sm text-white/85">Your readiness score has been updated.</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -74,14 +74,14 @@ export default async function FixPage({ params, searchParams }: { params: Promis
               <p className="mt-2 max-w-2xl leading-7 text-vfText-body">{content.description}</p>
               {scanFinding ? (
                 <div className="mt-4 flex gap-3 rounded-2xl border border-unlock-border bg-unlock-surface p-4">
-                  <span aria-hidden className="text-unlock">⚠</span>
-                  <p className="text-sm font-bold leading-6 text-unlock"><span className="uppercase tracking-[0.14em]">Scan finding</span> · {scanFinding}</p>
+                  <span aria-hidden className="text-unlock">âš </span>
+                  <p className="text-sm font-bold leading-6 text-unlock"><span className="uppercase tracking-[0.14em]">Scan finding</span> Â· {scanFinding}</p>
                 </div>
               ) : null}
               <div className="mt-5 flex flex-wrap gap-2">
                 {status === "done" ? (
                   <form action={updateFixStatus.bind(null, content.key, "todo", pagePath)}>
-                    <Button type="submit" variant="outline">Marked Complete ✓ — undo</Button>
+                    <Button type="submit" variant="outline">Marked Complete âœ“ â€” undo</Button>
                   </form>
                 ) : (
                   <form action={updateFixStatus.bind(null, content.key, "done", `${pagePath}?completed=1`)}>
@@ -116,7 +116,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
           <Card>
             <CardContent className="p-6 md:p-7">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-lg" aria-hidden>💡</span>
+                <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-lg" aria-hidden>ðŸ’¡</span>
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-blue">Why this matters</p>
                   <h2 className="font-display text-lg font-bold text-vfText-strong">This signal gets compared before anyone approves you.</h2>
@@ -137,29 +137,42 @@ export default async function FixPage({ params, searchParams }: { params: Promis
           {hasOptions ? (
             <Card id="vf-options" className="scroll-mt-6">
               <CardContent className="p-6 md:p-7">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-blue">Choose your setup path</p>
-                <h2 className="mt-1 font-display text-lg font-bold text-vfText-strong">Do it yourself or get it handled</h2>
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-blue">{optionIntro.kicker}</p>
+                <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <h2 className="font-display text-lg font-bold text-vfText-strong">{optionIntro.title}</h2>
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-vfText-body">{optionIntro.sub}</p>
+                  </div>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.12em] text-brand-blue">Curated choices</span>
+                </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {providers.map((provider) => (
-                    <div key={provider.name} className="flex flex-col rounded-2xl border border-vfBorder bg-white p-4">
-                      <span className="inline-flex w-fit rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-blue">DIY option</span>
-                      <h3 className="mt-2 font-display text-base font-bold text-vfText-strong">{provider.name}</h3>
-                      <p className="mt-1 text-sm leading-6 text-vfText-body">{provider.description}</p>
-                      <a href={provider.href} target="_blank" rel="noopener noreferrer" className="mt-auto pt-3 text-sm font-bold text-brand-blue hover:underline">Open site ↗</a>
-                    </div>
-                  ))}
-                  {setupOptions.map((option) => (
-                    <div key={option} className="flex flex-col rounded-2xl border border-vfBorder bg-white p-4">
-                      <span className="inline-flex w-fit rounded-full bg-unlock-surface px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-unlock">Done for you</span>
-                      <h3 className="mt-2 font-display text-base font-bold text-vfText-strong">{option}</h3>
-                      <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option)}`} className="mt-auto pt-3 text-sm font-bold text-brand-blue hover:underline">Request help →</Link>
+                  {moduleOptions.map((option) => (
+                    <div key={option.name} className="flex min-h-[220px] flex-col rounded-2xl border border-vfBorder bg-white p-4 shadow-[0_12px_30px_rgba(15,27,45,0.05)]" style={{ borderTop: `4px solid ${option.brandColor ?? "#2563EB"}` }}>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${option.kind === "help" ? "bg-unlock-surface text-unlock" : option.kind === "provider" ? "bg-ready-surface text-ready" : "bg-blue-50 text-brand-blue"}`}>{option.badgeText}</span>
+                        {option.price ? <span className="text-xs font-bold text-vfText-muted">{option.price}</span> : null}
+                      </div>
+                      <h3 className="mt-3 font-display text-base font-bold text-vfText-strong">{option.name}</h3>
+                      <p className="mt-1 text-sm leading-6 text-vfText-body">{option.description}</p>
+                      {option.note ? <p className="mt-3 rounded-xl bg-surface-muted px-3 py-2 text-xs font-bold leading-5 text-vfText-body">{option.note}</p> : null}
+                      <div className="mt-auto pt-4">
+                        {option.bestFor ? <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-vfText-muted">Best for: {option.bestFor}</p> : null}
+                        {option.href ? (
+                          option.href.startsWith("/") ? (
+                            <Link href={option.href} className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open option"} -></Link>
+                          ) : (
+                            <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} -></a>
+                          )
+                        ) : (
+                          <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option.name)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help -></Link>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
           ) : null}
-
           {content.key === "sos" ? (
             <Card><CardContent className="p-6 md:p-7"><StatePicker /></CardContent></Card>
           ) : null}
@@ -173,15 +186,16 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                 <FixChecklist
                   pagePath={pagePath}
                   pageTitle={content.title}
-                  breadcrumb={`${content.phase} · ${content.module}`}
+                  breadcrumb={`${content.phase} Â· ${content.module}`}
                   items={content.checklist}
+                  proofItems={content.proof}
                   initialChecked={lessonProgress[pagePath] ?? []}
                 />
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6 md:p-7">
-                <h2 className="font-display text-lg font-bold text-vfText-strong">Proof to save</h2>
+                <h2 className="font-display text-lg font-bold text-vfText-strong">Private proof file</h2>
                 <div className="mt-3 grid gap-2">
                   {content.proof.map((item) => <div key={item} className="rounded-xl bg-ready-surface px-4 py-3 text-sm font-bold text-ready">{item}</div>)}
                 </div>
@@ -199,10 +213,13 @@ export default async function FixPage({ params, searchParams }: { params: Promis
 
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[linear-gradient(135deg,#EEF3FE,#E3ECFD)] p-6">
             <p className="max-w-xl text-sm font-bold leading-6 text-vfText-body">{beforeYouLeaveText}</p>
-            <Button asChild><Link href={nextLink.href}>Next: {nextLink.label} →</Link></Button>
+            <Button asChild><Link href={nextLink.href}>Next: {nextLink.label} â†’</Link></Button>
           </div>
         </div>
       </div>
     </PlatformShell>
   );
 }
+
+
+
