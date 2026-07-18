@@ -159,12 +159,12 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                         {option.bestFor ? <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-vfText-muted">Best for: {option.bestFor}</p> : null}
                         {option.href ? (
                           option.href.startsWith("/") ? (
-                            <Link href={option.href} className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open option"} -></Link>
+                            <Link href={option.href} className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open option"} &gt;</Link>
                           ) : (
-                            <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} -></a>
+                            <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} &gt;</a>
                           )
                         ) : (
-                          <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option.name)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help -></Link>
+                          <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option.name)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help &gt;</Link>
                         )}
                       </div>
                     </div>
@@ -220,6 +220,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
     </PlatformShell>
   );
 }
+
 
 
 
