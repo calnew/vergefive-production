@@ -6,7 +6,10 @@
 const { chromium } = require("playwright");
 
 const BASE = String(process.env.VF_QA_URL || "https://vergefive-next-dev.turncomvoice.workers.dev").replace(/\/$/, "");
-if (!BASE.includes("localhost") && !BASE.includes("vergefive-next-dev")) {
+const target = new URL(BASE);
+const isLocal = target.hostname === "localhost" || target.hostname === "127.0.0.1";
+const isDevWorker = target.hostname === "vergefive-next-dev.turncomvoice.workers.dev" && target.protocol === "https:";
+if (!isLocal && !isDevWorker) {
   throw new Error(`Refusing QA against non-dev URL: ${BASE}`);
 }
 
@@ -27,7 +30,22 @@ async function post(request, route, data) {
 (async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1365, height: 900 } });
+
+  const anonymousProgress = await context.request.get(`${BASE}/api/member/progress`);
+  if (anonymousProgress.status() !== 401) {
+    throw new Error(`Anonymous progress read was not rejected: ${anonymousProgress.status()}`);
+  }
+
   await post(context.request, "/api/auth/register", { email, password, name: "Phone Slice QA" });
+
+  const crossOriginProgress = await context.request.put(`${BASE}/api/member/progress`, {
+    data: { pagePath: "/fix/phones/", completedIndexes: [0] },
+    headers: { "content-type": "application/json", origin: "https://invalid.example" },
+  });
+  if (crossOriginProgress.status() !== 403) {
+    throw new Error(`Cross-origin progress write was not rejected: ${crossOriginProgress.status()}`);
+  }
+
   const scanResult = await post(context.request, "/api/scan", {
     name: "Phone Slice QA LLC",
     entityType: "LLC",
@@ -94,6 +112,18 @@ async function post(request, route, data) {
     throw new Error(`Support response did not return trusted Phone context: ${JSON.stringify(supportJson.context)}`);
   }
   await page.getByText(/Request received/).waitFor();
+
+  const forgedSupport = await post(context.request, "/api/contact", {
+    name: "Phone Slice QA",
+    email,
+    topic: "Phone & 411 setup help",
+    message: "Verify that client-provided setup context cannot override the saved option.",
+    fixKey: "phones",
+    selectedOption: "Forged client option",
+  });
+  if (forgedSupport.context?.selectedOption === "Forged client option" || forgedSupport.context?.selectedOption !== supportJson.context.selectedOption) {
+    throw new Error(`Support context trusted a client-provided option: ${JSON.stringify(forgedSupport.context)}`);
+  }
 
   const auditsAfter = await context.request.get(`${BASE}/api/member/visibility-audits`);
   if (!auditsAfter.ok()) throw new Error(`Audit read failed after slice: ${auditsAfter.status()}`);
