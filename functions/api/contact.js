@@ -93,6 +93,7 @@ export async function onRequestPost(context) {
     fixKey,
     selectedOption
   }).catch(() => '');
+  if (!storedId) return json({ error: 'Message could not be saved to the support queue yet.' }, 502);
 
   const formatted = [
     `Name: ${name}`,
@@ -108,8 +109,6 @@ export async function onRequestPost(context) {
   const result = adminEmail
     ? await sendAdminEmail(context.env, adminEmail, `Website contact: ${topic}`, formatted, email)
     : { sent: false, reason: 'admin_email_missing' };
-  if (fixKey && !storedId) return json({ error: 'Fix context could not be saved to the support queue.' }, 502);
-  if (!storedId && !result.sent) return json({ error: 'Message could not be saved or routed yet.' }, 502);
   return json({
     ok: true,
     id: result.id || '',

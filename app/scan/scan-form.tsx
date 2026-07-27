@@ -36,20 +36,22 @@ export function ScanForm({ initialValues = {}, paid = false, showHero = true }: 
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(formData.entries());
 
-    const response = await fetch("/api/scan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await response.json();
-    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error ?? "The scan could not run right now.");
+      }
+      setTimeout(() => router.push(data.redirectTo ?? (paid ? "/dashboard/" : "/scan/results")), 1200);
+    } catch (caught) {
       setScanning(false);
-      setError(data.error ?? "The scan could not run right now.");
-      return;
+      setError(caught instanceof Error ? caught.message : "The scan could not run right now.");
     }
-
-    setTimeout(() => router.push(data.redirectTo ?? (paid ? "/dashboard/" : "/scan/results")), 1200);
   }
 
   return (
@@ -82,13 +84,13 @@ export function ScanForm({ initialValues = {}, paid = false, showHero = true }: 
               <input className="h-12 rounded-xl border border-vfBorder bg-white px-4 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100" name={name} placeholder={placeholder} defaultValue={initialValues[name] ?? ""} required />
             </label>
           ))}
-          {error ? <p className="rounded-xl bg-flagged-surface px-4 py-3 text-sm font-bold text-flagged md:col-span-2">{error}</p> : null}
+          {error ? <p className="rounded-xl bg-flagged-surface px-4 py-3 text-sm font-bold text-flagged md:col-span-2" role="alert" aria-live="assertive">{error}</p> : null}
           <div className="md:col-span-2">
             <Button type="submit" size="lg" disabled={scanning} className="w-full md:w-auto">
               {scanning ? "Scanning..." : paid ? "Re-run Audit" : "Run my visibility audit"}
             </Button>
             {scanning ? (
-              <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-bold text-brand-blue">
+              <div className="mt-5 rounded-2xl bg-blue-50 p-4 text-sm font-bold text-brand-blue" role="status" aria-live="polite">
                 Checking business identity, contact signals, website/domain, banking readiness, and account-match unlocks...
               </div>
             ) : null}

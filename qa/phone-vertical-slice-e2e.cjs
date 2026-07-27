@@ -27,6 +27,14 @@ async function post(request, route, data) {
   return json;
 }
 
+async function dashboardReadiness(page) {
+  await page.goto(`${BASE}/dashboard/`, { waitUntil: "networkidle" });
+  const label = await page.locator('svg[aria-label^="Readiness "]').getAttribute("aria-label");
+  const match = String(label || "").match(/Readiness (\d+) out of 100/);
+  if (!match) throw new Error(`Dashboard readiness score was not exposed accessibly: ${label}`);
+  return Number(match[1]);
+}
+
 (async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1365, height: 900 } });
@@ -69,6 +77,7 @@ async function post(request, route, data) {
   if (bypass.status() !== 400) throw new Error(`Generic progress API accepted fix_done bypass: ${bypass.status()}`);
 
   const page = await context.newPage();
+  const readinessBefore = await dashboardReadiness(page);
   await page.goto(`${BASE}/fix/phones/`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Mark Complete" }).click();
   await page.waitForURL(/completion=option-required/);
@@ -97,7 +106,6 @@ async function post(request, route, data) {
   await page.getByRole("button", { name: /undo/i }).waitFor();
 
   await page.getByRole("link", { name: "Get Help" }).click();
-  await page.getByText("Page:").waitFor();
   await page.getByLabel("Name").fill("Phone Slice QA");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("What do you need help with?").fill("Please verify my saved Phone & 411 setup context.");
@@ -132,9 +140,13 @@ async function post(request, route, data) {
 
   const progressAfter = await context.request.get(`${BASE}/api/member/progress`);
   const progressJson = await progressAfter.json();
-  const doneSignal = (progressJson.signals || []).find((item) => item.signal_type === "fix_done");
-  const doneKeys = JSON.parse(doneSignal && doneSignal.selected_keys || "[]");
-  if (!doneKeys.includes("phones")) throw new Error("Validated completion did not persist to readiness state.");
+  const phoneFix = (progressJson.fixes || []).find((item) => item.fix_key === "phones");
+  if (phoneFix?.status !== "done") throw new Error("Validated completion did not persist to normalized readiness state.");
+  const readinessAfter = await dashboardReadiness(page);
+  if (readinessAfter <= readinessBefore) {
+    throw new Error(`Phone completion did not raise numeric readiness: ${readinessBefore} -> ${readinessAfter}`);
+  }
+  await page.getByRole("link", { name: /Continue Phone & 411 Fix/i }).waitFor();
 
   console.log(`PASS: isolated phone vertical slice completed for ${email}.`);
   await browser.close();

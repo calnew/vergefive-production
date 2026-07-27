@@ -107,6 +107,7 @@ export type PlatformData = {
   readiness: Readiness;
   pageProgress: { percent: number; visitedCount: number };
   lessonProgress: Record<string, number[]>;
+  resume: { pagePath: string; pageTitle: string; breadcrumb: string; updatedAt: string } | null;
 };
 
 function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
@@ -119,20 +120,12 @@ function parseJson(value: unknown, fallback: Record<string, unknown> = {}) {
 }
 
 async function safeFirst(env: D1Env, sql: string, ...bindings: unknown[]) {
-  try {
-    return await env.DB.prepare(sql).bind(...bindings).first<D1Row>();
-  } catch {
-    return null;
-  }
+  return await env.DB.prepare(sql).bind(...bindings).first<D1Row>();
 }
 
 async function safeAll(env: D1Env, sql: string, ...bindings: unknown[]) {
-  try {
-    const { results } = await env.DB.prepare(sql).bind(...bindings).all<D1Row>();
-    return results ?? [];
-  } catch {
-    return [];
-  }
+  const { results } = await env.DB.prepare(sql).bind(...bindings).all<D1Row>();
+  return results ?? [];
 }
 
 function parseKeys(value: unknown): string[] {
@@ -228,11 +221,13 @@ export async function getPlatformData(): Promise<PlatformData> {
   };
   const allowed = !!auth.active;
 
-  const [profile, audit, signalRows, progressRows] = await Promise.all([
+  const [profile, audit, signalRows, progressRows, resumeRow, fixStatusRows] = await Promise.all([
     safeFirst(env, "select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1", auth.user.id),
     safeFirst(env, "select id, business_name, score, label, result_json, created_at from visibility_audits where user_id = ? order by created_at desc limit 1", auth.user.id),
     safeAll(env, "select signal_type, selected_keys from readiness_signals where user_id = ? and (signal_type in ('fix_done','fix_progress') or signal_type like 'selected_option:%')", auth.user.id),
     safeAll(env, "select page_path, completed_indexes from lesson_progress where user_id = ?", auth.user.id),
+    safeFirst(env, "select page_path, page_title, breadcrumb, updated_at from resume_locations where user_id = ? limit 1", auth.user.id),
+    safeAll(env, "select fix_key, status from member_fix_status where user_id = ?", auth.user.id),
   ]);
 
   const doneKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys);
@@ -251,7 +246,12 @@ export async function getPlatformData(): Promise<PlatformData> {
   const scanCleanKeys = audit ? SCANNABLE_ISSUE_KEYS.filter((key) => !auditIssues.some((issue) => issue.key === key)) : [];
   const detectedKeys = detectedKeysFromScanSignals(auditResult.signals);
 
-  const fixStatuses = mergeFixStatuses({ scanCleanKeys, issueStatuses, detectedKeys, progressKeys, doneKeys });
+  const savedStatuses = Object.fromEntries(
+    fixStatusRows
+      .map((row) => [String(row.fix_key || ""), String(row.status || "")])
+      .filter(([key, status]) => !!key && ["todo", "progress", "done"].includes(status)),
+  ) as Record<string, FixStatus>;
+  const fixStatuses = mergeFixStatuses({ scanCleanKeys, issueStatuses, detectedKeys, progressKeys, doneKeys, savedStatuses });
   const readiness = readinessFrom(fixStatuses);
   const visitedCount = progressRows.length;
   const pageProgress = { percent: pageProgressPercent(fixStatuses, visitedCount, programLessons.length), visitedCount };
@@ -264,8 +264,17 @@ export async function getPlatformData(): Promise<PlatformData> {
       lessonProgress[String(row.page_path)] = [];
     }
   }
+  const resumePath = String(resumeRow?.page_path || "");
+  const resume = resumePath.startsWith("/fix/") || resumePath === "/application-tracker/"
+    ? {
+      pagePath: resumePath,
+      pageTitle: String(resumeRow?.page_title || "Continue where you left off"),
+      breadcrumb: String(resumeRow?.breadcrumb || ""),
+      updatedAt: String(resumeRow?.updated_at || ""),
+    }
+    : null;
 
-  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress };
+  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress, resume };
 
   const result = auditResult;
   const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
@@ -289,7 +298,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     accountMatches: matchesFromResult(result),
   };
 
-  return { user, allowed, scan, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress };
+  return { user, allowed, scan, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress, resume };
 }
 
 export function gradeForScore(score: number) {

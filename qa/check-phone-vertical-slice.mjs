@@ -4,6 +4,7 @@ const actions = readFileSync("app/actions/issues.ts", "utf8");
 const fixPage = readFileSync("app/fix/[key]/page.tsx", "utf8");
 const platformData = readFileSync("lib/platform-data.ts", "utf8");
 const supportForm = readFileSync("app/support/support-form.tsx", "utf8");
+const devPreview = readFileSync("app/dev-preview/phones/page.tsx", "utf8");
 const contactApi = readFileSync("functions/api/contact.js", "utf8");
 const progressApi = readFileSync("functions/api/member/progress.js", "utf8");
 const prepareD1 = readFileSync("tools/prepare-dev-d1.mjs", "utf8");
@@ -18,12 +19,15 @@ const checks = [
   ["selected option loaded from D1", platformData.includes("selectedOptions") && platformData.includes("selected_option:%")],
   ["member UI saves option", fixPage.includes("selectFixOption.bind")],
   ["member UI explains completion gate", fixPage.includes("Completion is unlocked only after one setup option")],
-  ["support link carries selected option", fixPage.includes("selectedOption ? `&option=")],
-  ["support form confirms trusted context", supportForm.includes("savedContext") && supportForm.includes("savedOption") && supportForm.includes("sourceRoute")],
+  ["dev preview accepts isolated dev and local QA hosts only", devPreview.includes("vergefive-next-dev.turncomvoice.workers.dev") && devPreview.includes("localhost|127\\.0\\.0\\.1") && devPreview.includes("notFound()")],
+  ["support link does not expose client option context", !fixPage.includes("selectedOption ? `&option=") && !fixPage.includes("&option=${encodeURIComponent(option.name)}")],
+  ["support form confirms only returned trusted context", supportForm.includes("savedContext") && supportForm.includes("savedOption") && !supportForm.includes("sourceRoute")],
   ["support API resolves authenticated context", contactApi.includes("trustedFixContext") && contactApi.includes("selected_option:${fixKey}")],
   ["support API persists fix context", contactApi.includes("fix_key, selected_option") && contactApi.includes("data.selectedOption || ''")],
   ["generic progress API cannot write readiness completion", progressApi.includes("signalType !== 'application_tracker'")],
-  ["progress writes require active membership", progressApi.includes("if (!auth.active)")],
+  ["progress writes require centralized active membership", progressApi.includes("requireActiveMember(context)")],
+  ["normalized fix status prevents shared-array overwrites", actions.includes("member_fix_status") && platformData.includes("fixStatusRows")],
+  ["fresh and existing D1 paths run versioned migrations", prepareD1.includes("MIGRATIONS") && prepareD1.includes("migrationRecorded") && prepareD1.includes("0010_member_fix_status")],
   ["fresh D1 creation is compatible with pinned Wrangler", prepareD1.includes('runWrangler(["d1", "create", DEV_DATABASE_NAME, "--location", "enam"]);') && prepareD1.includes("d1 list after create")],
   ["published shared demo password removed", !readme.includes("VergeFiveDemo123")],
 ];

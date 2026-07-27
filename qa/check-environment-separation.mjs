@@ -31,11 +31,22 @@ if (packageJson.scripts?.["cf:deploy"] || packageJson.scripts?.["cf:upload"]) er
 if (!workflow.includes("node tools/prepare-dev-d1.mjs")) errors.push("CI does not prepare and assert the isolated dev D1.");
 if (!workflow.includes("environment: vergefive-dev")) errors.push("CI does not use the vergefive-dev GitHub Environment.");
 if (!workflow.includes("if: github.event_name != 'pull_request'")) errors.push("PR verification is not separated from deployment.");
-if (!workflow.includes("branches:\n      - scan-first-platform-redesign")) errors.push("Dev deployment is not restricted to the dev integration branch.");
+const exactTriggerContract = [
+  "on:",
+  "  pull_request:",
+  "    branches:",
+  "      - scan-first-platform-redesign",
+  "  push:",
+  "    branches:",
+  "      - scan-first-platform-redesign",
+  "  workflow_dispatch:",
+].join("\n");
+if (!workflow.includes(exactTriggerContract)) errors.push("PR and push triggers are not independently restricted to the dev integration branch.");
 if (!workflow.includes("VF_QA_URL: https://vergefive-next-dev.turncomvoice.workers.dev")) errors.push("Deployed journey QA is not pinned to the isolated dev Worker.");
 if (!prepareD1.includes('process.env.GITHUB_ACTIONS !== "true"')) errors.push("Dev D1 preparation is not restricted to GitHub Actions.");
 if (!prepareD1.includes(PROD_DATABASE_ID)) errors.push("Dev D1 preparation does not explicitly reject the production database.");
 if (!prepareD1.includes('"--remote"') || !prepareD1.includes('"--file=schema/member-progress.sql"')) errors.push("Dev D1 preparation does not apply the canonical schema remotely.");
+if (!prepareD1.includes("MIGRATIONS") || !prepareD1.includes("schema_migrations") || !prepareD1.includes("matchedColumns !== 27")) errors.push("Dev D1 preparation does not enforce the versioned migration ledger and full schema shape.");
 if (!phoneJourney.includes('hostname === "vergefive-next-dev.turncomvoice.workers.dev"')) errors.push("Phone journey QA does not enforce the exact dev hostname.");
 
 const runtimeDdlPattern = /\b(?:create|alter|drop)\s+(?:table|index)\b/i;

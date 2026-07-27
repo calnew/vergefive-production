@@ -61,6 +61,16 @@ export function requireDevStripeTestMode(request, env) {
   }
   return null;
 }
+
+export function requireExplicitDevelopmentStripeTestMode(request, env) {
+  const appEnvironment = String(env.APP_ENVIRONMENT || '').toLowerCase();
+  const requiredMode = String(env.STRIPE_MODE_REQUIRED || '').toLowerCase();
+  const key = String(env.STRIPE_SECRET_KEY || '');
+  if (appEnvironment !== 'development' || requiredMode !== 'test' || !key.startsWith('sk_test_')) {
+    return json({ error: 'This Stripe test action is available only in the isolated development environment with a test-mode key.' }, 403);
+  }
+  return requireDevStripeTestMode(request, env);
+}
 export function encodeForm(obj, prefix) {
   const pairs = [];
   Object.entries(obj || {}).forEach(([key, value]) => {

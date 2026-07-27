@@ -1,5 +1,6 @@
 import { json, normalizeEmail, rateLimit, readJson, requireDb, requireSameOrigin } from '../../_lib/auth.js';
 import { createPasswordReset } from '../../_lib/security.js';
+import { allowDevelopmentDebugLink } from '../../_lib/security.js';
 
 export async function onRequestPost(context) {
   try {
@@ -23,7 +24,7 @@ export async function onRequestPost(context) {
     return json({
       ok: true,
       message: 'If that email is in our system, a password reset link has been sent.',
-      resetUrl: String(context.env.PASSWORD_RESET_DEBUG_LINKS || '').toLowerCase() === 'true' ? (resetUrl && resetUrl.url || resetUrl) : undefined
+      resetUrl: allowDevelopmentDebugLink(context.env, 'PASSWORD_RESET_DEBUG_LINKS') ? (resetUrl && resetUrl.url || resetUrl) : undefined
     });
   } catch (error) {
     console.error('password reset request failed', error && error.message ? error.message : error);

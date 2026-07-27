@@ -1,26 +1,30 @@
-import { cleanLimited, getAuth, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, json, readJson, requireActiveMember, requireSameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestGet(context) {
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const progress = await context.env.DB.prepare('select page_path, completed_indexes, last_opened_at from lesson_progress where user_id = ?').bind(auth.user.id).all();
   const signals = await context.env.DB.prepare('select signal_type, selected_keys, updated_at from readiness_signals where user_id = ?').bind(auth.user.id).all();
+  const fixes = await context.env.DB.prepare('select fix_key, status, updated_at from member_fix_status where user_id = ?').bind(auth.user.id).all();
   const resume = await context.env.DB.prepare('select page_path, page_title, breadcrumb, updated_at from resume_locations where user_id = ?').bind(auth.user.id).first();
-  return json({ progress: progress.results || [], signals: signals.results || [], resume: resume || null });
+  return json({ progress: progress.results || [], signals: signals.results || [], fixes: fixes.results || [], resume: resume || null });
 }
 
 export async function onRequestPut(context) {
   const originError = requireSameOrigin(context);
   if (originError) return originError;
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
-  if (!auth.active) return json({ error: 'Active membership required.' }, 403);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const input = await readJson(context.request);
   const signalType = input.signalType ? cleanLimited(input.signalType, 80) : '';
   if (signalType && signalType !== 'application_tracker') {
     return json({ error: 'This progress signal is managed by a validated server workflow.' }, 400);
   }
   if (input.pagePath) {
+    const pagePath = cleanLimited(input.pagePath, 160);
+    if (!/^\/(?:fix\/[a-z0-9-]+\/|application-tracker\/?)$/i.test(pagePath)) {
+      return json({ error: 'Unsupported progress page.' }, 400);
+    }
     const indexes = Array.isArray(input.completedIndexes)
       ? input.completedIndexes.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item >= 0 && item < 100).slice(0, 100)
       : [];
@@ -30,7 +34,7 @@ export async function onRequestPut(context) {
        on conflict(user_id, page_path) do update set
         completed_indexes = excluded.completed_indexes,
         last_opened_at = datetime("now")`
-    ).bind(auth.user.id, cleanLimited(input.pagePath, 160), JSON.stringify(indexes)).run();
+    ).bind(auth.user.id, pagePath, JSON.stringify(indexes)).run();
     await context.env.DB.prepare(
       `insert into resume_locations (user_id, page_path, page_title, breadcrumb, updated_at)
        values (?, ?, ?, ?, datetime("now"))
@@ -39,7 +43,7 @@ export async function onRequestPut(context) {
         page_title = excluded.page_title,
         breadcrumb = excluded.breadcrumb,
         updated_at = datetime("now")`
-    ).bind(auth.user.id, cleanLimited(input.pagePath, 160), cleanLimited(input.pageTitle, 180), cleanLimited(input.breadcrumb, 180)).run();
+    ).bind(auth.user.id, pagePath, cleanLimited(input.pageTitle, 180), cleanLimited(input.breadcrumb, 180)).run();
   }
   if (signalType) {
     const keys = Array.isArray(input.selectedKeys)

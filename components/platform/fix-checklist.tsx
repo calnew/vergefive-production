@@ -25,6 +25,8 @@ export function FixChecklist({ pagePath, pageTitle, breadcrumb, items, proofItem
   const proofStart = items.length;
   const proofTotal = proofItems.length;
   const proofSaved = proofItems.filter((_, index) => checked.has(proofStart + index)).length;
+  const initialProofPersisted = proofItems.every((_, index) => initialChecked.includes(proofStart + index));
+  const proofPersisted = saveState === "saved" || (saveState === "idle" && initialProofPersisted);
 
   function toggle(index: number) {
     const next = new Set(checked);
@@ -69,12 +71,12 @@ export function FixChecklist({ pagePath, pageTitle, breadcrumb, items, proofItem
           );
         })}
       </div>
-      {proofTotal && proofSaved === proofTotal ? (
-        <div className="mt-4 rounded-2xl bg-ready-surface p-4 text-sm font-bold text-ready">Private proof checklist complete. Verge Five stored only the checkmarks, not your documents.</div>
+      {proofTotal && proofSaved === proofTotal && proofPersisted ? (
+        <div className="mt-4 rounded-2xl bg-ready-surface p-4 text-sm font-bold text-ready" role="status">Private proof checklist complete. Verge Five stored only the checkmarks, not your documents.</div>
       ) : (
         <div className="mt-4 rounded-2xl bg-blue-50 p-4 text-sm font-bold leading-6 text-brand-blue">
           {privateProofHelperText}
-          {proofTotal ? <span className="mt-2 block text-ready">{proofSaved} of {proofTotal} private proof items checked.</span> : null}
+          {proofTotal ? <span className={`mt-2 block ${saveState === "error" ? "text-flagged" : "text-ready"}`}>{proofSaved} of {proofTotal} private proof items checked{proofSaved === proofTotal && !proofPersisted ? ", waiting for a successful save" : ""}.</span> : null}
         </div>
       )}
     </div>

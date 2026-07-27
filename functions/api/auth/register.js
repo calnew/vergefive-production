@@ -1,5 +1,5 @@
 import { cleanLimited, createSession, hashPassword, json, normalizeEmail, rateLimit, readJson, requireDb, requireSameOrigin, validatePasswordPolicy } from '../../_lib/auth.js';
-import { createEmailVerification, verifyTurnstile } from '../../_lib/security.js';
+import { allowDevelopmentDebugLink, createEmailVerification, verifyTurnstile } from '../../_lib/security.js';
 import { attachReferralToUser, normalizeAffiliateCode } from '../../_lib/affiliates.js';
 
 export async function onRequestPost(context) {
@@ -39,17 +39,21 @@ export async function onRequestPost(context) {
     const affiliateCode = normalizeAffiliateCode(input.affiliateCode || input.ref || '');
     if (affiliateCode) await attachReferralToUser(context.env, id, affiliateCode, context.request);
     const verificationUrl = await createEmailVerification(context.env, id, email, context.request);
-    const cookie = await createSession(context.env, id, context.request);
+    const verificationRequired = String(context.env.REQUIRE_EMAIL_VERIFICATION || '').toLowerCase() === 'true';
+    const cookie = verificationRequired ? '' : await createSession(context.env, id, context.request);
+    const debugVerificationUrl = allowDevelopmentDebugLink(context.env, 'EMAIL_VERIFICATION_DEBUG_LINKS')
+      ? verificationUrl
+      : undefined;
     return json({
       ok: true,
       user: { id, email, name, emailVerified: false },
       membership: { status: 'trial', currentPeriodEnd: trialEndsAt, trialDays },
       emailVerification: {
-        required: String(context.env.REQUIRE_EMAIL_VERIFICATION || '').toLowerCase() === 'true',
+        required: verificationRequired,
         emailProviderConfigured: !!(context.env.RESEND_API_KEY && context.env.EMAIL_FROM),
-        verificationUrl: context.env.RESEND_API_KEY ? undefined : verificationUrl
+        verificationUrl: debugVerificationUrl
       }
-    }, 200, { 'set-cookie': cookie });
+    }, 200, cookie ? { 'set-cookie': cookie } : {});
   } catch (error) {
     console.error('register failed', error && error.message ? error.message : error);
     return json({ error: 'Unable to create account.' }, 500);

@@ -18,7 +18,6 @@ export function SupportForm() {
   const [loading, setLoading] = useState(false);
   const topic = topicLabel(params.get("topic"));
   const fixKey = params.get("from") === "phones" ? "phones" : "";
-  const sourceRoute = fixKey ? `/fix/${fixKey}/` : "";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,12 +55,6 @@ export function SupportForm() {
       <CardContent className="p-6 md:p-8">
         <form className="grid gap-4" onSubmit={onSubmit}>
           <input className="hidden" name="company" tabIndex={-1} autoComplete="off" />
-          {fixKey ? (
-            <div className="rounded-2xl border border-vfBorder bg-surface-muted p-4 text-sm leading-6 text-vfText-body">
-              <p><span className="font-bold text-vfText-strong">Fix area:</span> {fixKey}</p>
-              <p><span className="font-bold text-vfText-strong">Page:</span> {sourceRoute}</p>
-            </div>
-          ) : null}
           <label className="grid gap-2 text-sm font-bold text-vfText-strong">
             Name
             <input className="h-12 rounded-xl border border-vfBorder bg-white px-4 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100" name="name" required />
@@ -78,7 +71,7 @@ export function SupportForm() {
             What do you need help with?
             <textarea className="min-h-40 rounded-2xl border border-vfBorder bg-white px-4 py-3 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100" name="message" required placeholder="Tell us what you are trying to do, what page you are on, and what should happen next." />
           </label>
-          {status ? <p className={`rounded-xl p-3 text-sm font-bold ${status.tone === "ready" ? "bg-ready-surface text-ready" : "bg-flagged-surface text-flagged"}`}>{status.message}</p> : null}
+          {status ? <p className={`rounded-xl p-3 text-sm font-bold ${status.tone === "ready" ? "bg-ready-surface text-ready" : "bg-flagged-surface text-flagged"}`} role={status.tone === "ready" ? "status" : "alert"} aria-live={status.tone === "ready" ? "polite" : "assertive"}>{status.message}</p> : null}
           <Button type="submit" disabled={loading}>{loading ? "Sending..." : "Send support request"}</Button>
         </form>
       </CardContent>

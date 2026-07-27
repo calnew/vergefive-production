@@ -69,17 +69,23 @@ export async function rateLimit(env, key, options = {}) {
   if (!env.DB) return { ok: true };
   const limit = Number(options.limit || 8);
   const windowSeconds = Number(options.windowSeconds || 900);
-  const now = Date.now();
-  const resetAt = new Date(now + windowSeconds * 1000).toISOString();
-  const row = await env.DB.prepare('select count, reset_at from rate_limits where bucket = ?').bind(key).first();
-  const expired = !row || Date.parse(row.reset_at) <= now;
-  const nextCount = expired ? 1 : Number(row.count || 0) + 1;
-  await env.DB.prepare(
+  const resetAt = new Date(Date.now() + windowSeconds * 1000).toISOString();
+  const row = await env.DB.prepare(
     `insert into rate_limits (bucket, count, reset_at, updated_at)
-     values (?, ?, ?, datetime("now"))
-     on conflict(bucket) do update set count = excluded.count, reset_at = excluded.reset_at, updated_at = datetime("now")`
-  ).bind(key, nextCount, expired ? resetAt : row.reset_at).run();
-  if (nextCount > limit) {
+     values (?, 1, ?, datetime("now"))
+     on conflict(bucket) do update set
+       count = case
+         when julianday(rate_limits.reset_at) <= julianday('now') then 1
+         else rate_limits.count + 1
+       end,
+       reset_at = case
+         when julianday(rate_limits.reset_at) <= julianday('now') then excluded.reset_at
+         else rate_limits.reset_at
+       end,
+       updated_at = datetime("now")
+     returning count, reset_at`
+  ).bind(key, resetAt).first();
+  if (Number(row && row.count || 0) > limit) {
     return { ok: false, response: json({ error: 'Too many attempts. Please wait and try again.' }, 429) };
   }
   return { ok: true };
@@ -248,6 +254,15 @@ export function isActiveMembership(status, currentPeriodEnd = '') {
   const normalized = String(status || '').toLowerCase();
   if (normalized === 'trial') return !isTrialExpired(normalized, currentPeriodEnd);
   return ['active', 'trialing', 'lifetime', 'paid'].includes(normalized);
+}
+
+export async function requireActiveMember(context) {
+  const auth = context.data && context.data.auth
+    ? context.data.auth
+    : await getAuth(context.request, context.env);
+  if (!auth) return { auth: null, response: json({ error: 'Login required.' }, 401) };
+  if (!auth.active) return { auth: null, response: json({ error: 'Active membership required.' }, 403) };
+  return { auth, response: null };
 }
 
 export function requireDb(env) {

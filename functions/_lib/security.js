@@ -1,4 +1,9 @@
-import { clean, json } from './auth.js';
+import { clean, json, sha256Hex } from './auth.js';
+
+export function allowDevelopmentDebugLink(env, flagName) {
+  return String(env.APP_ENVIRONMENT || '').toLowerCase() === 'development'
+    && String(env[flagName] || '').toLowerCase() === 'true';
+}
 
 export async function verifyTurnstile(context, token) {
   if (!context.env.TURNSTILE_SECRET_KEY) return { ok: true, skipped: true };
@@ -21,11 +26,17 @@ export async function verifyTurnstile(context, token) {
 
 export async function createEmailVerification(env, userId, email, request) {
   const token = crypto.randomUUID() + '-' + crypto.randomUUID();
+  const tokenHash = await sha256Hex(token);
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString();
+  await env.DB.prepare(
+    `update email_verification_tokens
+     set consumed_at = datetime('now')
+     where user_id = ? and consumed_at is null`,
+  ).bind(userId).run();
   await env.DB.prepare(
     `insert into email_verification_tokens (id, user_id, token, email, expires_at, created_at)
      values (?, ?, ?, ?, ?, datetime("now"))`
-  ).bind(crypto.randomUUID(), userId, token, email, expiresAt).run();
+  ).bind(crypto.randomUUID(), userId, tokenHash, email, expiresAt).run();
   const origin = clean(env.SITE_URL) || new URL(request.url).origin;
   const url = `${origin}/verify-email/?token=${encodeURIComponent(token)}`;
   await sendVerificationEmail(env, email, url);
@@ -53,11 +64,17 @@ export async function sendVerificationEmail(env, email, url) {
 
 export async function createPasswordReset(env, userId, email, request) {
   const token = crypto.randomUUID() + '-' + crypto.randomUUID();
+  const tokenHash = await sha256Hex(token);
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60).toISOString();
+  await env.DB.prepare(
+    `update password_reset_tokens
+     set consumed_at = datetime('now')
+     where user_id = ? and consumed_at is null`,
+  ).bind(userId).run();
   await env.DB.prepare(
     `insert into password_reset_tokens (id, user_id, token, email, expires_at, created_at)
      values (?, ?, ?, ?, ?, datetime("now"))`
-  ).bind(crypto.randomUUID(), userId, token, email, expiresAt).run();
+  ).bind(crypto.randomUUID(), userId, tokenHash, email, expiresAt).run();
   const origin = clean(env.SITE_URL) || new URL(request.url).origin;
   const url = `${origin}/reset-password/?token=${encodeURIComponent(token)}`;
   const emailResult = await sendAdminEmail(env, email, 'Set your Verge Five password', `Use this secure link to set or reset your Verge Five password:\n\n${url}\n\nThis link expires in 60 minutes.`);

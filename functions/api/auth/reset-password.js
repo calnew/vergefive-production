@@ -1,4 +1,4 @@
-import { expiredSessionCookie, hashPassword, json, rateLimit, readJson, requireDb, requireSameOrigin, validatePasswordPolicy } from '../../_lib/auth.js';
+import { expiredSessionCookie, hashPassword, json, rateLimit, readJson, requireDb, requireSameOrigin, sha256Hex, validatePasswordPolicy } from '../../_lib/auth.js';
 
 export async function onRequestPost(context) {
   try {
@@ -14,12 +14,13 @@ export async function onRequestPost(context) {
     if (!token) return json({ error: 'Password reset token is required.' }, 400);
     const passwordError = validatePasswordPolicy(password);
     if (passwordError) return json({ error: passwordError }, 400);
+    const tokenHash = await sha256Hex(token);
 
     const tokenRow = await context.env.DB.prepare(
       `select * from password_reset_tokens
-       where token = ?
+       where token in (?, ?)
        limit 1`
-    ).bind(token).first();
+    ).bind(tokenHash, token).first();
     if (!tokenRow) return json({ error: 'Password reset link is invalid or expired.' }, 400);
     if (tokenRow.consumed_at) {
       return json({ error: 'This password reset link has already been used. Try logging in with the new password or request another reset link.' }, 400);

@@ -26,6 +26,16 @@ async function saveSignalKeys(env: D1Env, userId: string, signalType: string, ke
   ).bind(userId, signalType, JSON.stringify(keys.slice(0, 100))).run();
 }
 
+async function saveFixStatus(env: D1Env, userId: string, key: string, status: FixStatus) {
+  await env.DB.prepare(
+    `insert into member_fix_status (user_id, fix_key, status, updated_at)
+     values (?, ?, ?, datetime('now'))
+     on conflict(user_id, fix_key) do update set
+       status = excluded.status,
+       updated_at = datetime('now')`,
+  ).bind(userId, key, status).run();
+}
+
 function selectedOptionSignalType(key: string) {
   return `selected_option:${key}`;
 }
@@ -60,14 +70,13 @@ export async function selectFixOption(key: string, optionName: string, redirectT
   const userId = auth.user.id;
 
   await saveSignalKeys(env, userId, selectedOptionSignalType(content.key), [option.name]);
-
-  const { results: signalRows = [] } = await env.DB.prepare(
-    "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')"
-  ).bind(userId).all<{ signal_type: string; selected_keys: string }>();
-  const doneKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys));
-  const progressKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys));
-  if (!doneKeys.has(content.key)) progressKeys.add(content.key);
-  await saveSignalKeys(env, userId, "fix_progress", [...progressKeys]);
+  await env.DB.prepare(
+    `insert into member_fix_status (user_id, fix_key, status, updated_at)
+     values (?, ?, 'progress', datetime('now'))
+     on conflict(user_id, fix_key) do update set
+       status = case when member_fix_status.status = 'done' then 'done' else 'progress' end,
+       updated_at = datetime('now')`,
+  ).bind(userId, content.key).run();
 
   revalidatePath("/dashboard/");
   revalidatePath("/fix-list/");
@@ -90,18 +99,7 @@ export async function updateFixStatus(key: string, status: FixStatus, redirectTo
     if (blocker) redirect(`/fix/${content.key}/?completion=${blocker}#${blocker === "option-required" ? "vf-options" : "proof-checklist"}`);
   }
 
-  const { results: signalRows = [] } = await env.DB.prepare(
-    "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')"
-  ).bind(userId).all<{ signal_type: string; selected_keys: string }>();
-
-  const doneKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys));
-  const progressKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys));
-  doneKeys.delete(content.key);
-  progressKeys.delete(content.key);
-  if (status === "done") doneKeys.add(content.key);
-  if (status === "progress") progressKeys.add(content.key);
-  await saveSignalKeys(env, userId, "fix_done", [...doneKeys]);
-  await saveSignalKeys(env, userId, "fix_progress", [...progressKeys]);
+  await saveFixStatus(env, userId, content.key, status);
 
   revalidatePath("/dashboard/");
   revalidatePath("/fix-list/");

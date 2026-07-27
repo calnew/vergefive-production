@@ -7,12 +7,14 @@ import { Button, Card, CardContent } from "@/components/ui";
 
 export function SignupForm({ plan = "self-serve", billing = "yearly", canceled = false }: { plan?: string; billing?: string; canceled?: boolean }) {
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState(billing === "monthly" ? "monthly" : "yearly");
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setNotice("");
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
@@ -37,6 +39,11 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
     }
 
     setLoading(false);
+    if (payload.emailVerification?.required) {
+      setNotice("Account created. Check your email and verify the address before logging in and continuing to checkout.");
+      event.currentTarget.reset();
+      return;
+    }
 
     window.location.href = `/checkout?plan=${encodeURIComponent(plan)}&billing=${encodeURIComponent(selectedBilling)}`;
   }
@@ -88,6 +95,7 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
             </label>
           ) : null}
           {error ? <p className="rounded-xl bg-flagged-surface px-4 py-3 text-sm font-bold text-flagged">{error}</p> : null}
+          {notice ? <p className="rounded-xl bg-ready-surface px-4 py-3 text-sm font-bold text-ready" role="status" aria-live="polite">{notice}</p> : null}
           <Button type="submit" disabled={loading}>{loading ? "Creating account..." : "Continue to secure checkout"}</Button>
         </form>
         <p className="mt-6 text-sm text-vfText-body">

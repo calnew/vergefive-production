@@ -1,6 +1,11 @@
 -- Verge Five member progress database schema for Cloudflare D1.
 -- This schema stores progress and reports without storing proprietary lesson content.
 
+create table if not exists schema_migrations (
+  id text primary key,
+  applied_at text not null default (datetime('now'))
+);
+
 create table if not exists users (
   id text primary key,
   email text not null unique,
@@ -110,7 +115,22 @@ create table if not exists affiliate_invoice_events (
 create table if not exists stripe_webhook_events (
   id text primary key,
   event_type text,
+  status text not null default 'processing',
+  attempts integer not null default 1,
+  updated_at text not null default (datetime('now')),
+  completed_at text,
+  last_error text,
   created_at text not null default (datetime('now'))
+);
+
+create table if not exists checkout_access_events (
+  session_id text primary key,
+  user_id text references users(id) on delete set null,
+  status text not null default 'processing',
+  attempts integer not null default 1,
+  created_at text not null default (datetime('now')),
+  updated_at text not null default (datetime('now')),
+  completed_at text
 );
 
 create table if not exists rate_limits (
@@ -205,6 +225,14 @@ create table if not exists member_readiness_locks (
   updated_at text not null default (datetime('now'))
 );
 
+create table if not exists member_fix_status (
+  user_id text not null references users(id) on delete cascade,
+  fix_key text not null,
+  status text not null default 'todo' check (status in ('todo', 'progress', 'done')),
+  updated_at text not null default (datetime('now')),
+  primary key (user_id, fix_key)
+);
+
 create table if not exists member_preferences (
   user_id text not null references users(id) on delete cascade,
   preference_key text not null,
@@ -267,6 +295,7 @@ create table if not exists support_requests (
 
 create index if not exists idx_lesson_progress_user on lesson_progress(user_id);
 create index if not exists idx_readiness_signals_user on readiness_signals(user_id);
+create index if not exists idx_member_fix_status_user on member_fix_status(user_id, status);
 create index if not exists idx_report_snapshots_user on report_snapshots(user_id, created_at);
 create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at);
 create index if not exists idx_member_access_events_user_time on member_access_events(user_id, created_at);
@@ -276,6 +305,7 @@ create index if not exists idx_support_requests_user on support_requests(user_id
 create index if not exists idx_sessions_token_hash on sessions(token_hash);
 create index if not exists idx_sessions_user on sessions(user_id);
 create index if not exists idx_users_stripe_customer on users(stripe_customer_id);
+create index if not exists idx_users_guest_scan_age on users(auth_provider, created_at);
 create index if not exists idx_email_verification_token on email_verification_tokens(token);
 create index if not exists idx_password_reset_token on password_reset_tokens(token);
 create index if not exists idx_affiliates_code on affiliates(code);

@@ -23,10 +23,11 @@
 | R2 | Not bound in slice 1 | Existing production assets remain untouched |
 | URL | `vergefive-next-dev.turncomvoice.workers.dev` | Existing Verge Five public domains |
 
-The committed dev Worker config intentionally contains an invalid D1 placeholder. GitHub Actions resolves or creates `vergefive-members-dev`, rejects the production D1 ID, applies the additive D1 schema, and only then builds and deploys the dev Worker.
+The committed dev Worker config intentionally contains an invalid D1 placeholder. GitHub Actions resolves or creates `vergefive-members-dev`, rejects the production D1 ID, applies the additive D1 schema and every required versioned migration, verifies the resulting 27-column schema shape, and only then builds and deploys the dev Worker.
 
-The schema file is the only D1 schema owner. Runtime request handlers must not
-create or alter tables.
+The base schema and `schema/migrations/*.sql` are the only D1 schema owners.
+Applied migrations are recorded in `schema_migrations`. Runtime request handlers
+must not create or alter tables.
 
 ## Release boundaries
 
@@ -34,6 +35,13 @@ create or alter tables.
 - Do not run D1 writes against `vergefive-members`.
 - Do not copy production member data, Stripe secrets, or private assets into dev.
 - The first vertical slice stores only dev QA data in the isolated dev D1.
+- Member endpoints require both an authenticated session and an active
+  entitlement. Public scan writes are same-origin, size-bounded, rate-limited,
+  and cleaned up on a seven-day guest-data schedule.
+- Stripe webhook and checkout completion events use retryable processing records;
+  only product-bound Verge Five self-serve subscription events can grant access.
+- Test-coupon creation and debug authentication links are restricted to an
+  explicitly configured development environment.
 - Production promotion requires Bill's explicit approval for the exact release-candidate SHA and target environment.
 - R2 uploads are outside slice 1. A separate dev bucket is required before uploads enter scope.
 
@@ -41,4 +49,6 @@ create or alter tables.
 
 - Revert the migration commit or redeploy the previously verified dev SHA through GitHub Actions.
 - Dev D1 changes are additive. Do not delete the dev database as part of application rollback.
+- A code rollback does not remove applied migrations. The application must remain
+  backward-compatible with additive columns and tables.
 - Production code and production D1 are not modified by this milestone.

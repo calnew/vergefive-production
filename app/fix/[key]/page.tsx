@@ -105,7 +105,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                   </form>
                 )}
                 {hasOptions ? <Button asChild variant="outline"><a href="#vf-options">Choose a provider</a></Button> : null}
-                <Button asChild variant="outline"><Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}${selectedOption ? `&option=${encodeURIComponent(selectedOption)}` : ""}`}>Get Help</Link></Button>
+                <Button asChild variant="outline"><Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}`}>Get Help</Link></Button>
                 <Button asChild variant="outline"><Link href="/dashboard/">Back to Dashboard</Link></Button>
               </div>
               {content.key === "phones" && status !== "done" ? (
@@ -189,7 +189,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                               <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} &gt;</a>
                             )
                           ) : (
-                            <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option.name)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help &gt;</Link>
+                            <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help &gt;</Link>
                           )}
                         </div>
                       </div>
