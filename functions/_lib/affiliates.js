@@ -125,30 +125,38 @@ export async function recordPaidInvoice(env, invoice) {
   const subscriptionId = invoice.subscription || '';
   if (!invoiceId || !subscriptionId) return;
   const commission = await env.DB.prepare(
-    `select * from affiliate_commissions
+    `select id from affiliate_commissions
      where stripe_subscription_id = ? and plan = 'monthly' and status != 'paid'
      limit 1`
   ).bind(subscriptionId).first();
   if (!commission) return;
   try {
-    await env.DB.prepare(
-      `insert into affiliate_invoice_events (stripe_invoice_id, commission_id, created_at)
-       values (?, ?, datetime("now"))`
-    ).bind(invoiceId, commission.id).run();
+    await env.DB.batch([
+      env.DB.prepare(
+        `insert into affiliate_invoice_events (stripe_invoice_id, commission_id, created_at)
+         values (?, ?, datetime("now"))`,
+      ).bind(invoiceId, commission.id),
+      env.DB.prepare(
+        `update affiliate_commissions
+         set qualifying_payments_count = qualifying_payments_count + 1,
+             status = case
+               when qualifying_payments_count + 1 >= qualifying_payments_required then 'payable'
+               else 'pending'
+             end,
+             eligible_at = case
+               when qualifying_payments_count + 1 >= qualifying_payments_required
+                 and coalesce(eligible_at, '') = ''
+               then datetime("now")
+               else eligible_at
+             end,
+             updated_at = datetime("now")
+         where id = ?`,
+      ).bind(commission.id),
+    ]);
   } catch (error) {
-    return;
+    if (/unique constraint failed.*affiliate_invoice_events/i.test(String(error && error.message || error))) return;
+    throw error;
   }
-  const nextCount = Math.max(Number(commission.qualifying_payments_count || 0) + 1, 1);
-  const required = Number(commission.qualifying_payments_required || MONTHLY_REQUIRED_PAYMENTS);
-  const status = nextCount >= required ? 'payable' : 'pending';
-  await env.DB.prepare(
-    `update affiliate_commissions
-     set qualifying_payments_count = ?,
-         status = ?,
-         eligible_at = case when ? = 'payable' and coalesce(eligible_at, '') = '' then datetime("now") else eligible_at end,
-         updated_at = datetime("now")
-     where id = ?`
-  ).bind(nextCount, status, status, commission.id).run();
 }
 
 export async function markCommissionPaid(env, commissionId) {

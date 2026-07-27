@@ -43,6 +43,7 @@ async function deleteMemberData(env, userId) {
     'business_profiles',
     'lesson_progress',
     'readiness_signals',
+    'member_fix_status',
     'resume_locations',
     'report_snapshots',
     'visibility_audits',
@@ -195,6 +196,7 @@ export async function onRequestPost(context) {
   if (action === 'clear-progress') {
     await context.env.DB.prepare('delete from lesson_progress where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from readiness_signals where user_id = ?').bind(memberId).run();
+    await context.env.DB.prepare('delete from member_fix_status where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from resume_locations where user_id = ?').bind(memberId).run();
     await logAdminAction(context.env, auth, 'clear-progress', memberId, {});
     return json({ ok: true });

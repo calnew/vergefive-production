@@ -25,7 +25,8 @@ export async function onRequestPost(context) {
     if (session.status !== 'complete' || !['paid', 'no_payment_required'].includes(session.payment_status)) {
       return json({ error: 'Payment has not been confirmed yet. Please wait a moment and try again.' }, 409);
     }
-    if (!isVergeFiveCheckout(session)) {
+    const verifiedPriceId = await verifiedVergeFiveCheckoutPriceId(context.env, session);
+    if (!verifiedPriceId) {
       return json({ error: 'This checkout session does not belong to the Verge Five self-serve membership.' }, 400);
     }
 
@@ -48,7 +49,8 @@ export async function onRequestPost(context) {
         subscriptionId: session.subscription || '',
         status: 'active',
         periodEnd: '',
-        plan: session.metadata && session.metadata.plan || ''
+        plan: session.metadata && session.metadata.plan || '',
+        priceId: verifiedPriceId
       });
 
       const email = await emailForUser(context.env, userId);
@@ -73,13 +75,28 @@ export async function onRequestPost(context) {
   }
 }
 
-function isVergeFiveCheckout(session) {
+function configuredPriceId(env, plan) {
+  return String(plan || '') === 'annual'
+    ? String(env.STRIPE_PRICE_ID_ANNUAL || '')
+    : String(env.STRIPE_PRICE_ID_MONTHLY || env.STRIPE_PRICE_ID || '');
+}
+
+async function verifiedVergeFiveCheckoutPriceId(env, session) {
   const metadata = session && session.metadata || {};
-  return session.mode === 'subscription'
+  const expectedPriceId = configuredPriceId(env, metadata.plan);
+  const lineItems = await stripeGet(env, `/checkout/sessions/${encodeURIComponent(session.id)}/line_items`, { limit: 1 });
+  if (lineItems instanceof Response) return false;
+  const price = lineItems && lineItems.data && lineItems.data[0] && lineItems.data[0].price;
+  const actualPriceId = String(price && (price.id || price) || '');
+  const valid = session.mode === 'subscription'
     && String(session.subscription || '').startsWith('sub_')
     && metadata.product === 'verge-five-membership'
     && metadata.product_plan === 'self-serve'
-    && ['monthly', 'annual'].includes(String(metadata.plan || ''));
+    && ['monthly', 'annual'].includes(String(metadata.plan || ''))
+    && !!expectedPriceId
+    && (!metadata.price_id || String(metadata.price_id) === expectedPriceId)
+    && actualPriceId === expectedPriceId;
+  return valid ? actualPriceId : '';
 }
 
 async function reserveCheckoutAccess(env, sessionId) {
@@ -173,16 +190,25 @@ async function emailForUser(env, userId) {
 async function upsertMembership(env, data) {
   await env.DB.prepare(
     `insert into memberships
-      (user_id, status, stripe_customer_id, stripe_subscription_id, current_period_end, plan, updated_at, created_at)
-     values (?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))
+      (user_id, status, stripe_customer_id, stripe_subscription_id, stripe_price_id, current_period_end, plan, updated_at, created_at)
+     values (?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))
      on conflict(user_id) do update set
       status = excluded.status,
       stripe_customer_id = coalesce(nullif(excluded.stripe_customer_id, ''), memberships.stripe_customer_id),
       stripe_subscription_id = coalesce(nullif(excluded.stripe_subscription_id, ''), memberships.stripe_subscription_id),
+      stripe_price_id = coalesce(nullif(excluded.stripe_price_id, ''), memberships.stripe_price_id),
       current_period_end = coalesce(nullif(excluded.current_period_end, ''), memberships.current_period_end),
       plan = coalesce(nullif(excluded.plan, ''), memberships.plan),
       updated_at = datetime("now")`
-  ).bind(data.userId, data.status, data.customerId || '', data.subscriptionId || '', data.periodEnd || '', data.plan || '').run();
+  ).bind(
+    data.userId,
+    data.status,
+    data.customerId || '',
+    data.subscriptionId || '',
+    data.priceId || '',
+    data.periodEnd || '',
+    data.plan || '',
+  ).run();
   if (data.customerId) {
     await env.DB.prepare('update users set stripe_customer_id = ? where id = ?').bind(data.customerId, data.userId).run();
   }

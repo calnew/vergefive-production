@@ -53,20 +53,20 @@ export default async function ScanResultsPage() {
          from visibility_audits
          where id = ? and user_id = ?
          limit 1`
-      ).bind(latestScanId, allowedUserId).first<Record<string, unknown>>().catch(() => null)
+      ).bind(latestScanId, allowedUserId).first<Record<string, unknown>>()
     : await d1Env.DB.prepare(
         `select id, user_id, business_name, score, label, result_json, created_at
          from visibility_audits
          where user_id = ?
          order by created_at desc
          limit 1`
-      ).bind(allowedUserId).first<Record<string, unknown>>().catch(() => null);
+      ).bind(allowedUserId).first<Record<string, unknown>>();
 
   if (!audit) redirect("/scan");
 
   const profile = await d1Env.DB.prepare(
     "select business_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1"
-  ).bind(allowedUserId).first<Record<string, unknown>>().catch(() => null);
+  ).bind(allowedUserId).first<Record<string, unknown>>();
 
   const result = parseJson(audit.result_json);
   const score = Number(audit.score || result.score || result.readinessScore || 56);

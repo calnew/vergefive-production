@@ -11,15 +11,17 @@ const registration = read("functions/api/auth/register.js");
 const passwordReset = read("functions/api/auth/reset-password.js");
 const emailVerification = read("functions/api/auth/verify-email.js");
 const adminActions = read("functions/api/admin/actions.js");
+const affiliates = read("functions/_lib/affiliates.js");
+const createCheckout = read("functions/api/billing/create-checkout-session.js");
 const checkoutSuccess = read("functions/api/billing/checkout-success.js");
 const webhook = read("functions/api/billing/webhook.js");
+const reports = read("functions/api/member/reports.js");
 const contact = read("functions/api/contact.js");
 const schema = read("schema/member-progress.sql");
 
 const memberHandlers = [
   "functions/api/member/profile.js",
   "functions/api/member/guide.js",
-  "functions/api/member/reports.js",
   "functions/api/member/visibility-audits.js",
   "functions/api/member/progress.js",
 ];
@@ -75,14 +77,42 @@ const checks = [
     checkoutSuccess.includes("metadata.product === 'verge-five-membership'")
       && checkoutSuccess.includes("rateLimit(context.env, `checkout-success:")
       && checkoutSuccess.includes("checkout_access_events")
-      && checkoutSuccess.includes("existing.status === 'completed'"),
+      && checkoutSuccess.includes("existing.status === 'completed'")
+      && checkoutSuccess.includes("/line_items")
+      && checkoutSuccess.includes("actualPriceId === expectedPriceId"),
   ],
   [
     "webhook processing is retryable and product-bound",
     webhook.includes("VERGE_FIVE_PRODUCT")
       && webhook.includes("status === 'completed'")
       && webhook.includes("failEvent")
-      && webhook.includes("last_error"),
+      && webhook.includes("last_error")
+      && webhook.includes("stripeEventModeAllowed")
+      && webhook.includes("event.livemode === false")
+      && webhook.includes("/line_items")
+      && webhook.includes("isConfiguredPlanPrice"),
+  ],
+  [
+    "server checkout metadata and membership state bind to the configured Stripe price",
+    createCheckout.includes("price_id: priceId")
+      && checkoutSuccess.includes("stripe_price_id")
+      && webhook.includes("stripe_price_id"),
+  ],
+  [
+    "affiliate invoice recording and commission increment are atomic",
+    affiliates.includes("env.DB.batch([")
+      && affiliates.includes("qualifying_payments_count = qualifying_payments_count + 1")
+      && affiliates.includes("throw error"),
+  ],
+  [
+    "upgrade-only reports require paid membership",
+    auth.includes("export async function requirePaidMember")
+      && reports.includes("requirePaidMember(context)"),
+  ],
+  [
+    "admin progress reset clears normalized fix state",
+    adminActions.includes("delete from member_fix_status where user_id = ?")
+      && adminActions.includes("'member_fix_status'"),
   ],
   [
     "contact success depends on durable D1 support persistence",

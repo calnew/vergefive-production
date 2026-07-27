@@ -562,6 +562,7 @@ export const buildoutModules: BuildoutModule[] = [
     subtitle: "Review bureau profiles and the full readiness criteria.",
     sections: [
       { key: "bureaus", title: "Business credit bureaus", purpose: "Understand bureau profiles before expecting reporting.", fixKeys: ["bureaus"] },
+      { key: "comparable-credit", title: "Comparable credit", purpose: "Use realistic account sequencing before moving into stronger accounts.", fixKeys: ["criteria"] },
       { key: "criteria", title: "12-point criteria", purpose: "The full readiness check before broader applications.", fixKeys: ["criteria"] },
     ],
   },
@@ -578,7 +579,8 @@ export const buildoutModules: BuildoutModule[] = [
     title: "Cards + Funding",
     subtitle: "Review cards and funding only when the foundation supports them.",
     sections: [
-      { key: "cards-funding", title: "Cards & funding paths", purpose: "Move into card and funding categories when signals support it.", fixKeys: [], href: "/account-matches/" },
+      { key: "cards", title: "Business cards", purpose: "Review secured, traditional, and corporate card paths only when the signals support them.", fixKeys: [], href: "/fix/cards/" },
+      { key: "funding", title: "Funding readiness", purpose: "Match documentation, banking, revenue, and timing before funding conversations.", fixKeys: [], href: "/fix/funding/" },
     ],
   },
 ];

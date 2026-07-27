@@ -29,3 +29,19 @@ create table stripe_webhook_events (
   event_type text,
   created_at text not null default (datetime('now'))
 );
+
+create table support_requests (
+  id text primary key,
+  user_id text references users(id) on delete set null,
+  type text not null,
+  severity text not null default 'Normal',
+  name text,
+  email text,
+  page_url text,
+  message text not null,
+  steps text,
+  browser text,
+  source text,
+  status text not null default 'new',
+  created_at text not null default (datetime('now'))
+);

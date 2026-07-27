@@ -265,6 +265,19 @@ export async function requireActiveMember(context) {
   return { auth, response: null };
 }
 
+export async function requirePaidMember(context) {
+  const auth = context.data && context.data.auth
+    ? context.data.auth
+    : await getAuth(context.request, context.env);
+  if (!auth) return { auth: null, response: json({ error: 'Login required.' }, 401) };
+  if (await isAdminUser(auth.user.email, context.env)) return { auth, response: null };
+  const status = String(auth.membership && auth.membership.status || '').toLowerCase();
+  if (!['active', 'trialing', 'lifetime', 'paid'].includes(status)) {
+    return { auth: null, response: json({ error: 'Upgrade to unlock this member tool.' }, 402) };
+  }
+  return { auth, response: null };
+}
+
 export function requireDb(env) {
   if (!env.DB) throw new Error('D1 binding DB is not configured.');
 }

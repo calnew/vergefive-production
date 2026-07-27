@@ -39,7 +39,8 @@ must not create or alter tables.
   entitlement. Public scan writes are same-origin, size-bounded, rate-limited,
   and cleaned up on a seven-day guest-data schedule.
 - Stripe webhook and checkout completion events use retryable processing records;
-  only product-bound Verge Five self-serve subscription events can grant access.
+  only environment-matched Verge Five self-serve subscription events whose
+  actual line-item price matches a configured plan can grant access.
 - Test-coupon creation and debug authentication links are restricted to an
   explicitly configured development environment.
 - Production promotion requires Bill's explicit approval for the exact release-candidate SHA and target environment.
@@ -47,7 +48,9 @@ must not create or alter tables.
 
 ## Rollback
 
-- Revert the migration commit or redeploy the previously verified dev SHA through GitHub Actions.
+- Before the first dev deployment is verified, revert to `d04a6fe` as the known
+  code-only rollback candidate. After deployment, record the exact verified dev
+  SHA and workflow run here before accepting the slice.
 - Dev D1 changes are additive. Do not delete the dev database as part of application rollback.
 - A code rollback does not remove applied migrations. The application must remain
   backward-compatible with additive columns and tables.

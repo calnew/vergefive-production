@@ -146,7 +146,8 @@ async function dashboardReadiness(page) {
   if (readinessAfter <= readinessBefore) {
     throw new Error(`Phone completion did not raise numeric readiness: ${readinessBefore} -> ${readinessAfter}`);
   }
-  await page.getByRole("link", { name: /Continue Phone & 411 Fix/i }).waitFor();
+  const staleResume = page.getByRole("link", { name: /Continue Phone & 411 Fix/i });
+  if (await staleResume.count()) throw new Error("Dashboard still resumes the completed Phone & 411 fix.");
 
   console.log(`PASS: isolated phone vertical slice completed for ${email}.`);
   await browser.close();

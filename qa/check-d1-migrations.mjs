@@ -19,7 +19,24 @@ const migrationFiles = [
   "0008_checkout_access_events.sql",
   "0009_guest_scan_age_index.sql",
   "0010_member_fix_status.sql",
+  "0011_support_requests_fix_key.sql",
+  "0012_support_requests_selected_option.sql",
 ];
+
+const migrationReadiness = {
+  "0001_memberships_stripe_price_id.sql": "(select count(*) from pragma_table_info('memberships') where name = 'stripe_price_id')",
+  "0002_memberships_plan.sql": "(select count(*) from pragma_table_info('memberships') where name = 'plan')",
+  "0003_webhook_status.sql": "(select count(*) from pragma_table_info('stripe_webhook_events') where name = 'status')",
+  "0004_webhook_attempts.sql": "(select count(*) from pragma_table_info('stripe_webhook_events') where name = 'attempts')",
+  "0005_webhook_updated_at.sql": "(select count(*) from pragma_table_info('stripe_webhook_events') where name = 'updated_at')",
+  "0006_webhook_completed_at.sql": "(select count(*) from pragma_table_info('stripe_webhook_events') where name = 'completed_at')",
+  "0007_webhook_last_error.sql": "(select count(*) from pragma_table_info('stripe_webhook_events') where name = 'last_error')",
+  "0008_checkout_access_events.sql": "(select count(*) from sqlite_master where type = 'table' and name = 'checkout_access_events')",
+  "0009_guest_scan_age_index.sql": "(select count(*) from sqlite_master where type = 'index' and name = 'idx_users_guest_scan_age')",
+  "0010_member_fix_status.sql": "(select count(*) from sqlite_master where type = 'table' and name = 'member_fix_status')",
+  "0011_support_requests_fix_key.sql": "(select count(*) from pragma_table_info('support_requests') where name = 'fix_key')",
+  "0012_support_requests_selected_option.sql": "(select count(*) from pragma_table_info('support_requests') where name = 'selected_option')",
+};
 
 writeFileSync(configPath, JSON.stringify({
   name: "vergefive-migration-check",
@@ -63,10 +80,28 @@ function query(command) {
   return JSON.parse(output)?.[0]?.results?.[0] || {};
 }
 
+function readinessSnapshot() {
+  const command = `select ${migrationFiles.map((file, index) => `${migrationReadiness[file]} as m${index}`).join(", ")}`;
+  const row = query(command);
+  return Object.fromEntries(migrationFiles.map((file, index) => [file, Number(row[`m${index}`] || 0) === 1]));
+}
+
+function runConditionalMigrations() {
+  const before = readinessSnapshot();
+  for (const file of migrationFiles.filter((candidate) => !before[candidate])) {
+    executeFile(join("schema", "migrations", file));
+  }
+  const after = readinessSnapshot();
+  for (const file of migrationFiles) {
+    if (!after[file]) throw new Error(`${file} did not produce its required shape.`);
+  }
+}
+
 try {
   executeFile("schema/test-fixtures/pre-migration-core.sql");
   executeFile("schema/member-progress.sql");
-  for (const file of migrationFiles) executeFile(join("schema", "migrations", file));
+  runConditionalMigrations();
+  runConditionalMigrations();
 
   const shapeQuery = [
     "select",
@@ -97,7 +132,7 @@ try {
     if (!source.includes(file)) throw new Error(`Dev D1 preparation does not include ${file}.`);
   }
 
-  console.log("PASS: pre-migration D1 upgrades through every versioned migration to the required 27-column shape.");
+  console.log("PASS: real legacy D1 upgrades idempotently through every versioned migration to the required 27-column shape.");
 } finally {
   const resolvedTemp = resolve(tempRoot);
   if (!resolvedTemp.startsWith(resolve(tmpdir()))) throw new Error(`Refusing to remove unexpected path: ${resolvedTemp}`);

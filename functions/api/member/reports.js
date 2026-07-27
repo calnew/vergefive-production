@@ -1,9 +1,9 @@
-import { cleanLimited, json, readJson, requireActiveMember, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, json, readJson, requirePaidMember, requireSameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestPost(context) {
   const originError = requireSameOrigin(context);
   if (originError) return originError;
-  const { auth, response } = await requireActiveMember(context);
+  const { auth, response } = await requirePaidMember(context);
   if (response) return response;
   const input = await readJson(context.request, 40 * 1024);
   const id = crypto.randomUUID();

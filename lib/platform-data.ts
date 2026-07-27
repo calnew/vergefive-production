@@ -2,7 +2,7 @@
 
 import { getD1RequestAuth, entitlementFromD1, type D1Env } from "@/lib/d1-auth";
 import { detectedKeysFromScanSignals, mergeFixStatuses, pageProgressPercent, readinessFrom, type FixStatus, type Readiness } from "@/lib/readiness";
-import { programLessons } from "@/lib/platform-catalog";
+import { canonicalFixOrder, fixPlaybooks, programLessons } from "@/lib/platform-catalog";
 
 export const issuePointMap: Record<string, number> = {
   phones: 10,
@@ -265,7 +265,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     }
   }
   const resumePath = String(resumeRow?.page_path || "");
-  const resume = resumePath.startsWith("/fix/") || resumePath === "/application-tracker/"
+  let resume = resumePath.startsWith("/fix/") || resumePath === "/application-tracker/"
     ? {
       pagePath: resumePath,
       pageTitle: String(resumeRow?.page_title || "Continue where you left off"),
@@ -273,6 +273,18 @@ export async function getPlatformData(): Promise<PlatformData> {
       updatedAt: String(resumeRow?.updated_at || ""),
     }
     : null;
+  const completedResumeFix = /^\/fix\/([^/]+)\/?$/.exec(resumePath)?.[1];
+  if (completedResumeFix && fixStatuses[completedResumeFix] === "done") {
+    const nextOpenFix = canonicalFixOrder.find((key) => (fixStatuses[key] ?? "todo") !== "done");
+    resume = nextOpenFix
+      ? {
+        pagePath: `/fix/${nextOpenFix}/`,
+        pageTitle: fixPlaybooks[nextOpenFix]?.title ?? "Next open fix",
+        breadcrumb: "Next open fix in your readiness path",
+        updatedAt: String(resumeRow?.updated_at || ""),
+      }
+      : null;
+  }
 
   if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress, resume };
 

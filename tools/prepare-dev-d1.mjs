@@ -19,6 +19,8 @@ const MIGRATIONS = [
   { id: "0008_checkout_access_events", file: "schema/migrations/0008_checkout_access_events.sql", ready: "select count(*) = 1 as ready from sqlite_master where type = 'table' and name = 'checkout_access_events'" },
   { id: "0009_guest_scan_age_index", file: "schema/migrations/0009_guest_scan_age_index.sql", ready: "select count(*) = 1 as ready from sqlite_master where type = 'index' and name = 'idx_users_guest_scan_age'" },
   { id: "0010_member_fix_status", file: "schema/migrations/0010_member_fix_status.sql", ready: "select count(*) = 1 as ready from sqlite_master where type = 'table' and name = 'member_fix_status'" },
+  { id: "0011_support_requests_fix_key", file: "schema/migrations/0011_support_requests_fix_key.sql", ready: "select count(*) = 1 as ready from pragma_table_info('support_requests') where name = 'fix_key'" },
+  { id: "0012_support_requests_selected_option", file: "schema/migrations/0012_support_requests_selected_option.sql", ready: "select count(*) = 1 as ready from pragma_table_info('support_requests') where name = 'selected_option'" },
 ];
 
 if (process.env.GITHUB_ACTIONS !== "true") {
@@ -123,7 +125,8 @@ runWrangler([
 
 for (const migration of MIGRATIONS) {
   if (!/^[a-z0-9_]+$/.test(migration.id)) throw new Error(`Invalid migration id: ${migration.id}`);
-  if (migrationRecorded(migration.id)) continue;
+  const recorded = migrationRecorded(migration.id);
+  if (recorded && migrationShapeReady(migration)) continue;
   if (!migrationShapeReady(migration)) {
     runWrangler([
       "d1",
@@ -139,7 +142,7 @@ for (const migration of MIGRATIONS) {
   if (!migrationShapeReady(migration)) {
     throw new Error(`Migration ${migration.id} did not produce its required schema shape.`);
   }
-  recordMigration(migration.id);
+  if (!recorded) recordMigration(migration.id);
 }
 
 const shapeQuery = [

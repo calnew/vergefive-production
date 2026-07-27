@@ -44,6 +44,12 @@ jobs:
       - name: Verify security contract
         run: npm run check:security
 
+      - name: Verify security behavior
+        run: npm run check:security-behavior
+
+      - name: Verify program catalog consistency
+        run: npm run check:catalog
+
       - name: Verify first vertical slice contract
         run: npm run check:vertical-slice
 
