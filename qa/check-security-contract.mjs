@@ -93,7 +93,9 @@ const checks = [
       && webhook.includes("isConfiguredPlanPrice")
       && webhook.includes("resolveVergeFiveSubscriptionBinding")
       && webhook.includes("userId: String(row.user_id")
-      && webhook.includes("userId: binding.userId"),
+      && webhook.includes("userId: binding.userId")
+      && webhook.includes("configuredPlanForPrice")
+      && webhook.includes("unsupportedEntitlingPrice ? 'invalid_price'"),
   ],
   [
     "server checkout metadata and membership state bind to the configured Stripe price",

@@ -15,6 +15,16 @@ function isConfiguredPlanPrice(env, plan, priceId) {
   return !!expected && String(priceId || '') === expected;
 }
 
+function configuredPlanForPrice(env, priceId) {
+  if (isConfiguredPlanPrice(env, 'monthly', priceId)) return 'monthly';
+  if (isConfiguredPlanPrice(env, 'annual', priceId)) return 'annual';
+  return '';
+}
+
+function subscriptionStatusGrantsAccess(status) {
+  return ['active', 'trialing'].includes(String(status || '').toLowerCase());
+}
+
 function subscriptionPriceId(subscription) {
   const metadataPrice = subscription && subscription.metadata && subscription.metadata.price_id;
   const itemPrice = subscription && subscription.items && subscription.items.data
@@ -181,11 +191,18 @@ async function resolveVergeFiveSubscriptionBinding(env, subscription) {
     'select user_id, plan, stripe_price_id from memberships where stripe_subscription_id = ? limit 1',
   ).bind(id).first();
   if (row) {
-    if (priceId && row.stripe_price_id && String(row.stripe_price_id) !== priceId) return null;
+    const storedPriceId = String(row.stripe_price_id || '');
+    const configuredPlan = configuredPlanForPrice(env, priceId);
+    const priceChanged = !!priceId && !!storedPriceId && storedPriceId !== priceId;
+    const unsupportedEntitlingPrice = !!priceId
+      && !configuredPlan
+      && subscriptionStatusGrantsAccess(subscription && subscription.status)
+      && (!storedPriceId || priceChanged);
     return {
       userId: String(row.user_id || ''),
-      plan: String(row.plan || metadata.plan || ''),
-      priceId: String(row.stripe_price_id || priceId || ''),
+      plan: String(configuredPlan || row.plan || ''),
+      priceId: String(priceId || storedPriceId),
+      status: unsupportedEntitlingPrice ? 'invalid_price' : '',
     };
   }
   const validUnboundSubscription = metadata.product === VERGE_FIVE_PRODUCT
@@ -198,6 +215,7 @@ async function resolveVergeFiveSubscriptionBinding(env, subscription) {
     userId: String(metadata.user_id),
     plan: String(metadata.plan),
     priceId,
+    status: '',
   };
 }
 
@@ -207,7 +225,7 @@ async function handleSubscription(env, subscription, binding) {
     userId: binding.userId,
     customerId: subscription.customer || '',
     subscriptionId: subscription.id || '',
-    status: subscription.status || 'pending',
+    status: binding.status || subscription.status || 'pending',
     periodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : '',
     plan: binding.plan,
     priceId: binding.priceId

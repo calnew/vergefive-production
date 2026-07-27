@@ -245,6 +245,123 @@ assert(legacyMembershipWrite.bindings.includes("legacy-user"), "Legacy subscript
 assert(legacyMembershipWrite.bindings.includes("price_legacy_retired"), "Legacy historical price was not backfilled.");
 assert(legacyMembershipWrite.bindings.includes("canceled"), "Legacy cancellation status was not persisted.");
 
+const switchedDb = subscriptionDb({
+  user_id: "switch-user",
+  plan: "monthly",
+  stripe_price_id: "price_old_monthly",
+});
+const switchedRequest = await signedStripeRequest({
+  id: "evt_bound_configured_price_switch",
+  type: "customer.subscription.updated",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_switched",
+      status: "active",
+      customer: "",
+      current_period_end: 0,
+      metadata: {
+        user_id: "wrong-switch-user",
+        plan: "monthly",
+      },
+      items: { data: [{ price: { id: "price_annual" } }] },
+    },
+  },
+}, webhookSecret);
+const switchedResponse = await handleWebhook({
+  request: switchedRequest,
+  env: {
+    DB: switchedDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(switchedResponse.status === 200, `Configured price switch returned ${switchedResponse.status}.`);
+const switchedMembershipWrite = switchedDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
+assert(switchedMembershipWrite, "Configured price switch did not update membership state.");
+assert(switchedMembershipWrite.bindings.includes("switch-user"), "Configured price switch did not preserve D1 ownership.");
+assert(switchedMembershipWrite.bindings.includes("annual"), "Configured price switch did not derive the new plan.");
+assert(switchedMembershipWrite.bindings.includes("price_annual"), "Configured price switch did not persist the new price.");
+assert(switchedMembershipWrite.bindings.includes("active"), "Configured price switch incorrectly revoked access.");
+assert(!switchedMembershipWrite.bindings.includes("wrong-switch-user"), "Price switch trusted mutable ownership metadata.");
+
+const canceledMismatchDb = subscriptionDb({
+  user_id: "cancel-user",
+  plan: "monthly",
+  stripe_price_id: "price_old_monthly",
+});
+const canceledMismatchRequest = await signedStripeRequest({
+  id: "evt_bound_mismatched_price_cancel",
+  type: "customer.subscription.deleted",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_canceled_mismatch",
+      status: "canceled",
+      customer: "",
+      current_period_end: 0,
+      metadata: {},
+      items: { data: [{ price: { id: "price_unconfigured" } }] },
+    },
+  },
+}, webhookSecret);
+const canceledMismatchResponse = await handleWebhook({
+  request: canceledMismatchRequest,
+  env: {
+    DB: canceledMismatchDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(canceledMismatchResponse.status === 200, `Mismatched-price cancellation returned ${canceledMismatchResponse.status}.`);
+const canceledMismatchWrite = canceledMismatchDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
+assert(canceledMismatchWrite, "Mismatched-price cancellation did not update membership state.");
+assert(canceledMismatchWrite.bindings.includes("cancel-user"), "Mismatched-price cancellation lost D1 ownership.");
+assert(canceledMismatchWrite.bindings.includes("canceled"), "Mismatched-price cancellation left access active.");
+
+const unsupportedActiveDb = subscriptionDb({
+  user_id: "unsupported-user",
+  plan: "monthly",
+  stripe_price_id: "price_old_monthly",
+});
+const unsupportedActiveRequest = await signedStripeRequest({
+  id: "evt_bound_unsupported_active_price",
+  type: "customer.subscription.updated",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_unsupported_active",
+      status: "active",
+      customer: "",
+      current_period_end: 0,
+      metadata: {},
+      items: { data: [{ price: { id: "price_unconfigured" } }] },
+    },
+  },
+}, webhookSecret);
+const unsupportedActiveResponse = await handleWebhook({
+  request: unsupportedActiveRequest,
+  env: {
+    DB: unsupportedActiveDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(unsupportedActiveResponse.status === 200, `Unsupported active price returned ${unsupportedActiveResponse.status}.`);
+const unsupportedActiveWrite = unsupportedActiveDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
+assert(unsupportedActiveWrite, "Unsupported active price did not update membership state.");
+assert(unsupportedActiveWrite.bindings.includes("unsupported-user"), "Unsupported active price lost D1 ownership.");
+assert(unsupportedActiveWrite.bindings.includes("invalid_price"), "Unsupported active price left membership access active.");
+
 const unboundDb = subscriptionDb();
 const unboundRequest = await signedStripeRequest({
   id: "evt_unbound_retired_price",
