@@ -90,7 +90,10 @@ const checks = [
       && webhook.includes("stripeEventModeAllowed")
       && webhook.includes("event.livemode === false")
       && webhook.includes("/line_items")
-      && webhook.includes("isConfiguredPlanPrice"),
+      && webhook.includes("isConfiguredPlanPrice")
+      && webhook.includes("resolveVergeFiveSubscriptionBinding")
+      && webhook.includes("userId: String(row.user_id")
+      && webhook.includes("userId: binding.userId"),
   ],
   [
     "server checkout metadata and membership state bind to the configured Stripe price",

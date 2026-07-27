@@ -60,7 +60,7 @@ function affiliateDb(batchError = null) {
   };
 }
 
-function retiredSubscriptionDb() {
+function subscriptionDb(membership = null) {
   const state = { runs: [] };
   return {
     state,
@@ -73,7 +73,7 @@ function retiredSubscriptionDb() {
             async first() {
               if (sql.includes("from stripe_webhook_events")) return null;
               if (sql.includes("from memberships where stripe_subscription_id")) {
-                return { user_id: "paid-user", plan: "monthly", stripe_price_id: "price_retired" };
+                return membership;
               }
               return null;
             },
@@ -160,7 +160,11 @@ assert(retryError?.message === "D1 write unavailable", "Non-duplicate affiliate 
 const duplicateDb = affiliateDb(new Error("UNIQUE constraint failed: affiliate_invoice_events.stripe_invoice_id"));
 await recordPaidInvoice({ DB: duplicateDb }, { id: "in_duplicate", subscription: "sub_duplicate" });
 
-const retiredDb = retiredSubscriptionDb();
+const retiredDb = subscriptionDb({
+  user_id: "paid-user",
+  plan: "monthly",
+  stripe_price_id: "price_retired",
+});
 const retiredRequest = await signedStripeRequest({
   id: "evt_retired_price_cancel",
   type: "customer.subscription.deleted",
@@ -172,10 +176,10 @@ const retiredRequest = await signedStripeRequest({
       customer: "",
       current_period_end: 0,
       metadata: {
-        user_id: "paid-user",
+        user_id: "wrong-user",
         product: "verge-five-membership",
         product_plan: "self-serve",
-        plan: "monthly",
+        plan: "annual",
         price_id: "price_retired",
       },
       items: { data: [{ price: { id: "price_retired" } }] },
@@ -198,5 +202,86 @@ const retiredMembershipWrite = retiredDb.state.runs.find((entry) => entry.sql.in
 assert(retiredMembershipWrite, "Retired-price cancellation did not update membership state.");
 assert(retiredMembershipWrite.bindings.includes("canceled"), "Retired-price cancellation did not persist canceled status.");
 assert(retiredMembershipWrite.bindings.includes("price_retired"), "Retired-price cancellation did not preserve the stored historical price.");
+assert(retiredMembershipWrite.bindings.includes("paid-user"), "Persisted subscription ownership was not authoritative.");
+assert(retiredMembershipWrite.bindings.includes("monthly"), "Persisted subscription plan was not authoritative.");
+assert(!retiredMembershipWrite.bindings.includes("wrong-user"), "Mutable Stripe metadata overrode persisted subscription ownership.");
+assert(!retiredMembershipWrite.bindings.includes("annual"), "Mutable Stripe metadata overrode the persisted subscription plan.");
 
-console.log("PASS: live dev webhooks fail before D1, paid-report policy is enforced, affiliate invoice updates stay retryable, and retired-price cancellations remain valid.");
+const legacyDb = subscriptionDb({
+  user_id: "legacy-user",
+  plan: "monthly",
+  stripe_price_id: null,
+});
+const legacyRequest = await signedStripeRequest({
+  id: "evt_legacy_retired_price_cancel",
+  type: "customer.subscription.deleted",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_legacy_retired",
+      status: "canceled",
+      customer: "",
+      current_period_end: 0,
+      metadata: {},
+      items: { data: [{ price: { id: "price_legacy_retired" } }] },
+    },
+  },
+}, webhookSecret);
+const legacyResponse = await handleWebhook({
+  request: legacyRequest,
+  env: {
+    DB: legacyDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(legacyResponse.status === 200, `Legacy retired-price cancellation returned ${legacyResponse.status}.`);
+const legacyMembershipWrite = legacyDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
+assert(legacyMembershipWrite, "Legacy subscription without a stored price was not updated.");
+assert(legacyMembershipWrite.bindings.includes("legacy-user"), "Legacy subscription ownership was not preserved.");
+assert(legacyMembershipWrite.bindings.includes("price_legacy_retired"), "Legacy historical price was not backfilled.");
+assert(legacyMembershipWrite.bindings.includes("canceled"), "Legacy cancellation status was not persisted.");
+
+const unboundDb = subscriptionDb();
+const unboundRequest = await signedStripeRequest({
+  id: "evt_unbound_retired_price",
+  type: "customer.subscription.updated",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_unbound_retired",
+      status: "active",
+      customer: "",
+      current_period_end: 0,
+      metadata: {
+        user_id: "unbound-user",
+        product: "verge-five-membership",
+        product_plan: "self-serve",
+        plan: "monthly",
+        price_id: "price_retired",
+      },
+      items: { data: [{ price: { id: "price_retired" } }] },
+    },
+  },
+}, webhookSecret);
+const unboundResponse = await handleWebhook({
+  request: unboundRequest,
+  env: {
+    DB: unboundDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(unboundResponse.status === 200, `Unbound retired-price event returned ${unboundResponse.status}.`);
+assert(
+  !unboundDb.state.runs.some((entry) => entry.sql.includes("insert into memberships")),
+  "An unbound subscription on a retired price mutated membership state.",
+);
+
+console.log("PASS: live dev webhooks fail before D1, paid-report policy is enforced, affiliate invoice updates stay retryable, and persisted subscription bindings remain authoritative across price rotations.");

@@ -138,12 +138,12 @@ export async function onRequestPost(context) {
       await recordPaidInvoice(context.env, object);
     }
     if (
-      (event.type === 'customer.subscription.created'
-        || event.type === 'customer.subscription.updated'
-        || event.type === 'customer.subscription.deleted')
-      && await subscriptionBelongsToVergeFive(context.env, object)
+      event.type === 'customer.subscription.created'
+      || event.type === 'customer.subscription.updated'
+      || event.type === 'customer.subscription.deleted'
     ) {
-      await handleSubscription(context.env, object);
+      const binding = await resolveVergeFiveSubscriptionBinding(context.env, object);
+      if (binding) await handleSubscription(context.env, object, binding);
     }
     if (event.type === 'invoice.payment_failed') {
       await markBySubscription(context.env, object.subscription, 'past_due', '');
@@ -172,39 +172,45 @@ async function handleCheckoutCompleted(env, session, verifiedPriceId) {
   await ensureCommissionForCheckout(env, session);
 }
 
-async function subscriptionBelongsToVergeFive(env, subscription) {
+async function resolveVergeFiveSubscriptionBinding(env, subscription) {
   const metadata = subscription && subscription.metadata || {};
   const priceId = subscriptionPriceId(subscription);
   const id = String(subscription && subscription.id || '');
-  if (!id) return false;
+  if (!id) return null;
   const row = await env.DB.prepare(
     'select user_id, plan, stripe_price_id from memberships where stripe_subscription_id = ? limit 1',
   ).bind(id).first();
   if (row) {
-    if (!priceId) return true;
-    if (row.stripe_price_id) return String(row.stripe_price_id) === priceId;
-    return isConfiguredPlanPrice(env, row.plan || metadata.plan, priceId);
+    if (priceId && row.stripe_price_id && String(row.stripe_price_id) !== priceId) return null;
+    return {
+      userId: String(row.user_id || ''),
+      plan: String(row.plan || metadata.plan || ''),
+      priceId: String(row.stripe_price_id || priceId || ''),
+    };
   }
-  return metadata.product === VERGE_FIVE_PRODUCT
+  const validUnboundSubscription = metadata.product === VERGE_FIVE_PRODUCT
     && metadata.product_plan === 'self-serve'
     && ['monthly', 'annual'].includes(String(metadata.plan || ''))
     && (!metadata.price_id || isConfiguredPlanPrice(env, metadata.plan, metadata.price_id))
     && isConfiguredPlanPrice(env, metadata.plan, priceId);
+  if (!validUnboundSubscription || !metadata.user_id) return null;
+  return {
+    userId: String(metadata.user_id),
+    plan: String(metadata.plan),
+    priceId,
+  };
 }
 
-async function handleSubscription(env, subscription) {
-  const userId = subscription.metadata && subscription.metadata.user_id
-    ? subscription.metadata.user_id
-    : await userIdBySubscription(env, subscription.id);
-  if (!userId) return;
+async function handleSubscription(env, subscription, binding) {
+  if (!binding.userId) return;
   await upsertMembership(env, {
-    userId,
+    userId: binding.userId,
     customerId: subscription.customer || '',
     subscriptionId: subscription.id || '',
     status: subscription.status || 'pending',
     periodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : '',
-    plan: subscription.metadata && subscription.metadata.plan || '',
-    priceId: subscriptionPriceId(subscription)
+    plan: binding.plan,
+    priceId: binding.priceId
   });
 }
 
