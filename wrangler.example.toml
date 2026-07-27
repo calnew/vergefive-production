@@ -1,11 +1,13 @@
-name = "vergefive"
-pages_build_output_dir = "public"
-compatibility_date = "2026-05-13"
+# Reference only. The active migration config is wrangler.jsonc.
+name = "vergefive-next-dev"
+compatibility_date = "2026-06-25"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "vergefive-members"
-database_id = "c9291712-1726-4010-8ff2-f64652c01d59"
+database_name = "vergefive-members-dev"
+database_id = "__DEV_D1_ID_INJECTED_BY_CI__"
 
-[ai]
-binding = "AI"
+[vars]
+APP_ENVIRONMENT = "development"
+DATABASE_ENVIRONMENT = "development"
+STRIPE_MODE_REQUIRED = "test"

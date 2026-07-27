@@ -3,22 +3,6 @@ import { sendAdminEmail } from '../_lib/security.js';
 
 async function storeSupportRequest(env, data) {
   if (!env.DB) return '';
-  await env.DB.prepare(`create table if not exists support_requests (
-    id text primary key,
-    user_id text,
-    type text,
-    severity text,
-    name text,
-    email text,
-    page_url text,
-    message text,
-    steps text,
-    browser text,
-    source text,
-    status text not null default 'new',
-    created_at text not null default (datetime('now'))
-  )`).run();
-  await env.DB.prepare('create index if not exists idx_support_requests_created on support_requests(created_at)').run();
   const id = crypto.randomUUID();
   await env.DB.prepare(
     `insert into support_requests

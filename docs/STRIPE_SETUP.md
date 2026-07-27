@@ -37,36 +37,26 @@ Production vs. Dev naming:
   - `STRIPE_PRICE_ID_ANNUAL`
   - optional `STRIPE_PRICE_ID_MONTHLY` (to force a separate monthly override)
 
-Live deployment rule (do not hardcode secrets in code):
+## GitHub-managed dev configuration
 
-- Cloudflare Pages stores these as encrypted secrets and does not expose values for readback, so set them in each env directly.
-- Required production config is already present on `vergefive` production.
-- Dev preview must be set by running:
+Do not run local Wrangler secret or deployment commands. GitHub Actions is the
+only deployment path.
 
-  - `npx.cmd wrangler pages secret put STRIPE_SECRET_KEY --project-name vergefive --env preview`
-  - `npx.cmd wrangler pages secret put STRIPE_WEBHOOK_SECRET --project-name vergefive --env preview`
-  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID --project-name vergefive --env preview`
-  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID_ANNUAL --project-name vergefive --env preview`
-  - `npx.cmd wrangler pages secret put STRIPE_PRICE_ID_MONTHLY --project-name vergefive --env preview` (optional)
+Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` to the protected
+`vergefive-dev` GitHub environment. Configure the following names on the
+`vergefive-next-dev` Worker through the reviewed dev setup process:
 
-Use live `cs_live_*` or test `cs_test_*` `STRIPE_PRICE_ID*` values as appropriate per your target env; never expose keys client-side.
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_ID`
+- `STRIPE_PRICE_ID_ANNUAL`
+- optional `STRIPE_PRICE_ID_MONTHLY`
+- `RESEND_API_KEY`
+- `EMAIL_FROM`
+- `SITE_URL`
+- `ADMIN_EMAILS`
 
-## Worker dev secret setup
-
-The current Next.js Worker target is `vergefive-next-dev`. Cloudflare Pages production already has the live Stripe/email names, but encrypted secret values cannot be read back or copied out by Wrangler. Add the same names to the Worker explicitly.
-
-For dev/test mode, provide Stripe test-mode values only:
-
-```powershell
-npx.cmd wrangler secret put STRIPE_SECRET_KEY
-npx.cmd wrangler secret put STRIPE_WEBHOOK_SECRET
-npx.cmd wrangler secret put STRIPE_PRICE_ID
-npx.cmd wrangler secret put STRIPE_PRICE_ID_ANNUAL
-npx.cmd wrangler secret put STRIPE_PRICE_ID_MONTHLY
-npx.cmd wrangler secret put RESEND_API_KEY
-npx.cmd wrangler secret put EMAIL_FROM
-npx.cmd wrangler secret put SITE_URL
-npx.cmd wrangler secret put ADMIN_EMAILS
-```
-
-Use `STRIPE_PRICE_ID_MONTHLY` for the monthly test Price, `STRIPE_PRICE_ID_ANNUAL` for the annual test Price, and keep `STRIPE_PRICE_ID` as the optional monthly fallback. Do not put `sk_live_` into the dev Worker.
+Dev accepts Stripe test-mode values only. Never place `sk_live_`, live Price
+IDs, production email routing, or production member data in the dev Worker.
+Production configuration is separate and is changed only through an explicitly
+approved production release.

@@ -30,27 +30,7 @@ export function isAdvancedReadinessPath(pathname) {
 }
 
 export async function ensureReadinessLockSchema(env) {
-  if (!env.DB) return;
-  await env.DB.prepare(`create table if not exists member_access_events (
-    id text primary key,
-    user_id text not null references users(id) on delete cascade,
-    page_path text not null,
-    event_type text not null default 'page_view',
-    created_at text not null default (datetime('now'))
-  )`).run();
-  await env.DB.prepare(`create table if not exists member_readiness_locks (
-    user_id text primary key references users(id) on delete cascade,
-    status text not null default 'clear',
-    reason text,
-    message text,
-    flagged_at text,
-    unlock_after text,
-    admin_unlocked_at text,
-    admin_unlocked_by text,
-    updated_at text not null default (datetime('now'))
-  )`).run();
-  await env.DB.prepare('create index if not exists idx_member_access_events_user_time on member_access_events(user_id, created_at)').run();
-  await env.DB.prepare('create index if not exists idx_member_readiness_locks_status on member_readiness_locks(status, unlock_after)').run();
+  if (!env.DB) throw new Error('D1 binding DB is not configured.');
 }
 
 export async function recordMemberPageAccess(env, userId, pathname) {

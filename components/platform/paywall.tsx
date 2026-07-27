@@ -11,7 +11,7 @@ export function PlatformPaywall({ title = "Unlock the Verge Five platform" }: { 
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-[-0.05em] md:text-6xl">{title}</h1>
           <p className="mt-5 max-w-2xl leading-7 text-[#AEBFD8]">Your free scan shows the score and problem areas. Upgrade to unlock the guided fixes, account matches, full buildout, and downloadable readiness report.</p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes - $297/yr</Link></Button>
+            <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes - $597/yr</Link></Button>
             <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/#pricing">See plans</Link></Button>
           </div>
         </div>

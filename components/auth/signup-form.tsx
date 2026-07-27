@@ -82,8 +82,8 @@ export function SignupForm({ plan = "self-serve", billing = "yearly", canceled =
             <label className="grid gap-2 text-sm font-bold text-vfText-strong">
               Billing period
               <select value={selectedBilling} onChange={(event) => setSelectedBilling(event.target.value)} className="h-12 rounded-xl border border-vfBorder bg-white px-4 font-normal outline-none focus:border-brand-blue focus:ring-2 focus:ring-blue-100">
-                <option value="yearly">Yearly - $297/year</option>
-                <option value="monthly">Monthly - $29/month</option>
+                <option value="yearly">Yearly - $597/year</option>
+                <option value="monthly">Monthly - $7 first month, then $49/month</option>
               </select>
             </label>
           ) : null}

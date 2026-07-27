@@ -49,6 +49,8 @@ create table if not exists memberships (
   status text not null default 'pending',
   stripe_customer_id text,
   stripe_subscription_id text,
+  stripe_price_id text,
+  plan text,
   current_period_end text,
   created_at text not null default (datetime('now')),
   updated_at text not null default (datetime('now'))
@@ -203,12 +205,74 @@ create table if not exists member_readiness_locks (
   updated_at text not null default (datetime('now'))
 );
 
+create table if not exists member_preferences (
+  user_id text not null references users(id) on delete cascade,
+  preference_key text not null,
+  preference_value text not null,
+  updated_at text not null default (datetime('now')),
+  primary key (user_id, preference_key)
+);
+
+create table if not exists legacy_campaigns (
+  id text primary key,
+  name text not null,
+  subject text not null,
+  message text not null,
+  preview_text text,
+  created_at text not null default (datetime('now')),
+  updated_at text not null default (datetime('now'))
+);
+
+create table if not exists legacy_leads (
+  id text primary key,
+  campaign_id text not null references legacy_campaigns(id) on delete cascade,
+  first_name text,
+  last_name text,
+  business_name text,
+  email text not null,
+  phone text,
+  source text,
+  status text not null default 'imported',
+  token text not null unique,
+  email_sent_at text,
+  email_send_count integer not null default 0,
+  email_last_provider_id text,
+  email_last_result text,
+  clicked_at text,
+  click_count integer not null default 0,
+  registered_at text,
+  user_id text references users(id) on delete set null,
+  do_not_contact integer not null default 0,
+  created_at text not null default (datetime('now')),
+  updated_at text not null default (datetime('now'))
+);
+
+create table if not exists support_requests (
+  id text primary key,
+  user_id text references users(id) on delete set null,
+  type text,
+  severity text,
+  name text,
+  email text,
+  page_url text,
+  message text,
+  steps text,
+  browser text,
+  source text,
+  fix_key text,
+  selected_option text,
+  status text not null default 'new',
+  created_at text not null default (datetime('now'))
+);
+
 create index if not exists idx_lesson_progress_user on lesson_progress(user_id);
 create index if not exists idx_readiness_signals_user on readiness_signals(user_id);
 create index if not exists idx_report_snapshots_user on report_snapshots(user_id, created_at);
 create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at);
 create index if not exists idx_member_access_events_user_time on member_access_events(user_id, created_at);
 create index if not exists idx_member_readiness_locks_status on member_readiness_locks(status, unlock_after);
+create index if not exists idx_support_requests_created on support_requests(created_at);
+create index if not exists idx_support_requests_user on support_requests(user_id, created_at);
 create index if not exists idx_sessions_token_hash on sessions(token_hash);
 create index if not exists idx_sessions_user on sessions(user_id);
 create index if not exists idx_users_stripe_customer on users(stripe_customer_id);
@@ -221,6 +285,10 @@ create index if not exists idx_affiliate_commissions_affiliate on affiliate_comm
 create index if not exists idx_affiliate_commissions_subscription on affiliate_commissions(stripe_subscription_id);
 
 create index if not exists idx_rate_limits_reset on rate_limits(reset_at);
+create index if not exists idx_legacy_leads_campaign on legacy_leads(campaign_id, created_at);
+create index if not exists idx_legacy_leads_email on legacy_leads(email);
+create index if not exists idx_legacy_leads_status on legacy_leads(status);
+create index if not exists idx_legacy_leads_token on legacy_leads(token);
 
 create table if not exists admin_notes (
   id text primary key,

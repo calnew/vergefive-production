@@ -1,0 +1,37 @@
+import { readFileSync } from "node:fs";
+
+const actions = readFileSync("app/actions/issues.ts", "utf8");
+const fixPage = readFileSync("app/fix/[key]/page.tsx", "utf8");
+const platformData = readFileSync("lib/platform-data.ts", "utf8");
+const supportForm = readFileSync("app/support/support-form.tsx", "utf8");
+const contactApi = readFileSync("functions/api/contact.js", "utf8");
+const progressApi = readFileSync("functions/api/member/progress.js", "utf8");
+const prepareD1 = readFileSync("tools/prepare-dev-d1.mjs", "utf8");
+const readme = readFileSync("README.md", "utf8");
+
+const checks = [
+  ["selected option server action", actions.includes("export async function selectFixOption")],
+  ["selected option stored per authenticated fix", actions.includes("selected_option:${key}")],
+  ["phone option required before completion", actions.includes('return "option-required"')],
+  ["private proof required before completion", actions.includes('return proofComplete ? null : "proof-required"')],
+  ["scan snapshot remains immutable", !actions.includes("update visibility_audits")],
+  ["selected option loaded from D1", platformData.includes("selectedOptions") && platformData.includes("selected_option:%")],
+  ["member UI saves option", fixPage.includes("selectFixOption.bind")],
+  ["member UI explains completion gate", fixPage.includes("Completion is unlocked only after one setup option")],
+  ["support link carries selected option", fixPage.includes("selectedOption ? `&option=")],
+  ["support form confirms trusted context", supportForm.includes("savedContext") && supportForm.includes("savedOption") && supportForm.includes("sourceRoute")],
+  ["support API resolves authenticated context", contactApi.includes("trustedFixContext") && contactApi.includes("selected_option:${fixKey}")],
+  ["support API persists fix context", contactApi.includes("fix_key, selected_option") && contactApi.includes("data.selectedOption || ''")],
+  ["generic progress API cannot write readiness completion", progressApi.includes("signalType !== 'application_tracker'")],
+  ["progress writes require active membership", progressApi.includes("if (!auth.active)")],
+  ["fresh D1 creation is compatible with pinned Wrangler", prepareD1.includes('runWrangler(["d1", "create", DEV_DATABASE_NAME, "--location", "enam"]);') && prepareD1.includes("d1 list after create")],
+  ["published shared demo password removed", !readme.includes("VergeFiveDemo123")],
+];
+
+const failed = checks.filter(([, passed]) => !passed);
+if (failed.length) {
+  console.error(failed.map(([name]) => `- ${name}`).join("\n"));
+  process.exit(1);
+}
+
+console.log("PASS: Phone & 411 option → proof → completion → support context contract is present and scan history stays immutable.");

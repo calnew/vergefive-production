@@ -14,15 +14,17 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "vergefive-members",
-      "database_id": "c9291712-1726-4010-8ff2-f64652c01d59"
+      "database_name": "vergefive-members-dev",
+      "database_id": "__DEV_D1_ID_INJECTED_BY_CI__"
     }
   ],
   "ai": {
     "binding": "AI"
   },
   "vars": {
-    "ADMIN_EMAILS": "qa-admin-path@example.com"
+    "APP_ENVIRONMENT": "development",
+    "DATABASE_ENVIRONMENT": "development",
+    "STRIPE_MODE_REQUIRED": "test"
   },
   "services": [
     {

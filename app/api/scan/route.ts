@@ -9,45 +9,6 @@ function required(value: unknown) {
   return String(value ?? "").trim();
 }
 
-async function ensureScanTables(env: D1Env) {
-  await env.DB.prepare(
-    `create table if not exists business_profiles (
-      user_id text primary key references users(id) on delete cascade,
-      business_name text,
-      trade_name text,
-      entity_type text,
-      formation_state text,
-      ein text,
-      industry text,
-      phone text,
-      address text,
-      website text,
-      email text,
-      bank integer not null default 0,
-      directory_411 integer not null default 0,
-      bureau_profile integer not null default 0,
-      vendor_tradelines integer not null default 0,
-      funding_reserve integer not null default 0,
-      updated_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare(
-    `create table if not exists visibility_audits (
-      id text primary key,
-      user_id text not null references users(id) on delete cascade,
-      mode text not null,
-      business_name text,
-      score integer,
-      label text,
-      source_mode text,
-      engine text,
-      result_json text not null,
-      created_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare("create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at)").run();
-}
-
 async function createGuestScanUser(env: D1Env, name: string) {
   const id = crypto.randomUUID();
   const email = `scan-${id}@guest.vergefive.local`;
@@ -77,8 +38,6 @@ export async function POST(request: Request) {
     for (const [key, value] of Object.entries(input)) {
       if (!value) return NextResponse.json({ ok: false, error: `Missing ${key}.` }, { status: 400 });
     }
-
-    await ensureScanTables(d1Env);
 
     const auth = await getAuth(request, d1Env);
     const userId = auth?.user?.id || await createGuestScanUser(d1Env, input.name);

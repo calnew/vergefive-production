@@ -171,7 +171,7 @@ export default async function ScanResultsPage() {
               <h2 className="mt-5 font-display text-3xl font-bold tracking-[-0.04em]">Unlock your fixes and 90+ account matches.</h2>
               <p className="mt-3 text-sm leading-6 text-[#AEBFD8]">Your free scan found {scan.issues.length} problem areas, {readyCount} ready-now matches, and {unlockCount} unlock-next matches. Upgrade to see the exact correction path.</p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes â€” $297/yr</Link></Button>
+                <Button asChild size="lg"><Link href="/signup?plan=self-serve">Unlock my fixes — $597/yr</Link></Button>
                 <Button asChild size="lg" variant="outline" className="bg-white"><Link href="/#pricing">See plans</Link></Button>
               </div>
             </div>

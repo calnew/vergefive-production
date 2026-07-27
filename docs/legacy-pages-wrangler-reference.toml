@@ -1,3 +1,5 @@
+# Historical production Pages configuration. Reference only.
+# The migration branch deploys only the isolated dev Worker through wrangler.jsonc.
 name = "vergefive"
 pages_build_output_dir = "public"
 compatibility_date = "2026-05-13"

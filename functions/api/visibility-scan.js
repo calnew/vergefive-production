@@ -55,14 +55,6 @@ async function rateLimit(env, key, limit = 20, windowSeconds = 900) {
   if (!env || !env.DB) return { ok: true };
   const now = Date.now();
   const resetAt = new Date(now + windowSeconds * 1000).toISOString();
-  await env.DB.prepare(
-    `create table if not exists rate_limits (
-      bucket text primary key,
-      count integer not null default 0,
-      reset_at text not null,
-      updated_at text not null default (datetime('now'))
-    )`
-  ).run();
   const row = await env.DB.prepare('select count, reset_at from rate_limits where bucket = ?').bind(key).first();
   const expired = !row || Date.parse(row.reset_at) <= now;
   const nextCount = expired ? 1 : Number(row.count || 0) + 1;

@@ -11,13 +11,6 @@ export async function onRequestPost(context) {
   const event = JSON.parse(rawBody);
   const eventId = String(event.id || '').trim();
   if (eventId) {
-    await context.env.DB.prepare(
-      `create table if not exists stripe_webhook_events (
-        id text primary key,
-        event_type text,
-        created_at text not null default (datetime('now'))
-      )`
-    ).run();
     try {
       await context.env.DB.prepare(
         'insert into stripe_webhook_events (id, event_type, created_at) values (?, ?, datetime("now"))'

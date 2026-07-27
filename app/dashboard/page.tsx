@@ -66,7 +66,7 @@ export default async function DashboardPage() {
               <CardContent className="flex h-full flex-col p-7">
                 <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-vfText-muted">Guided program</p>
                 <h2 className="mt-2 font-display text-2xl font-bold text-vfText-strong">Explore Full Buildout</h2>
-                <p className="mt-2 leading-7 text-vfText-body">Five modules covering identity, legal, banking, planning, and approval readiness.</p>
+                <p className="mt-2 leading-7 text-vfText-body">Seven modules across five phases, covering identity, legal setup, banking, planning, credit readiness, vendors, cards, and funding.</p>
                 <div className="mt-auto pt-5"><Button asChild variant="outline"><Link href="/buildout/">Open the buildout</Link></Button></div>
               </CardContent>
             </Card>

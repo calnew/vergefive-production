@@ -103,6 +103,7 @@ export type PlatformData = {
   allowed: boolean;
   scan: PlatformScan | null;
   fixStatuses: Record<string, FixStatus>;
+  selectedOptions: Record<string, string>;
   readiness: Readiness;
   pageProgress: { percent: number; visitedCount: number };
   lessonProgress: Record<string, number[]>;
@@ -230,12 +231,19 @@ export async function getPlatformData(): Promise<PlatformData> {
   const [profile, audit, signalRows, progressRows] = await Promise.all([
     safeFirst(env, "select business_name, trade_name, entity_type, address, phone, website, email from business_profiles where user_id = ? limit 1", auth.user.id),
     safeFirst(env, "select id, business_name, score, label, result_json, created_at from visibility_audits where user_id = ? order by created_at desc limit 1", auth.user.id),
-    safeAll(env, "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')", auth.user.id),
+    safeAll(env, "select signal_type, selected_keys from readiness_signals where user_id = ? and (signal_type in ('fix_done','fix_progress') or signal_type like 'selected_option:%')", auth.user.id),
     safeAll(env, "select page_path, completed_indexes from lesson_progress where user_id = ?", auth.user.id),
   ]);
 
   const doneKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys);
   const progressKeys = parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys);
+  const selectedOptions: Record<string, string> = {};
+  for (const row of signalRows) {
+    const signalType = String(row.signal_type || "");
+    if (!signalType.startsWith("selected_option:")) continue;
+    const option = parseKeys(row.selected_keys)[0];
+    if (option) selectedOptions[signalType.slice("selected_option:".length)] = option;
+  }
   const auditResult = parseJson(audit?.result_json);
   const auditIssues = audit ? issuesFromResult(auditResult) : [];
   const issueStatuses: Record<string, FixStatus> = {};
@@ -257,7 +265,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     }
   }
 
-  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, readiness, pageProgress, lessonProgress };
+  if (!audit && !profile) return { user, allowed, scan: null, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress };
 
   const result = auditResult;
   const businessName = String(audit?.business_name || result.businessName || profile?.business_name || profile?.trade_name || "Your business");
@@ -281,7 +289,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     accountMatches: matchesFromResult(result),
   };
 
-  return { user, allowed, scan, fixStatuses, readiness, pageProgress, lessonProgress };
+  return { user, allowed, scan, fixStatuses, selectedOptions, readiness, pageProgress, lessonProgress };
 }
 
 export function gradeForScore(score: number) {

@@ -14,7 +14,12 @@ export async function onRequestPut(context) {
   if (originError) return originError;
   const auth = context.data.auth || await getAuth(context.request, context.env);
   if (!auth) return json({ error: 'Login required.' }, 401);
+  if (!auth.active) return json({ error: 'Active membership required.' }, 403);
   const input = await readJson(context.request);
+  const signalType = input.signalType ? cleanLimited(input.signalType, 80) : '';
+  if (signalType && signalType !== 'application_tracker') {
+    return json({ error: 'This progress signal is managed by a validated server workflow.' }, 400);
+  }
   if (input.pagePath) {
     const indexes = Array.isArray(input.completedIndexes)
       ? input.completedIndexes.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item >= 0 && item < 100).slice(0, 100)
@@ -36,7 +41,7 @@ export async function onRequestPut(context) {
         updated_at = datetime("now")`
     ).bind(auth.user.id, cleanLimited(input.pagePath, 160), cleanLimited(input.pageTitle, 180), cleanLimited(input.breadcrumb, 180)).run();
   }
-  if (input.signalType) {
+  if (signalType) {
     const keys = Array.isArray(input.selectedKeys)
       ? input.selectedKeys.map((item) => cleanLimited(item, 80)).filter(Boolean).slice(0, 100)
       : [];
@@ -46,7 +51,7 @@ export async function onRequestPut(context) {
        on conflict(user_id, signal_type) do update set
         selected_keys = excluded.selected_keys,
         updated_at = datetime("now")`
-    ).bind(auth.user.id, cleanLimited(input.signalType, 80), JSON.stringify(keys)).run();
+    ).bind(auth.user.id, signalType, JSON.stringify(keys)).run();
   }
   return json({ ok: true });
 }

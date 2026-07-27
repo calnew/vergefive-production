@@ -46,15 +46,9 @@ When the binding is available, the endpoint returns:
 - `aiStatus: "active"`
 - `aiRecommendation`: a short member-facing recommendation based on the live public search evidence, business identifiers, findings, and red flags.
 
-## Wrangler Deploy Note
+## Deployment note
 
-Cloudflare Pages Direct Upload supports Pages Functions only when deploying with Wrangler from the project root. This project deploy command already runs from the root:
-
-```powershell
-& 'C:\Program Files\nodejs\npx.cmd' wrangler pages deploy public --project-name vergefive --branch main
-```
-
-Because the root now contains a `functions` folder, Wrangler uploads the Pages Function along with the static `public` assets.
+Visibility-scan changes follow the repository's GitHub Actions pipeline. Do not deploy Pages Functions or Workers from a local Wrangler command. The migration dev workflow deploys the `vergefive-next-dev` Worker only after environment-separation checks pass.
 
 ## Important Limits
 

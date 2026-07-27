@@ -1,4 +1,4 @@
-# Verge Five Prototype
+# Verge Five migration application
 
 Verge Five is a Next.js App Router prototype for business credit readiness. The flow is:
 
@@ -11,61 +11,35 @@ The product language is readiness-focused. It does not promise approvals, fundin
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- Prisma
-- Postgres
-- Auth.js credentials auth
+- Cloudflare OpenNext Worker
+- Cloudflare D1 (`vergefive-members-dev` in development)
+- Existing `vf_session` authentication and D1 membership records
 - Stripe Checkout, Billing Portal, and webhooks
 
 ## Local setup
 
-1. Install dependencies:
+1. Install the locked dependencies:
 
 ```bash
-npm install
+npm ci
 ```
 
-2. Create `.env` from `.env.example`.
-
-Required environment variables:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/vergefive?schema=public"
-AUTH_SECRET="replace-with-a-long-random-secret"
-AUTH_URL="http://localhost:3010"
-NEXT_PUBLIC_APP_URL="http://localhost:3010"
-
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-STRIPE_PRICE_ID="price_..."             # $29/month recurring (fallback)
-STRIPE_PRICE_ID_MONTHLY="price_..."      # optional explicit override for monthly
-STRIPE_PRICE_ID_ANNUAL="price_..."       # $497/year recurring
-```
-
-3. Run migrations and seed the demo account:
+2. Run the source-of-truth checks and build:
 
 ```bash
-npx prisma migrate dev
-npm run db:seed
+npm run check:environment
+npm run check:vertical-slice
+npm run lint
+npm run build
 ```
 
-Seeded paid demo user:
-
-```text
-demo@vergefive.com
-VergeFiveDemo123!
-```
-
-4. Start local dev:
+3. Start a local UI server when needed:
 
 ```bash
 npm run dev -- --hostname 127.0.0.1 --port 3010
 ```
 
-5. Build check:
-
-```bash
-npm run build
-```
+Authenticated functional QA runs on the isolated deployed dev Worker because D1 bindings and secrets are Cloudflare environment resources. Create disposable QA members through the dev registration flow; never publish or reuse shared credentials.
 
 ## Product flow
 
@@ -73,7 +47,7 @@ npm run build
 2. Visitor runs the free scan at `/scan`.
 3. Free scan result appears at `/scan/results` with score, grade, issue titles, and a gated teaser.
 4. Upgrade starts at `/signup?plan=self-serve` or `/checkout?plan=self-serve&billing=yearly`.
-5. Stripe webhook updates `User.entitlement` to `self_serve` or `done_with_you`.
+5. Stripe webhook updates the canonical D1 membership record.
 6. Paid member enters `/dashboard`.
 7. Member opens an issue from `/fix-list` or `/fix/[key]`.
 8. Member marks the fix complete.
@@ -96,11 +70,7 @@ Users with `free` entitlement are redirected to `/upgrade`. Canceled or unpaid S
 
 ## Stripe setup
 
-Create Stripe test-mode prices:
-
-- Self-Serve yearly recurring: `$297/year`
-- Self-Serve monthly recurring: `$29/month`
-- Done-With-You one-time: `$997`
+Use Stripe test-mode prices that mirror the currently approved offer. Pricing is a business-controlled setting and must not be invented or hard-coded in migration documentation.
 
 Webhook endpoint:
 
@@ -125,25 +95,11 @@ Events handled:
 
 Do not expose Stripe secret keys client-side.
 
-## Deploy to Vercel
+## Deploy to the isolated Cloudflare dev environment
 
-1. Push the repo to GitHub.
-2. Import the repo in Vercel.
-3. Add all environment variables listed above.
-4. Set the build command to:
+Push a reviewed branch and merge it into `scan-first-platform-redesign`. GitHub Actions verifies the app, resolves the dedicated `vergefive-members-dev` D1 database, applies the additive D1 schema, and deploys `vergefive-next-dev`.
 
-```bash
-npm run build
-```
-
-5. Set the install command to:
-
-```bash
-npm install
-```
-
-6. Run Prisma migrations against the deployed database before sending traffic.
-7. Add the deployed webhook URL in Stripe and copy the live/test webhook secret into Vercel.
+Do not run local Wrangler deploy or upload commands. Production promotion is a separate GitHub-controlled action and requires Bill's explicit approval for the exact release-candidate SHA.
 
 ## Compliance note
 

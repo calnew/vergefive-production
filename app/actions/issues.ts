@@ -4,15 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getD1RequestAuth, type D1Env } from "@/lib/d1-auth";
-import { detectedKeysFromScanSignals, mergeFixStatuses, readinessFrom, type FixStatus } from "@/lib/readiness";
-
-const SIGNALS_TABLE_DDL = `create table if not exists readiness_signals (
-  user_id text not null,
-  signal_type text not null,
-  selected_keys text not null default '[]',
-  updated_at text not null default (datetime('now')),
-  primary key (user_id, signal_type)
-)`;
+import { getLessonSection } from "@/lib/platform-catalog";
+import { type FixStatus } from "@/lib/readiness";
 
 function parseKeys(value: unknown): string[] {
   try {
@@ -33,13 +26,69 @@ async function saveSignalKeys(env: D1Env, userId: string, signalType: string, ke
   ).bind(userId, signalType, JSON.stringify(keys.slice(0, 100))).run();
 }
 
-export async function updateFixStatus(key: string, status: FixStatus, redirectTo?: string) {
+function selectedOptionSignalType(key: string) {
+  return `selected_option:${key}`;
+}
+
+async function completionBlocker(env: D1Env, userId: string, key: string) {
+  const content = getLessonSection(key);
+  if (!content || content.key !== "phones") return null;
+
+  const optionRow = await env.DB.prepare(
+    "select selected_keys from readiness_signals where user_id = ? and signal_type = ? limit 1"
+  ).bind(userId, selectedOptionSignalType(content.key)).first<{ selected_keys?: string }>();
+  const selectedOption = parseKeys(optionRow?.selected_keys)[0] ?? "";
+  if (!content.moduleOptions?.some((option) => option.name === selectedOption)) return "option-required";
+
+  const progressRow = await env.DB.prepare(
+    "select completed_indexes from lesson_progress where user_id = ? and page_path = ? limit 1"
+  ).bind(userId, `/fix/${content.key}/`).first<{ completed_indexes?: string }>();
+  const completed = new Set(parseKeys(progressRow?.completed_indexes).map(Number).filter(Number.isInteger));
+  const proofStart = content.checklist.length;
+  const proofComplete = content.proof.every((_, index) => completed.has(proofStart + index));
+  return proofComplete ? null : "proof-required";
+}
+
+export async function selectFixOption(key: string, optionName: string, redirectTo?: string) {
+  const content = getLessonSection(key);
+  const option = content?.moduleOptions?.find((item) => item.name === optionName);
+  if (!content || !option) redirect("/fix-list/");
+
   const { auth, env } = await getD1RequestAuth();
   if (!auth?.user?.id) redirect("/login");
   if (!auth.active) redirect("/upgrade");
   const userId = auth.user.id;
 
-  await env.DB.prepare(SIGNALS_TABLE_DDL).run().catch(() => null);
+  await saveSignalKeys(env, userId, selectedOptionSignalType(content.key), [option.name]);
+
+  const { results: signalRows = [] } = await env.DB.prepare(
+    "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')"
+  ).bind(userId).all<{ signal_type: string; selected_keys: string }>();
+  const doneKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys));
+  const progressKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys));
+  if (!doneKeys.has(content.key)) progressKeys.add(content.key);
+  await saveSignalKeys(env, userId, "fix_progress", [...progressKeys]);
+
+  revalidatePath("/dashboard/");
+  revalidatePath("/fix-list/");
+  revalidatePath(`/fix/${content.key}/`);
+
+  if (redirectTo) redirect(redirectTo);
+}
+
+export async function updateFixStatus(key: string, status: FixStatus, redirectTo?: string) {
+  const content = getLessonSection(key);
+  if (!content || !["todo", "progress", "done"].includes(status)) redirect("/fix-list/");
+
+  const { auth, env } = await getD1RequestAuth();
+  if (!auth?.user?.id) redirect("/login");
+  if (!auth.active) redirect("/upgrade");
+  const userId = auth.user.id;
+
+  if (status === "done") {
+    const blocker = await completionBlocker(env, userId, content.key);
+    if (blocker) redirect(`/fix/${content.key}/?completion=${blocker}#${blocker === "option-required" ? "vf-options" : "proof-checklist"}`);
+  }
 
   const { results: signalRows = [] } = await env.DB.prepare(
     "select signal_type, selected_keys from readiness_signals where user_id = ? and signal_type in ('fix_done','fix_progress')"
@@ -47,53 +96,16 @@ export async function updateFixStatus(key: string, status: FixStatus, redirectTo
 
   const doneKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_done")?.selected_keys));
   const progressKeys = new Set(parseKeys(signalRows.find((row) => row.signal_type === "fix_progress")?.selected_keys));
-  doneKeys.delete(key);
-  progressKeys.delete(key);
-  if (status === "done") doneKeys.add(key);
-  if (status === "progress") progressKeys.add(key);
+  doneKeys.delete(content.key);
+  progressKeys.delete(content.key);
+  if (status === "done") doneKeys.add(content.key);
+  if (status === "progress") progressKeys.add(content.key);
   await saveSignalKeys(env, userId, "fix_done", [...doneKeys]);
   await saveSignalKeys(env, userId, "fix_progress", [...progressKeys]);
 
-  // Keep the latest audit's issue list and score in step with member progress
-  // so the scan, report card, and admin views stay consistent.
-  const audit = await env.DB.prepare(
-    "select id, result_json from visibility_audits where user_id = ? order by created_at desc limit 1"
-  ).bind(userId).first<{ id: string; result_json?: string }>();
-
-  if (audit?.id && audit.result_json) {
-    try {
-      const result = JSON.parse(String(audit.result_json)) as { issues?: Array<Record<string, unknown>> } & Record<string, unknown>;
-      const issues = Array.isArray(result.issues) ? result.issues : [];
-      const index = issues.findIndex((item) => String(item.key ?? "") === key);
-      if (index >= 0) issues[index] = { ...issues[index], status };
-
-      const issueStatuses: Record<string, FixStatus> = {};
-      for (const item of issues) {
-        const itemStatus = String(item.status ?? "todo");
-        issueStatuses[String(item.key ?? "")] = (["todo", "progress", "done"].includes(itemStatus) ? itemStatus : "todo") as FixStatus;
-      }
-      const scanCleanKeys = ["phones", "email", "address", "bank-rating", "website"].filter((candidate) => !issues.some((item) => String(item.key ?? "") === candidate));
-      const detectedKeys = detectedKeysFromScanSignals((result as Record<string, unknown>).signals);
-      const readiness = readinessFrom(mergeFixStatuses({ scanCleanKeys, issueStatuses, detectedKeys, progressKeys: [...progressKeys], doneKeys: [...doneKeys] }));
-
-      result.issues = issues;
-      result.score = readiness.score;
-      result.readinessScore = readiness.score;
-      result.signalsClean = readiness.doneCount;
-      result.signalsTotal = readiness.total;
-      result.label = readiness.label;
-      result.grade = readiness.label;
-      await env.DB.prepare(
-        "update visibility_audits set score = ?, label = ?, result_json = ? where id = ? and user_id = ?"
-      ).bind(readiness.score, readiness.label, JSON.stringify(result), audit.id, userId).run();
-    } catch {
-      // Audit sync is best-effort; the readiness_signals write above is the source of truth.
-    }
-  }
-
   revalidatePath("/dashboard/");
   revalidatePath("/fix-list/");
-  revalidatePath(`/fix/${key}/`);
+  revalidatePath(`/fix/${content.key}/`);
   revalidatePath("/account-matches/");
   revalidatePath("/buildout/");
   revalidatePath("/report-card/");
