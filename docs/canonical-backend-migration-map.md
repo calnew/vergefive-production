@@ -1,62 +1,47 @@
-﻿# Verge Five canonical backend data model migration map
+# Verge Five canonical backend decision
 
-This document maps the live Cloudflare/D1 backend into the current Next.js/Cloudflare Worker migration without creating a parallel production platform.
+The migration keeps one backend: Cloudflare Workers with D1. The deleted Prisma,
+Postgres, NextAuth, and Vercel prototype was a parallel implementation and is not
+part of the release path.
 
-## Architecture decision
+## Canonical runtime
 
-- Active source of truth during this migration: existing Cloudflare/D1 member, admin, support, affiliate, email, and billing backend, fronted by the Next.js App Router on Cloudflare Workers.
-- Canonical Stripe path: `/api/billing/create-checkout-session`, `/api/billing/create-portal-session`, `/api/billing/webhook`, `/api/billing/checkout-success`, and `/api/billing/send-access-email`.
-- `/api/stripe/*` remains disabled/no-mutation until Bill explicitly approves a future migration; it is not the active billing backend.
-- Member-facing pages must not mention AI. Internal fields may keep implementation-oriented names only where needed.
-- Access and billing are separate: `User.entitlement` and `User.billingStatus`, plus the detailed `Membership` record.
+- Next.js App Router deployed through OpenNext to Cloudflare Workers.
+- Cloudflare D1 for member identity, sessions, progress, audits, support,
+  affiliate, email, and billing records.
+- The reviewed base SQL in `schema/member-progress.sql` and ordered files in
+  `schema/migrations/` are applied in CI before a dev Worker deployment.
+  `schema_migrations` records each applied version, and CI verifies the expected
+  shape. Request handlers must not create or alter tables.
+- Development uses `vergefive-members-dev`; production keeps
+  `vergefive-members`. A dev deployment must fail if it resolves the production
+  D1 identifier.
+- `/api/billing/*` remains the canonical Stripe path.
+- `/api/stripe/*` remains disabled/no-mutation unless a later migration proves
+  parity and Bill explicitly approves the change.
+- Access and billing remain separate so imported or manually entitled members
+  do not lose access because their Stripe state differs.
 
-## Old D1 table to new Prisma model map
+## First vertical-slice records
 
-| Old D1 table / concept | New Prisma destination | Notes |
-|---|---|---|
-| `users` | `User` | Preserves identity. Adds `billingStatus`, `authProvider`, verification and login timestamps. |
-| `sessions` | Auth.js session/JWT layer | Not modeled as a canonical table for now unless database sessions are later chosen. |
-| `memberships` | `Membership`, `Subscription`, `Purchase`, `User.entitlement`, `User.billingStatus` | Access is separated from payment state so legacy paid members can keep access without a new Stripe subscription. |
-| `email_verification_tokens` | `EmailVerificationToken` | Canonical token model for email verification. |
-| `password_reset_tokens` | `PasswordResetToken` | Canonical token model for invites and resets. |
-| `business_profiles` | `Business` | Existing `Business` is expanded with legal/trade name, formation state, EIN, industry, and updated timestamp. |
-| `lesson_progress` | `Issue.status`, future lesson/progress model if needed | The immediate product loop uses `Issue`; old page-level lesson progress should be reconsidered after the 5-module flow is finalized. |
-| `readiness_signals` | `Scan.signals`, `VisibilityAudit.signals`, `CatalogAccount.recommendedSignals` | Preserved as structured JSON on scan/audit/catalog models. |
-| `resume_locations` | Future member preference/resume field | Not modeled separately yet; can be added if resume UX returns. |
-| `report_snapshots` | `ReportSnapshot` | Stores saved report/download summaries without exposing proprietary lesson content. |
-| `visibility_audits` | `VisibilityAudit` | Preserves source mode, engine, evidence, findings, red flags, recommendation, and raw result JSON. |
-| `member_access_events` | `MemberAccessEvent` | Preserves page-view/access audit trail. |
-| `member_readiness_locks` | `MemberReadinessLock` | Preserves advanced-section lock/review/settling logic if retained. |
-| `member_preferences` | Not canonical yet | Add later only if the member guide/resume preference is still needed. |
-| `support_requests` | `SupportTicket` | Canonical queue for contact, support, and problem reports. |
-| `admin_notes` | `AdminNote` | Member-level notes. |
-| `admin_activity_log` | `AdminActivityLog` | Required for every future access, billing, destructive, email, or membership-changing admin action. |
-| `legacy_campaigns` | `EmailCampaign`, `EmailTemplate` | Campaign copy becomes editable/admin-managed templates and campaigns. |
-| `legacy_leads` | `EmailLead`, `ImportedUser` | Lead/contact tracking and old-user import records are separated but linked. |
-| `affiliates` | `Affiliate` | Preserves affiliate profile and code. |
-| `affiliate_referrals` | `AffiliateReferral` | Preserves referral attribution. |
-| `affiliate_commissions` | `AffiliateCommission` | Preserves commission status and manual mark-paid path. |
-| `affiliate_invoice_events` | `AffiliateInvoiceEvent` | Preserves invoice/payment dedupe for commission qualification. |
-| `stripe_webhook_events` | `StripeEvent` | Existing model expanded with payload, processing status, and error field. |
-| `rate_limits` | `RateLimit` | Canonical rate-limit bucket store if rate limiting remains DB-backed. |
+| Product state | D1 source of truth |
+|---|---|
+| Phone & 411 selected option | `readiness_signals` using `selected_option:phones` |
+| Fix status | `member_fix_status`, one atomic row per member and fix |
+| Proof checklist | `lesson_progress.completed_indexes` |
+| Scan evidence | `visibility_audits.result_json`, immutable after capture |
+| Contextual help | `support_requests` |
 
-## Migration impact summary
+Legacy `fix_progress` and `fix_done` readiness signals remain readable during
+the migration, but all new status writes use `member_fix_status`.
 
-The schema expansion is additive. Existing canonical tables stay in place:
+## Deferred decisions
 
-- `User`
-- `Business`
-- `Scan`
-- `Issue`
-- `AccountMatch`
-- `StripeEvent`
+- R2 and upload separation for slices that need member files.
+- Any replacement of the canonical billing endpoints.
+- Any production data migration or destructive schema change.
+- Provider partnerships, endorsement language, and Done-With-You commercial
+  terms.
 
-The migration adds fields needed for imported users, memberships, billing state, scan evidence, report snapshots, email history, support tickets, admin audit logs, affiliates, and readiness locks.
-
-## Important unresolved decisions
-
-1. Auth session storage: keep Auth.js JWT sessions or move to database sessions later.
-2. Lesson/page progress: the new app is issue/fix based; old page-level progress may need a separate model only if the 5-module lesson flow needs granular page resume.
-3. Runtime: Prisma/Postgres on Cloudflare Workers may still require an edge-compatible database path or a Node/Vercel runtime decision before full backend deployment.
-4. Future Stripe path migration: keep `/api/billing/*` canonical unless a later migration proves `/api/stripe/*` has duplicate-session protection, affiliate metadata, access-email recovery, webhook parity, and explicit production approval.
-5. Email events: open/click/delivery depends on Resend webhook support and provider event mapping.
+These require their own reviewed slice and production approval. They are not
+implicit in the Phone & 411 release.

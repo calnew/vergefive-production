@@ -1,29 +1,33 @@
 ﻿name: Deploy Verge Five Dev Worker
 
 on:
+  pull_request:
+    branches:
+      - scan-first-platform-redesign
   push:
     branches:
       - scan-first-platform-redesign
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: vergefive-next-dev
   cancel-in-progress: true
 
 jobs:
-  deploy-dev:
-    name: Build and deploy dev Worker
+  verify:
+    name: Verify migration candidate
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -31,5 +35,69 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and deploy dev Worker
-        run: npm run cf:deploy
+      - name: Verify environment separation
+        run: npm run check:environment
+
+      - name: Verify D1 upgrade path
+        run: npm run check:d1-migrations
+
+      - name: Verify security contract
+        run: npm run check:security
+
+      - name: Verify security behavior
+        run: npm run check:security-behavior
+
+      - name: Verify program catalog consistency
+        run: npm run check:catalog
+
+      - name: Verify first vertical slice contract
+        run: npm run check:vertical-slice
+
+      - name: Lint application
+        run: npm run lint
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build Cloudflare Worker bundle
+        run: npm run cf:build
+
+  deploy-dev:
+    name: Build and deploy dev Worker
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: vergefive-dev
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare isolated dev D1
+        run: node tools/prepare-dev-d1.mjs
+
+      - name: Build dev Worker
+        run: npm run cf:build
+
+      - name: Deploy dev Worker
+        run: npx opennextjs-cloudflare deploy
+
+      - name: Install journey-test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify deployed Phone and 411 journey
+        env:
+          VF_QA_URL: https://vergefive-next-dev.turncomvoice.workers.dev
+        run: npm run qa:phone-slice

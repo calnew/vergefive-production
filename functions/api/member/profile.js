@@ -1,8 +1,8 @@
-import { cleanLimited, getAuth, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, json, readJson, requireActiveMember, requireSameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestGet(context) {
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const profile = await context.env.DB.prepare('select * from business_profiles where user_id = ?').bind(auth.user.id).first();
   return json({ profile: profile || {} });
 }
@@ -10,8 +10,8 @@ export async function onRequestGet(context) {
 export async function onRequestPut(context) {
   const originError = requireSameOrigin(context);
   if (originError) return originError;
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const input = await readJson(context.request);
   const profile = {
     businessName: cleanLimited(input.businessName, 160),

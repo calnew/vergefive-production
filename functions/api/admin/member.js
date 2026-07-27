@@ -15,24 +15,6 @@ async function requireAdmin(context) {
   return auth && await isAdminUser(auth.user.email, context.env) ? auth : null;
 }
 
-async function ensureVisibilityAuditTable(env) {
-  await env.DB.prepare(
-    `create table if not exists visibility_audits (
-      id text primary key,
-      user_id text not null references users(id) on delete cascade,
-      mode text not null,
-      business_name text,
-      score integer,
-      label text,
-      source_mode text,
-      engine text,
-      result_json text not null,
-      created_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare('create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at)').run();
-}
-
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context);
   if (!auth) return json({ error: 'Admin access required.' }, 403);
@@ -63,8 +45,6 @@ export async function onRequestGet(context) {
   ).bind(memberId).first();
 
   if (!member) return json({ error: 'Member not found.' }, 404);
-  await ensureVisibilityAuditTable(context.env);
-
   const profile = await context.env.DB.prepare(
     `select business_name, trade_name, entity_type, formation_state, ein, industry, phone, address, website, email,
             bank, directory_411, bureau_profile, vendor_tradelines, funding_reserve, updated_at

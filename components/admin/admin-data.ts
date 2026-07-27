@@ -18,9 +18,9 @@ export const memberRows = [
 ];
 
 export const purchaseRows = [
-  { customer: "Maria Johnson", product: "Self-Serve yearly", amount: "$297", status: "paid", provider: "Stripe test", date: "Jun 28, 2026" },
+  { customer: "Maria Johnson", product: "Self-Serve yearly", amount: "$597", status: "paid", provider: "Stripe test", date: "Jun 28, 2026" },
   { customer: "Andre Miles", product: "Done-With-You", amount: "$997", status: "pending review", provider: "Stripe test", date: "Jun 27, 2026" },
-  { customer: "Free Scan User", product: "Self-Serve monthly", amount: "$29", status: "failed", provider: "Stripe test", date: "Jun 26, 2026" },
+  { customer: "Free Scan User", product: "Self-Serve monthly", amount: "$49", status: "failed", provider: "Stripe test", date: "Jun 26, 2026" },
 ];
 
 export const scanRows = [

@@ -2,6 +2,33 @@
 
 This file is the working memory for the Verge Five platform revamp so the project can be resumed without losing context.
 
+## Migration takeover - July 26, 2026
+
+- Canonical GitHub repository: `calnew/vergefive-production`.
+- Migration base branch: `scan-first-platform-redesign`.
+- Migration feature branch: `migration/production-protection-first-slice`.
+- Production `main` baseline is tagged `pre-migration-main-2026-07-26` at
+  `d7fcb44226831418a55f3789adb7ea6ddff78deb`.
+- `main` is protected. The `vergefive-production` GitHub environment requires
+  reviewer `calnew`, accepts protected branches only, and disables admin bypass.
+- The migration has one backend path: Next.js/OpenNext on Cloudflare Workers
+  with D1. The parallel Prisma/Postgres/NextAuth prototype was removed.
+- Dev compute is `vergefive-next-dev`; dev data is
+  `vergefive-members-dev`. The production D1 ID is rejected by the CI guard.
+- All D1 schema creation is owned by `schema/member-progress.sql`; request
+  handlers no longer create or alter tables.
+- First vertical slice: scan -> Phone & 411 option -> private-proof
+  confirmations -> validated completion/readiness -> contextual support.
+- Stored visibility-audit snapshots are immutable after capture.
+- Generic progress writes cannot set fix status or selected options.
+- The seven-module, five-phase program structure and the `$7 first month`,
+  `$49 monthly`, `$597 annual` baseline are restored in the migration app.
+- Local lint, production-dependency audit, Next build, OpenNext bundle, fresh
+  D1 schema validation, and responsive Phone preview QA pass.
+- Dev deployment and deployed E2E remain blocked until the protected
+  `vergefive-dev` GitHub environment has `CLOUDFLARE_API_TOKEN` and
+  `CLOUDFLARE_ACCOUNT_ID`. Do not promote production.
+
 ## Project
 
 - Brand: Verge Five
@@ -992,15 +1019,9 @@ Important exception:
   - Colored top accents on each card.
   - Dark blue, teal, green, and gold logo bands for LivePlan, Bplans, SCORE, and PDF.
 
-## Deploy Command
+## Historical deployment note
 
-From project root:
-
-```powershell
-& 'C:\Program Files\nodejs\npx.cmd' wrangler pages deploy public --project-name vergefive --branch main
-```
-
-Cloudflare sometimes times out on first deploy attempt. Retrying has worked.
+The earlier local Pages deployment process is retired. Current migration work deploys through GitHub Actions to the isolated dev Worker only; production requires Bill's explicit approval for the exact release-candidate SHA.
 
 ## QA Pattern Used
 

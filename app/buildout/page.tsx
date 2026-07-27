@@ -37,7 +37,7 @@ export default async function BuildoutPage() {
         <div className="pointer-events-none absolute -right-14 -top-24 size-64 rounded-full bg-brand-blue/30 blur-3xl" aria-hidden />
         <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-ondark-blue">Guided program</p>
         <h1 className="mt-2 font-display text-3xl font-bold tracking-[-0.03em] md:text-4xl">Explore the complete business credit buildout</h1>
-        <p className="mt-3 max-w-2xl leading-7 text-ondark-body">Five modules from identity to approval readiness. Every section maps to a fix page with lessons, checklists, and proof — the scan decides where to start, this is the whole map.</p>
+        <p className="mt-3 max-w-2xl leading-7 text-ondark-body">Seven modules across five phases, from identity through cards and funding readiness. Every section maps to a fix page with lessons, checklists, and proof — the scan decides where to start, this is the whole map.</p>
       </section>
 
       <div className="mt-5 grid gap-6">

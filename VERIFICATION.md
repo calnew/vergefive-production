@@ -7,8 +7,7 @@ Date: 2026-05-06
 - Cloudflare Pages project: `vergefive`
 - Latest verified deployment: `https://f4909f56.vergefive.pages.dev`
 - Stable Pages URL: `https://vergefive.pages.dev`
-- Deploy command completed successfully:
-  `wrangler pages deploy public --project-name vergefive --branch main`
+- Historical deployment was completed before the GitHub-only release policy. Do not reuse the former local deployment command.
 
 ## Platform Build Completed
 

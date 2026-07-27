@@ -8,14 +8,13 @@ import { getLessonSection } from "@/lib/platform-catalog";
 
 const ALLOWED_HOSTS = new Set([
   "vergefive-next-dev.turncomvoice.workers.dev",
-  "localhost:3000",
-  "127.0.0.1:3000",
 ]);
 
 export default async function PhoneModuleDevPreviewPage() {
   const requestHeaders = await headers();
   const host = requestHeaders.get("host") || "";
-  if (!ALLOWED_HOSTS.has(host)) notFound();
+  const isLocalDevelopmentHost = /^(?:localhost|127\.0\.0\.1)(?::\d+)?$/.test(host);
+  if (!ALLOWED_HOSTS.has(host) && !isLocalDevelopmentHost) notFound();
 
   const content = getLessonSection("phones");
   if (!content) notFound();

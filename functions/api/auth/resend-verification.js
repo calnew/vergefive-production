@@ -1,5 +1,5 @@
 import { getAuth, json, rateLimit, requireDb, requireSameOrigin } from '../../_lib/auth.js';
-import { createEmailVerification } from '../../_lib/security.js';
+import { allowDevelopmentDebugLink, createEmailVerification } from '../../_lib/security.js';
 
 export async function onRequestPost(context) {
   try {
@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
     return json({
       ok: true,
       emailProviderConfigured: !!(context.env.RESEND_API_KEY && context.env.EMAIL_FROM),
-      verificationUrl: context.env.RESEND_API_KEY ? undefined : url
+      verificationUrl: allowDevelopmentDebugLink(context.env, 'EMAIL_VERIFICATION_DEBUG_LINKS') ? url : undefined
     });
   } catch (error) {
     console.error('resend verification failed', error && error.message ? error.message : error);

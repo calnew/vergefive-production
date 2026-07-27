@@ -1,4 +1,4 @@
-import { json, readJson, requireDb, requireSameOrigin } from '../../_lib/auth.js';
+import { json, readJson, requireDb, requireSameOrigin, sha256Hex } from '../../_lib/auth.js';
 
 export async function onRequestPost(context) {
   try {
@@ -8,12 +8,13 @@ export async function onRequestPost(context) {
     const input = await readJson(context.request);
     const token = String(input.token || '').trim();
     if (!token) return json({ error: 'Verification token is required.' }, 400);
+    const tokenHash = await sha256Hex(token);
 
     const row = await context.env.DB.prepare(
       `select * from email_verification_tokens
-       where token = ? and consumed_at is null and expires_at > datetime("now")
+       where token in (?, ?) and consumed_at is null and expires_at > datetime("now")
        limit 1`
-    ).bind(token).first();
+    ).bind(tokenHash, token).first();
     if (!row) return json({ error: 'Verification link is invalid or expired.' }, 400);
 
     await context.env.DB.prepare('update users set email_verified_at = datetime("now") where id = ?').bind(row.user_id).run();

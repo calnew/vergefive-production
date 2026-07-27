@@ -1,7 +1,7 @@
 ﻿import Link from "next/link";
 
 import { PublicHeader } from "@/components/marketing/public-header";
-import { Badge, Card, CardContent } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import { SupportForm } from "@/app/support/support-form";
 
 export const dynamic = "force-dynamic";

@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
   if (!auth) return json({ error: 'Admin access required.' }, 403);
   await ensureSupportTable(context.env);
   const rows = await context.env.DB.prepare(
-    `select id, user_id, type, severity, name, email, page_url, message, steps, browser, source, status, created_at
+    `select id, user_id, type, severity, name, email, page_url, message, steps, browser, source, fix_key, selected_option, status, created_at
      from support_requests
      order by created_at desc
      limit 100`

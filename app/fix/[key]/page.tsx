@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-import { updateFixStatus } from "@/app/actions/issues";
+import { selectFixOption, updateFixStatus } from "@/app/actions/issues";
 import { BankRatingCalculator } from "@/components/platform/bank-rating-calculator";
 import { FixChecklist } from "@/components/platform/fix-checklist";
 import { PlatformShell } from "@/components/platform/platform-shell";
@@ -14,9 +14,9 @@ import { Button, Card, CardContent } from "@/components/ui";
 import { beforeYouLeaveText, fixPlaybooks, getLessonNavigation, getLessonSection } from "@/lib/platform-catalog";
 import { getPlatformData } from "@/lib/platform-data";
 
-export default async function FixPage({ params, searchParams }: { params: Promise<{ key: string }>; searchParams: Promise<{ completed?: string }> }) {
-  const [{ key }, { completed }] = await Promise.all([params, searchParams]);
-  const { user, allowed, scan, fixStatuses, lessonProgress } = await getPlatformData();
+export default async function FixPage({ params, searchParams }: { params: Promise<{ key: string }>; searchParams: Promise<{ completed?: string; completion?: string; selection?: string }> }) {
+  const [{ key }, { completed, completion, selection }] = await Promise.all([params, searchParams]);
+  const { user, allowed, scan, fixStatuses, selectedOptions, lessonProgress } = await getPlatformData();
   if (!allowed) return <PlatformPaywall />;
 
   const content = getLessonSection(key);
@@ -26,6 +26,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
   const issueKeys = Array.from(new Set([key, content.key, ...(key === "website" || content.key === "website" ? ["email"] : [])]));
   const issue = scan?.issues.find((item) => issueKeys.includes(item.key) && item.status !== "done");
   const status = fixStatuses[content.key] ?? "todo";
+  const selectedOption = selectedOptions[content.key] ?? "";
   const navigation = getLessonNavigation(key);
   const justCompleted = completed === "1" && status === "done";
 
@@ -63,6 +64,21 @@ export default async function FixPage({ params, searchParams }: { params: Promis
               </div>
             </div>
           ) : null}
+          {completion === "option-required" ? (
+            <div className="rounded-2xl border border-unlock-border bg-unlock-surface p-4 text-sm font-bold leading-6 text-unlock" role="alert">
+              Choose and save one Phone &amp; 411 setup option before marking this fix complete.
+            </div>
+          ) : null}
+          {completion === "proof-required" ? (
+            <div className="rounded-2xl border border-unlock-border bg-unlock-surface p-4 text-sm font-bold leading-6 text-unlock" role="alert">
+              Save every private-proof item in your own records, check each proof confirmation below, and wait for “Progress saved” before marking this fix complete.
+            </div>
+          ) : null}
+          {selection === "saved" && selectedOption ? (
+            <div className="rounded-2xl border border-ready-border bg-ready-surface p-4 text-sm font-bold leading-6 text-ready" role="status">
+              Setup option saved: {selectedOption}. This fix is now in progress.
+            </div>
+          ) : null}
 
           <Card>
             <CardContent className="p-6 md:p-8">
@@ -92,6 +108,9 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                 <Button asChild variant="outline"><Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}`}>Get Help</Link></Button>
                 <Button asChild variant="outline"><Link href="/dashboard/">Back to Dashboard</Link></Button>
               </div>
+              {content.key === "phones" && status !== "done" ? (
+                <p className="mt-3 text-xs font-bold leading-5 text-vfText-muted">Completion is unlocked only after one setup option and every private-proof confirmation are saved.</p>
+              ) : null}
             </CardContent>
           </Card>
 
@@ -147,7 +166,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {moduleOptions.map((option) => (
-                    <div key={option.name} className="flex min-h-[220px] flex-col rounded-2xl border border-vfBorder bg-white p-4 shadow-[0_12px_30px_rgba(15,27,45,0.05)]" style={{ borderTop: `4px solid ${option.brandColor ?? "#2563EB"}` }}>
+                    <div key={option.name} className={`flex min-h-[220px] flex-col rounded-2xl border bg-white p-4 shadow-[0_12px_30px_rgba(15,27,45,0.05)] ${selectedOption === option.name ? "border-ready-border ring-2 ring-ready-border/30" : "border-vfBorder"}`} style={{ borderTop: `4px solid ${option.brandColor ?? "#2563EB"}` }}>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${option.kind === "help" ? "bg-unlock-surface text-unlock" : option.kind === "provider" ? "bg-ready-surface text-ready" : "bg-blue-50 text-brand-blue"}`}>{option.badgeText}</span>
                         {option.price ? <span className="text-xs font-bold text-vfText-muted">{option.price}</span> : null}
@@ -157,15 +176,22 @@ export default async function FixPage({ params, searchParams }: { params: Promis
                       {option.note ? <p className="mt-3 rounded-xl bg-surface-muted px-3 py-2 text-xs font-bold leading-5 text-vfText-body">{option.note}</p> : null}
                       <div className="mt-auto pt-4">
                         {option.bestFor ? <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-vfText-muted">Best for: {option.bestFor}</p> : null}
-                        {option.href ? (
-                          option.href.startsWith("/") ? (
-                            <Link href={option.href} className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open option"} &gt;</Link>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <form action={selectFixOption.bind(null, content.key, option.name, `${pagePath}?selection=saved#vf-options`)}>
+                            <Button type="submit" size="sm" variant={selectedOption === option.name ? "outline" : "default"}>
+                              {selectedOption === option.name ? "Selected ✓" : "Select option"}
+                            </Button>
+                          </form>
+                          {option.href ? (
+                            option.href.startsWith("/") ? (
+                              <Link href={option.href} className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open option"} &gt;</Link>
+                            ) : (
+                              <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} &gt;</a>
+                            )
                           ) : (
-                            <a href={option.href} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-brand-blue hover:underline">{option.openLabel ?? "Open site"} &gt;</a>
-                          )
-                        ) : (
-                          <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}&option=${encodeURIComponent(option.name)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help &gt;</Link>
-                        )}
+                            <Link href={`/support/?topic=fix&from=${encodeURIComponent(content.key)}`} className="text-sm font-bold text-brand-blue hover:underline">Request help &gt;</Link>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -181,7 +207,7 @@ export default async function FixPage({ params, searchParams }: { params: Promis
           ) : null}
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-            <Card>
+            <Card id="proof-checklist" className="scroll-mt-6">
               <CardContent className="p-6 md:p-7">
                 <FixChecklist
                   pagePath={pagePath}

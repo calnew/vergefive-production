@@ -1,7 +1,7 @@
-import { cleanLimited, getAuth, isAdminUser, json, normalizeEmail, readJson, requireSameOrigin } from '../../_lib/auth.js';
+import { cleanLimited, getAuth, isAdminUser, json, normalizeEmail, readJson, requireSameOrigin, sha256Hex } from '../../_lib/auth.js';
 import { ensureAdminSchema, logAdminAction } from '../../_lib/admin.js';
 import { createPasswordReset, sendAdminEmail } from '../../_lib/security.js';
-import { stripeGet, stripeRequest } from '../../_lib/stripe.js';
+import { requireExplicitDevelopmentStripeTestMode, stripeGet, stripeRequest } from '../../_lib/stripe.js';
 import { adminRequireReadinessReview, adminUnlockReadiness } from '../../_lib/readiness-locks.js';
 
 async function requireAdmin(context) {
@@ -15,11 +15,12 @@ function addDays(days) {
 
 async function createResetUrl(context, userId, email) {
   const token = crypto.randomUUID() + '-' + crypto.randomUUID();
+  const tokenHash = await sha256Hex(token);
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
   await context.env.DB.prepare(
     `insert into password_reset_tokens (id, user_id, token, email, expires_at, created_at)
      values (?, ?, ?, ?, ?, datetime('now'))`
-  ).bind(crypto.randomUUID(), userId, token, email, expiresAt).run();
+  ).bind(crypto.randomUUID(), userId, tokenHash, email, expiresAt).run();
   const origin = String(context.env.SITE_URL || '') || new URL(context.request.url).origin;
   return `${origin}/reset-password/?token=${encodeURIComponent(token)}`;
 }
@@ -42,6 +43,7 @@ async function deleteMemberData(env, userId) {
     'business_profiles',
     'lesson_progress',
     'readiness_signals',
+    'member_fix_status',
     'resume_locations',
     'report_snapshots',
     'visibility_audits',
@@ -78,6 +80,8 @@ export async function onRequestPost(context) {
   const action = String(input.action || '').toLowerCase();
 
   if (action === 'create-test-coupons') {
+    const devModeError = requireExplicitDevelopmentStripeTestMode(context.request, context.env);
+    if (devModeError) return devModeError;
     const coupons = await Promise.all([
       ensureStripePromotionCode(context.env, { code: 'VFTEST95', percentOff: 95 }),
       ensureStripePromotionCode(context.env, { code: 'VFTEST99', percentOff: 99 })
@@ -192,6 +196,7 @@ export async function onRequestPost(context) {
   if (action === 'clear-progress') {
     await context.env.DB.prepare('delete from lesson_progress where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from readiness_signals where user_id = ?').bind(memberId).run();
+    await context.env.DB.prepare('delete from member_fix_status where user_id = ?').bind(memberId).run();
     await context.env.DB.prepare('delete from resume_locations where user_id = ?').bind(memberId).run();
     await logAdminAction(context.env, auth, 'clear-progress', memberId, {});
     return json({ ok: true });

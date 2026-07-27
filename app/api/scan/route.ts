@@ -1,51 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-import { getAuth } from "@/functions/_lib/auth.js";
+import { cleanLimited, getAuth, getCookie, rateLimit, readJson, requireSameOrigin } from "@/functions/_lib/auth.js";
 import type { D1Env } from "@/lib/d1-auth";
 import { generateScanResult } from "@/lib/scan-generator";
 
-function required(value: unknown) {
-  return String(value ?? "").trim();
-}
-
-async function ensureScanTables(env: D1Env) {
-  await env.DB.prepare(
-    `create table if not exists business_profiles (
-      user_id text primary key references users(id) on delete cascade,
-      business_name text,
-      trade_name text,
-      entity_type text,
-      formation_state text,
-      ein text,
-      industry text,
-      phone text,
-      address text,
-      website text,
-      email text,
-      bank integer not null default 0,
-      directory_411 integer not null default 0,
-      bureau_profile integer not null default 0,
-      vendor_tradelines integer not null default 0,
-      funding_reserve integer not null default 0,
-      updated_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare(
-    `create table if not exists visibility_audits (
-      id text primary key,
-      user_id text not null references users(id) on delete cascade,
-      mode text not null,
-      business_name text,
-      score integer,
-      label text,
-      source_mode text,
-      engine text,
-      result_json text not null,
-      created_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare("create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at)").run();
+function required(value: unknown, max: number) {
+  return cleanLimited(value, max);
 }
 
 async function createGuestScanUser(env: D1Env, name: string) {
@@ -58,33 +19,71 @@ async function createGuestScanUser(env: D1Env, name: string) {
   return id;
 }
 
+async function reusableGuestScanUser(env: D1Env, request: Request) {
+  const guestId = getCookie(request, "vf_light_user_id");
+  if (!/^[0-9a-f-]{36}$/i.test(guestId)) return "";
+  const row = await env.DB.prepare(
+    "select id from users where id = ? and auth_provider = 'guest_scan' limit 1",
+  ).bind(guestId).first<{ id?: string }>();
+  return String(row?.id || "");
+}
+
+async function cleanupExpiredGuestScans(env: D1Env) {
+  await env.DB.prepare(
+    `delete from users
+     where id in (
+       select u.id
+       from users u
+       where u.auth_provider = 'guest_scan'
+         and u.created_at < datetime('now', '-7 days')
+         and not exists (select 1 from sessions s where s.user_id = u.id)
+         and not exists (select 1 from memberships m where m.user_id = u.id)
+       order by u.created_at asc
+       limit 20
+     )`,
+  ).run();
+}
+
 export async function POST(request: Request) {
   try {
     const { env } = await getCloudflareContext({ async: true });
     const d1Env = env as D1Env;
     if (!d1Env.DB) return NextResponse.json({ ok: false, error: "D1 binding DB is not configured." }, { status: 500 });
 
-    const body = await request.json();
+    const requestContext = { request, env: d1Env, data: {} };
+    const originError = requireSameOrigin(requestContext);
+    if (originError) return originError;
+
+    const ip = request.headers.get("cf-connecting-ip") || "unknown";
+    const limited = await rateLimit(d1Env, `platform-scan:${ip}`, { limit: 10, windowSeconds: 900 });
+    if (!limited.ok) return limited.response;
+
+    let body: Record<string, unknown>;
+    try {
+      body = await readJson(request, 16 * 1024);
+    } catch {
+      return NextResponse.json({ ok: false, error: "Invalid or oversized scan request." }, { status: 400 });
+    }
     const input = {
-      name: required(body.name),
-      entityType: required(body.entityType),
-      address: required(body.address),
-      phone: required(body.phone),
-      website: required(body.website),
-      email: required(body.email).toLowerCase(),
+      name: required(body.name, 160),
+      entityType: required(body.entityType, 80),
+      address: required(body.address, 240),
+      phone: required(body.phone, 60),
+      website: required(body.website, 180),
+      email: required(body.email, 180).toLowerCase(),
     };
 
     for (const [key, value] of Object.entries(input)) {
       if (!value) return NextResponse.json({ ok: false, error: `Missing ${key}.` }, { status: 400 });
     }
 
-    await ensureScanTables(d1Env);
-
     const auth = await getAuth(request, d1Env);
-    const userId = auth?.user?.id || await createGuestScanUser(d1Env, input.name);
+    const reusableGuestId = auth?.user?.id ? "" : await reusableGuestScanUser(d1Env, request);
+    const userId = auth?.user?.id || reusableGuestId || await createGuestScanUser(d1Env, input.name);
     if (!userId) {
       return NextResponse.json({ ok: false, error: "Could not create a scan user." }, { status: 500 });
     }
+    await cleanupExpiredGuestScans(d1Env).catch(() => null);
 
     const generated = generateScanResult(input);
     const auditId = crypto.randomUUID();
@@ -144,8 +143,9 @@ export async function POST(request: Request) {
     ).bind(auditId, userId, input.name, generated.readinessScore, generated.grade, JSON.stringify(result)).run();
 
     const response = NextResponse.json({ ok: true, scanId: auditId, redirectTo: auth?.active ? "/dashboard/" : "/scan/results" });
-    response.cookies.set("vf_latest_scan_id", auditId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
-    response.cookies.set("vf_light_user_id", userId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
+    const secure = new URL(request.url).protocol === "https:";
+    response.cookies.set("vf_latest_scan_id", auditId, { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: 60 * 60 * 24 * 30 });
+    response.cookies.set("vf_light_user_id", userId, { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: 60 * 60 * 24 * 30 });
     return response;
   } catch (error) {
     console.error("scan failed", error);

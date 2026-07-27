@@ -40,7 +40,7 @@ export const canonicalFixOrder = ["phones", "address", "website", "email", "llc"
 
 // The member-facing fix list groups the eleven fixes into three phases.
 // The "website" row carries the "email" issue key (one website + domain-email
-// signal); the five-module view lives in programModules below.
+// signal); the seven-module, five-phase view lives in programModules below.
 export type FixListItem = { key: string; title: string; tagline: string; defaultSeverity: "high" | "med" | "low" };
 export type FixListPhase = { phase: string; title: string; items: FixListItem[] };
 
@@ -511,7 +511,7 @@ export const accountCatalog: AccountCatalogItem[] = [
   })),
 ];
 
-// The Full Buildout page's five-module map. Section keys resolve to /fix/[key]/
+// The Full Buildout page's seven-module, five-phase map. Section keys resolve to /fix/[key]/
 // unless an explicit href points elsewhere (report card, account matches).
 export type BuildoutSection = { key: string; title: string; purpose: string; fixKeys: string[]; href?: string };
 export type BuildoutModule = { module: string; title: string; subtitle: string; sections: BuildoutSection[] };
@@ -545,13 +545,12 @@ export const buildoutModules: BuildoutModule[] = [
     sections: [
       { key: "bank", title: "Business bank account", purpose: "Open and match the business checking account.", fixKeys: ["bank"] },
       { key: "bank-rating", title: "Bank rating + tracker", purpose: "Build the balance pattern lenders look for.", fixKeys: ["bank-rating"] },
-      { key: "bureaus", title: "Business credit bureaus", purpose: "Understand bureau profiles before expecting reporting.", fixKeys: ["bureaus"] },
     ],
   },
   {
     module: "Module 4",
-    title: "Business Plan + Report",
-    subtitle: "Document the business and generate a progress report.",
+    title: "Business Planning",
+    subtitle: "Document the business and preserve a progress record.",
     sections: [
       { key: "business-plan", title: "Business plan", purpose: "A practical plan that supports credit and funding conversations.", fixKeys: ["business-plan"] },
       { key: "report", title: "Progress report", purpose: "Save a member-safe record of what's done and what's next.", fixKeys: [], href: "/report-card/" },
@@ -559,12 +558,29 @@ export const buildoutModules: BuildoutModule[] = [
   },
   {
     module: "Module 5",
-    title: "Approval Readiness",
-    subtitle: "Readiness, starter vendor credit, cards, and funding.",
+    title: "Credit Profile + Readiness",
+    subtitle: "Review bureau profiles and the full readiness criteria.",
     sections: [
+      { key: "bureaus", title: "Business credit bureaus", purpose: "Understand bureau profiles before expecting reporting.", fixKeys: ["bureaus"] },
+      { key: "comparable-credit", title: "Comparable credit", purpose: "Use realistic account sequencing before moving into stronger accounts.", fixKeys: ["comparable-credit"] },
       { key: "criteria", title: "12-point criteria", purpose: "The full readiness check before broader applications.", fixKeys: ["criteria"] },
+    ],
+  },
+  {
+    module: "Module 6",
+    title: "Starter Vendor Credit",
+    subtitle: "Build reporting history in the right order.",
+    sections: [
       { key: "net30", title: "Starter vendor credit", purpose: "Pick starter vendors that fit the business and report.", fixKeys: ["net30"] },
-      { key: "cards-funding", title: "Cards & funding paths", purpose: "Move into card and funding categories when signals support it.", fixKeys: [], href: "/account-matches/" },
+    ],
+  },
+  {
+    module: "Module 7",
+    title: "Cards + Funding",
+    subtitle: "Review cards and funding only when the foundation supports them.",
+    sections: [
+      { key: "cards", title: "Business cards", purpose: "Review secured, traditional, and corporate card paths only when the signals support them.", fixKeys: ["cards"], href: "/fix/cards/" },
+      { key: "funding", title: "Funding readiness", purpose: "Match documentation, banking, revenue, and timing before funding conversations.", fixKeys: ["funding"], href: "/fix/funding/" },
     ],
   },
 ];
@@ -683,19 +699,23 @@ export const programModules: ProgramModulePath[] = [
     { key: "bank", label: "Business bank account", route: "/bank-account/" },
     { key: "bank-rating", label: "Bank rating", route: "/bank-rating/" },
   ] },
-  { phase: "Phase 4", module: "Approval Readiness", summary: "Business plan, bureau/profile checks, comparable credit, and application timing come before broader applications.", sections: [
+  { phase: "Phase 4", module: "Business Planning", summary: "A practical business plan and saved progress record support stronger credit and funding conversations.", sections: [
     { key: "business-plan", label: "Business plan", route: "/business-plan/" },
+  ] },
+  { phase: "Phase 4", module: "Credit Profile + Approval Readiness", summary: "Bureau/profile checks, comparable credit, and application timing come before broader applications.", sections: [
     { key: "bureaus", label: "Business profile", route: "/equifax-business/" },
     { key: "comparable-credit", label: "Comparable credit", route: "/comparable-credit/" },
     { key: "criteria", label: "Readiness criteria", route: "/business-credit-criteria/" },
   ] },
-  { phase: "Phase 5", module: "Starter Vendor Credit", summary: "Net 30, cards, and funding paths are reviewed only after the foundation supports the account category.", sections: [
+  { phase: "Phase 5", module: "Starter Vendor Credit", summary: "Net 30 paths are reviewed only after the foundation supports the account category.", sections: [
     { key: "net30", label: "Starter vendors", route: "/about-net-30/" },
+  ] },
+  { phase: "Phase 5", module: "Cards + Funding", summary: "Cards and funding paths are reviewed only after the foundation supports the account category.", sections: [
     { key: "cards", label: "Business cards", route: "/revolving-business-credit-cards/" },
     { key: "funding", label: "Funding readiness", route: "/cd-business-loans/" },
   ] },
 ];
-const defaultTags = ["Member lesson", "5-module path", "Checklist"];
+const defaultTags = ["Member lesson", "7-module path", "Checklist"];
 
 function lesson(input: Omit<LessonSection, "tags" | "why" | "warningTitle" | "warning" | "guideTitle" | "guide" | "checklist" | "proof" | "resources"> & Partial<Pick<LessonSection, "tags" | "why" | "warningTitle" | "warning" | "guideTitle" | "guide" | "checklist" | "proof" | "resources">>): LessonSection {
   return {

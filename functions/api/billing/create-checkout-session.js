@@ -6,7 +6,7 @@ import { attachReferralToUser, normalizeAffiliateCode, referralForUser } from '.
 const CHECKOUT_SESSION_LIST_LIMIT = 20;
 const OPEN_CHECKOUT_WINDOW_SECONDS = 45 * 60;
 
-function pickOpenCheckoutSessionUrl(sessions, userId, plan) {
+function pickOpenCheckoutSessionUrl(sessions, userId, plan, priceId) {
   const now = Math.floor(Date.now() / 1000);
   if (!Array.isArray(sessions)) return null;
   for (let i = 0; i < sessions.length; i += 1) {
@@ -15,6 +15,7 @@ function pickOpenCheckoutSessionUrl(sessions, userId, plan) {
     if (session.status !== 'open') continue;
     if (String(session.client_reference_id || '') !== String(userId || '')) continue;
     if (String(session.metadata && session.metadata.plan) !== String(plan || '')) continue;
+    if (String(session.metadata && session.metadata.price_id) !== String(priceId || '')) continue;
     const created = Number(session.created || 0);
     if (!created || now - created > OPEN_CHECKOUT_WINDOW_SECONDS) continue;
     if (!session.url) continue;
@@ -23,12 +24,12 @@ function pickOpenCheckoutSessionUrl(sessions, userId, plan) {
   return null;
 }
 
-async function findOpenCheckoutSessionUrl(env, userId, customerId, plan) {
+async function findOpenCheckoutSessionUrl(env, userId, customerId, plan, priceId) {
   if (!customerId) return null;
   const sessionList = await stripeGet(env, '/checkout/sessions', { customer: customerId, limit: CHECKOUT_SESSION_LIST_LIMIT });
   if (sessionList instanceof Response) return null;
   if (!sessionList || sessionList.error) return null;
-  return pickOpenCheckoutSessionUrl(sessionList.data || [], userId, plan);
+  return pickOpenCheckoutSessionUrl(sessionList.data || [], userId, plan, priceId);
 }
 
 export async function onRequestPost(context) {
@@ -67,13 +68,15 @@ export async function onRequestPost(context) {
       context.env,
       auth.user.id,
       auth.user.stripeCustomerId,
-      plan
+      plan,
+      priceId
     );
     if (existingSessionUrl) return json({ url: existingSessionUrl });
     const metadata = {
       user_id: auth.user.id,
       product: 'verge-five-membership',
       plan,
+      price_id: priceId,
       product_plan: productPlan,
       affiliate_id: referral ? referral.affiliate_id : '',
       affiliate_code: referral ? referral.referral_code : ''

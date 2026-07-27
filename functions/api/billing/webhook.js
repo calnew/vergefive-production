@@ -1,6 +1,119 @@
-import { json } from '../../_lib/auth.js';
-import { verifyStripeSignature } from '../../_lib/stripe.js';
+import { cleanLimited, json } from '../../_lib/auth.js';
+import { stripeGet, verifyStripeSignature } from '../../_lib/stripe.js';
 import { ensureCommissionForCheckout, recordPaidInvoice } from '../../_lib/affiliates.js';
+
+const VERGE_FIVE_PRODUCT = 'verge-five-membership';
+
+function configuredPriceId(env, plan) {
+  return String(plan || '') === 'annual'
+    ? String(env.STRIPE_PRICE_ID_ANNUAL || '')
+    : String(env.STRIPE_PRICE_ID_MONTHLY || env.STRIPE_PRICE_ID || '');
+}
+
+function isConfiguredPlanPrice(env, plan, priceId) {
+  const expected = configuredPriceId(env, plan);
+  return !!expected && String(priceId || '') === expected;
+}
+
+function configuredPlanForPrice(env, priceId) {
+  if (isConfiguredPlanPrice(env, 'monthly', priceId)) return 'monthly';
+  if (isConfiguredPlanPrice(env, 'annual', priceId)) return 'annual';
+  return '';
+}
+
+function subscriptionStatusGrantsAccess(status) {
+  return ['active', 'trialing'].includes(String(status || '').toLowerCase());
+}
+
+function subscriptionPriceId(subscription) {
+  const metadataPrice = subscription && subscription.metadata && subscription.metadata.price_id;
+  const itemPrice = subscription && subscription.items && subscription.items.data
+    && subscription.items.data[0] && subscription.items.data[0].price;
+  return String(itemPrice && (itemPrice.id || itemPrice) || metadataPrice || '');
+}
+
+function stripeEventModeAllowed(env, event) {
+  const appEnvironment = String(env.APP_ENVIRONMENT || '').toLowerCase();
+  const requiredMode = String(env.STRIPE_MODE_REQUIRED || '').toLowerCase();
+  if (appEnvironment === 'development' || requiredMode === 'test') return event.livemode === false;
+  if (appEnvironment === 'production' || requiredMode === 'live') return event.livemode === true;
+  return true;
+}
+
+async function checkoutPriceId(env, session) {
+  const embedded = session && session.line_items && session.line_items.data
+    && session.line_items.data[0] && session.line_items.data[0].price;
+  if (embedded) return String(embedded.id || embedded);
+  const sessionId = String(session && session.id || '');
+  if (!sessionId) return '';
+  const lineItems = await stripeGet(env, `/checkout/sessions/${encodeURIComponent(sessionId)}/line_items`, { limit: 1 });
+  if (lineItems instanceof Response) throw new Error('Stripe checkout line items could not be verified.');
+  const price = lineItems && lineItems.data && lineItems.data[0] && lineItems.data[0].price;
+  return String(price && (price.id || price) || '');
+}
+
+async function verifiedVergeFiveCheckoutPriceId(env, session) {
+  const metadata = session && session.metadata || {};
+  const actualPriceId = await checkoutPriceId(env, session);
+  const valid = metadata.product === VERGE_FIVE_PRODUCT
+    && metadata.product_plan === 'self-serve'
+    && ['monthly', 'annual'].includes(String(metadata.plan || ''))
+    && (!metadata.price_id || isConfiguredPlanPrice(env, metadata.plan, metadata.price_id))
+    && isConfiguredPlanPrice(env, metadata.plan, actualPriceId);
+  return valid ? actualPriceId : '';
+}
+
+async function reserveEvent(env, event) {
+  const id = String(event.id || '').trim();
+  if (!id) return { process: true, id: '' };
+  const existing = await env.DB.prepare(
+    'select status, updated_at from stripe_webhook_events where id = ? limit 1',
+  ).bind(id).first();
+  if (existing && existing.status === 'completed') return { process: false, duplicate: true, id };
+  if (existing && existing.status === 'processing' && Date.parse(existing.updated_at || '') > Date.now() - 5 * 60 * 1000) {
+    return { process: false, busy: true, id };
+  }
+  if (existing) {
+    await env.DB.prepare(
+      `update stripe_webhook_events
+       set status = 'processing', attempts = attempts + 1, updated_at = datetime('now'), last_error = null
+       where id = ?`,
+    ).bind(id).run();
+    return { process: true, id };
+  }
+  try {
+    await env.DB.prepare(
+      `insert into stripe_webhook_events
+        (id, event_type, status, attempts, created_at, updated_at)
+       values (?, ?, 'processing', 1, datetime('now'), datetime('now'))`,
+    ).bind(id, String(event.type || '')).run();
+    return { process: true, id };
+  } catch {
+    const raced = await env.DB.prepare(
+      'select status from stripe_webhook_events where id = ? limit 1',
+    ).bind(id).first();
+    if (raced && raced.status === 'completed') return { process: false, duplicate: true, id };
+    return { process: false, busy: true, id };
+  }
+}
+
+async function completeEvent(env, id) {
+  if (!id) return;
+  await env.DB.prepare(
+    `update stripe_webhook_events
+     set status = 'completed', completed_at = datetime('now'), updated_at = datetime('now'), last_error = null
+     where id = ?`,
+  ).bind(id).run();
+}
+
+async function failEvent(env, id, error) {
+  if (!id) return;
+  await env.DB.prepare(
+    `update stripe_webhook_events
+     set status = 'failed', updated_at = datetime('now'), last_error = ?
+     where id = ?`,
+  ).bind(cleanLimited(error && error.message || error, 500), id).run();
+}
 
 export async function onRequestPost(context) {
   if (!context.env.DB) return json({ error: 'D1 binding DB is not configured.' }, 500);
@@ -8,45 +121,52 @@ export async function onRequestPost(context) {
   const verified = await verifyStripeSignature(context.request, context.env, rawBody);
   if (!verified) return json({ error: 'Invalid webhook signature.' }, 400);
 
-  const event = JSON.parse(rawBody);
-  const eventId = String(event.id || '').trim();
-  if (eventId) {
-    await context.env.DB.prepare(
-      `create table if not exists stripe_webhook_events (
-        id text primary key,
-        event_type text,
-        created_at text not null default (datetime('now'))
-      )`
-    ).run();
-    try {
-      await context.env.DB.prepare(
-        'insert into stripe_webhook_events (id, event_type, created_at) values (?, ?, datetime("now"))'
-      ).bind(eventId, String(event.type || '')).run();
-    } catch (error) {
-      return json({ received: true, duplicate: true });
-    }
+  let event;
+  try {
+    event = JSON.parse(rawBody);
+  } catch {
+    return json({ error: 'Invalid webhook payload.' }, 400);
   }
+  if (!stripeEventModeAllowed(context.env, event)) {
+    return json({ error: 'Stripe event mode does not match this environment.' }, 403);
+  }
+
+  const reservation = await reserveEvent(context.env, event);
+  if (reservation.duplicate) return json({ received: true, duplicate: true });
+  if (reservation.busy) return json({ error: 'Webhook event is already processing.' }, 409);
+
   const object = event.data && event.data.object ? event.data.object : {};
   try {
-    if (event.type === 'checkout.session.completed') {
-      await handleCheckoutCompleted(context.env, object);
+    if (event.type === 'checkout.session.completed' && object.metadata && object.metadata.product === VERGE_FIVE_PRODUCT) {
+      const verifiedPriceId = await verifiedVergeFiveCheckoutPriceId(context.env, object);
+      if (!verifiedPriceId) {
+        throw new Error('Verge Five checkout price or metadata did not match the configured product.');
+      }
+      await handleCheckoutCompleted(context.env, object, verifiedPriceId);
     }
     if (event.type === 'invoice.paid') {
       await recordPaidInvoice(context.env, object);
     }
-    if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
-      await handleSubscription(context.env, object);
+    if (
+      event.type === 'customer.subscription.created'
+      || event.type === 'customer.subscription.updated'
+      || event.type === 'customer.subscription.deleted'
+    ) {
+      const binding = await resolveVergeFiveSubscriptionBinding(context.env, object);
+      if (binding) await handleSubscription(context.env, object, binding);
     }
     if (event.type === 'invoice.payment_failed') {
-      await markByCustomer(context.env, object.customer, 'past_due', '');
+      await markBySubscription(context.env, object.subscription, 'past_due', '');
     }
+    await completeEvent(context.env, reservation.id);
     return json({ received: true });
   } catch (error) {
+    await failEvent(context.env, reservation.id, error).catch(() => null);
     return json({ error: 'Webhook handler failed.' }, 500);
   }
 }
 
-async function handleCheckoutCompleted(env, session) {
+async function handleCheckoutCompleted(env, session, verifiedPriceId) {
   const userId = session.client_reference_id || session.metadata && session.metadata.user_id;
   if (!userId) return;
   await env.DB.prepare('update users set stripe_customer_id = ? where id = ?').bind(session.customer || '', userId).run();
@@ -55,49 +175,98 @@ async function handleCheckoutCompleted(env, session) {
     customerId: session.customer || '',
     subscriptionId: session.subscription || '',
     status: session.payment_status === 'paid' ? 'active' : 'pending',
-    periodEnd: ''
+    periodEnd: '',
+    plan: session.metadata && session.metadata.plan || '',
+    priceId: verifiedPriceId
   });
   await ensureCommissionForCheckout(env, session);
 }
 
-async function handleSubscription(env, subscription) {
-  const userId = subscription.metadata && subscription.metadata.user_id
-    ? subscription.metadata.user_id
-    : await userIdByCustomer(env, subscription.customer);
-  if (!userId) return;
+async function resolveVergeFiveSubscriptionBinding(env, subscription) {
+  const metadata = subscription && subscription.metadata || {};
+  const priceId = subscriptionPriceId(subscription);
+  const id = String(subscription && subscription.id || '');
+  if (!id) return null;
+  const row = await env.DB.prepare(
+    'select user_id, plan, stripe_price_id from memberships where stripe_subscription_id = ? limit 1',
+  ).bind(id).first();
+  if (row) {
+    const storedPriceId = String(row.stripe_price_id || '');
+    const configuredPlan = configuredPlanForPrice(env, priceId);
+    const priceChanged = !!priceId && storedPriceId !== priceId;
+    const unsupportedPriceChange = priceChanged && !configuredPlan;
+    const unsupportedEntitlingPrice = unsupportedPriceChange
+      && subscriptionStatusGrantsAccess(subscription && subscription.status);
+    return {
+      userId: String(row.user_id || ''),
+      plan: String(configuredPlan || row.plan || ''),
+      priceId: String(unsupportedPriceChange ? storedPriceId : priceId || storedPriceId),
+      status: unsupportedEntitlingPrice ? 'invalid_price' : '',
+    };
+  }
+  const validUnboundSubscription = metadata.product === VERGE_FIVE_PRODUCT
+    && metadata.product_plan === 'self-serve'
+    && ['monthly', 'annual'].includes(String(metadata.plan || ''))
+    && (!metadata.price_id || isConfiguredPlanPrice(env, metadata.plan, metadata.price_id))
+    && isConfiguredPlanPrice(env, metadata.plan, priceId);
+  if (!validUnboundSubscription || !metadata.user_id) return null;
+  return {
+    userId: String(metadata.user_id),
+    plan: String(metadata.plan),
+    priceId,
+    status: '',
+  };
+}
+
+async function handleSubscription(env, subscription, binding) {
+  if (!binding.userId) return;
   await upsertMembership(env, {
-    userId,
+    userId: binding.userId,
     customerId: subscription.customer || '',
     subscriptionId: subscription.id || '',
-    status: subscription.status || 'pending',
-    periodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : ''
+    status: binding.status || subscription.status || 'pending',
+    periodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : '',
+    plan: binding.plan,
+    priceId: binding.priceId
   });
 }
 
-async function markByCustomer(env, customerId, status, periodEnd) {
-  const userId = await userIdByCustomer(env, customerId);
+async function markBySubscription(env, subscriptionId, status, periodEnd) {
+  const userId = await userIdBySubscription(env, subscriptionId);
   if (!userId) return;
-  await upsertMembership(env, { userId, customerId, subscriptionId: '', status, periodEnd });
+  await upsertMembership(env, { userId, customerId: '', subscriptionId, status, periodEnd, plan: '', priceId: '' });
 }
 
-async function userIdByCustomer(env, customerId) {
-  if (!customerId) return '';
-  const row = await env.DB.prepare('select id from users where stripe_customer_id = ?').bind(customerId).first();
-  return row ? row.id : '';
+async function userIdBySubscription(env, subscriptionId) {
+  if (!subscriptionId) return '';
+  const row = await env.DB.prepare(
+    'select user_id from memberships where stripe_subscription_id = ? limit 1',
+  ).bind(subscriptionId).first();
+  return row ? row.user_id : '';
 }
 
 async function upsertMembership(env, data) {
   await env.DB.prepare(
     `insert into memberships
-      (user_id, status, stripe_customer_id, stripe_subscription_id, current_period_end, updated_at, created_at)
-     values (?, ?, ?, ?, ?, datetime("now"), datetime("now"))
+      (user_id, status, stripe_customer_id, stripe_subscription_id, stripe_price_id, plan, current_period_end, updated_at, created_at)
+     values (?, ?, ?, ?, ?, ?, ?, datetime("now"), datetime("now"))
      on conflict(user_id) do update set
       status = excluded.status,
       stripe_customer_id = coalesce(nullif(excluded.stripe_customer_id, ''), memberships.stripe_customer_id),
       stripe_subscription_id = coalesce(nullif(excluded.stripe_subscription_id, ''), memberships.stripe_subscription_id),
+      stripe_price_id = coalesce(nullif(excluded.stripe_price_id, ''), memberships.stripe_price_id),
+      plan = coalesce(nullif(excluded.plan, ''), memberships.plan),
       current_period_end = coalesce(nullif(excluded.current_period_end, ''), memberships.current_period_end),
       updated_at = datetime("now")`
-  ).bind(data.userId, data.status, data.customerId || '', data.subscriptionId || '', data.periodEnd || '').run();
+  ).bind(
+    data.userId,
+    data.status,
+    data.customerId || '',
+    data.subscriptionId || '',
+    data.priceId || '',
+    data.plan || '',
+    data.periodEnd || '',
+  ).run();
   if (data.customerId) {
     await env.DB.prepare('update users set stripe_customer_id = ? where id = ?').bind(data.customerId, data.userId).run();
   }

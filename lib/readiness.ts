@@ -116,6 +116,7 @@ export function mergeFixStatuses(input: {
   detectedKeys?: string[];
   progressKeys?: string[];
   doneKeys?: string[];
+  savedStatuses?: Record<string, FixStatus>;
 }): Record<string, FixStatus> {
   const out: Record<string, FixStatus> = {};
   for (const key of input.scanCleanKeys ?? []) out[key] = "done";
@@ -123,5 +124,6 @@ export function mergeFixStatuses(input: {
   for (const key of input.detectedKeys ?? []) if ((out[key] ?? "todo") === "todo") out[key] = "progress";
   for (const key of input.progressKeys ?? []) if (out[key] !== "done") out[key] = "progress";
   for (const key of input.doneKeys ?? []) out[key] = "done";
+  for (const [key, status] of Object.entries(input.savedStatuses ?? {})) out[key] = status;
   return out;
 }

@@ -1,27 +1,8 @@
-import { cleanLimited, getAuth, json, readJson, requireSameOrigin } from '../../_lib/auth.js';
-
-async function ensureTable(env) {
-  await env.DB.prepare(
-    `create table if not exists visibility_audits (
-      id text primary key,
-      user_id text not null references users(id) on delete cascade,
-      mode text not null,
-      business_name text,
-      score integer,
-      label text,
-      source_mode text,
-      engine text,
-      result_json text not null,
-      created_at text not null default (datetime('now'))
-    )`
-  ).run();
-  await env.DB.prepare('create index if not exists idx_visibility_audits_user on visibility_audits(user_id, mode, created_at)').run();
-}
+import { cleanLimited, json, readJson, requireActiveMember, requireSameOrigin } from '../../_lib/auth.js';
 
 export async function onRequestGet(context) {
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
-  await ensureTable(context.env);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const rows = await context.env.DB.prepare(
     `select id, mode, business_name, score, label, source_mode, engine, result_json, created_at
      from visibility_audits
@@ -35,8 +16,8 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   const originError = requireSameOrigin(context);
   if (originError) return originError;
-  const auth = context.data.auth || await getAuth(context.request, context.env);
-  if (!auth) return json({ error: 'Login required.' }, 401);
+  const { auth, response } = await requireActiveMember(context);
+  if (response) return response;
   const input = await readJson(context.request, 40 * 1024);
   const mode = cleanLimited(input.mode, 20) === 'after' ? 'after' : 'before';
   const result = input.result && typeof input.result === 'object' ? input.result : {};
@@ -76,7 +57,6 @@ export async function onRequestPost(context) {
     disclaimer: cleanLimited(result.disclaimer, 400),
     generatedAt: cleanLimited(result.generatedAt, 80)
   };
-  await ensureTable(context.env);
   await context.env.DB.prepare(
     `insert into visibility_audits
       (id, user_id, mode, business_name, score, label, source_mode, engine, result_json, created_at)
