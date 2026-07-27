@@ -193,15 +193,14 @@ async function resolveVergeFiveSubscriptionBinding(env, subscription) {
   if (row) {
     const storedPriceId = String(row.stripe_price_id || '');
     const configuredPlan = configuredPlanForPrice(env, priceId);
-    const priceChanged = !!priceId && !!storedPriceId && storedPriceId !== priceId;
-    const unsupportedEntitlingPrice = !!priceId
-      && !configuredPlan
-      && subscriptionStatusGrantsAccess(subscription && subscription.status)
-      && (!storedPriceId || priceChanged);
+    const priceChanged = !!priceId && storedPriceId !== priceId;
+    const unsupportedPriceChange = priceChanged && !configuredPlan;
+    const unsupportedEntitlingPrice = unsupportedPriceChange
+      && subscriptionStatusGrantsAccess(subscription && subscription.status);
     return {
       userId: String(row.user_id || ''),
       plan: String(configuredPlan || row.plan || ''),
-      priceId: String(priceId || storedPriceId),
+      priceId: String(unsupportedPriceChange ? storedPriceId : priceId || storedPriceId),
       status: unsupportedEntitlingPrice ? 'invalid_price' : '',
     };
   }

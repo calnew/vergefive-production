@@ -61,7 +61,10 @@ function affiliateDb(batchError = null) {
 }
 
 function subscriptionDb(membership = null) {
-  const state = { runs: [] };
+  const state = {
+    runs: [],
+    membership: membership ? { ...membership } : null,
+  };
   return {
     state,
     prepare(sql) {
@@ -73,12 +76,21 @@ function subscriptionDb(membership = null) {
             async first() {
               if (sql.includes("from stripe_webhook_events")) return null;
               if (sql.includes("from memberships where stripe_subscription_id")) {
-                return membership;
+                return state.membership;
               }
               return null;
             },
             async run() {
               state.runs.push({ sql, bindings });
+              if (sql.includes("insert into memberships")) {
+                state.membership = {
+                  user_id: bindings[0],
+                  status: bindings[1],
+                  stripe_subscription_id: bindings[3] || state.membership?.stripe_subscription_id || "",
+                  stripe_price_id: bindings[4] || state.membership?.stripe_price_id || null,
+                  plan: bindings[5] || state.membership?.plan || "",
+                };
+              }
               return { success: true };
             },
           };
@@ -242,7 +254,7 @@ assert(legacyResponse.status === 200, `Legacy retired-price cancellation returne
 const legacyMembershipWrite = legacyDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
 assert(legacyMembershipWrite, "Legacy subscription without a stored price was not updated.");
 assert(legacyMembershipWrite.bindings.includes("legacy-user"), "Legacy subscription ownership was not preserved.");
-assert(legacyMembershipWrite.bindings.includes("price_legacy_retired"), "Legacy historical price was not backfilled.");
+assert(!legacyMembershipWrite.bindings.includes("price_legacy_retired"), "An unsupported legacy price replaced the empty trusted binding.");
 assert(legacyMembershipWrite.bindings.includes("canceled"), "Legacy cancellation status was not persisted.");
 
 const switchedDb = subscriptionDb({
@@ -324,6 +336,46 @@ const canceledMismatchWrite = canceledMismatchDb.state.runs.find((entry) => entr
 assert(canceledMismatchWrite, "Mismatched-price cancellation did not update membership state.");
 assert(canceledMismatchWrite.bindings.includes("cancel-user"), "Mismatched-price cancellation lost D1 ownership.");
 assert(canceledMismatchWrite.bindings.includes("canceled"), "Mismatched-price cancellation left access active.");
+assert(
+  canceledMismatchDb.state.membership.stripe_price_id === "price_old_monthly",
+  "Mismatched-price cancellation replaced the trusted D1 price binding.",
+);
+
+const outOfOrderActiveRequest = await signedStripeRequest({
+  id: "evt_bound_mismatched_price_active_late",
+  type: "customer.subscription.updated",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_canceled_mismatch",
+      status: "active",
+      customer: "",
+      current_period_end: 0,
+      metadata: {},
+      items: { data: [{ price: { id: "price_unconfigured" } }] },
+    },
+  },
+}, webhookSecret);
+const outOfOrderActiveResponse = await handleWebhook({
+  request: outOfOrderActiveRequest,
+  env: {
+    DB: canceledMismatchDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(outOfOrderActiveResponse.status === 200, `Out-of-order active event returned ${outOfOrderActiveResponse.status}.`);
+const canceledMismatchWrites = canceledMismatchDb.state.runs.filter((entry) => entry.sql.includes("insert into memberships"));
+const outOfOrderActiveWrite = canceledMismatchWrites.at(-1);
+assert(canceledMismatchWrites.length === 2, "Out-of-order sequence did not exercise two membership mutations.");
+assert(outOfOrderActiveWrite.bindings.includes("invalid_price"), "Out-of-order unsupported event restored active access.");
+assert(
+  canceledMismatchDb.state.membership.stripe_price_id === "price_old_monthly",
+  "Out-of-order unsupported event poisoned the trusted D1 price binding.",
+);
 
 const unsupportedActiveDb = subscriptionDb({
   user_id: "unsupported-user",
@@ -361,6 +413,46 @@ const unsupportedActiveWrite = unsupportedActiveDb.state.runs.find((entry) => en
 assert(unsupportedActiveWrite, "Unsupported active price did not update membership state.");
 assert(unsupportedActiveWrite.bindings.includes("unsupported-user"), "Unsupported active price lost D1 ownership.");
 assert(unsupportedActiveWrite.bindings.includes("invalid_price"), "Unsupported active price left membership access active.");
+assert(
+  unsupportedActiveDb.state.membership.stripe_price_id === "price_old_monthly",
+  "Unsupported active price replaced the trusted D1 price binding.",
+);
+
+const repeatedUnsupportedRequest = await signedStripeRequest({
+  id: "evt_bound_unsupported_active_price_repeat",
+  type: "customer.subscription.updated",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_unsupported_active",
+      status: "active",
+      customer: "",
+      current_period_end: 0,
+      metadata: {},
+      items: { data: [{ price: { id: "price_unconfigured" } }] },
+    },
+  },
+}, webhookSecret);
+const repeatedUnsupportedResponse = await handleWebhook({
+  request: repeatedUnsupportedRequest,
+  env: {
+    DB: unsupportedActiveDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(repeatedUnsupportedResponse.status === 200, `Repeated unsupported active price returned ${repeatedUnsupportedResponse.status}.`);
+const unsupportedWrites = unsupportedActiveDb.state.runs.filter((entry) => entry.sql.includes("insert into memberships"));
+const repeatedUnsupportedWrite = unsupportedWrites.at(-1);
+assert(unsupportedWrites.length === 2, "Repeated unsupported event did not exercise a second membership mutation.");
+assert(repeatedUnsupportedWrite.bindings.includes("invalid_price"), "Repeated unsupported event restored active access.");
+assert(
+  unsupportedActiveDb.state.membership.stripe_price_id === "price_old_monthly",
+  "Repeated unsupported event poisoned the trusted D1 price binding.",
+);
 
 const unboundDb = subscriptionDb();
 const unboundRequest = await signedStripeRequest({
