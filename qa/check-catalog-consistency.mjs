@@ -16,6 +16,12 @@ function keys(block) {
 const buildoutKeys = new Set(keys(between("export const buildoutModules", "export const accountGroups")));
 const programKeys = new Set(keys(between("export const programModules", "const defaultTags")));
 const missing = [...programKeys].filter((key) => !buildoutKeys.has(key));
+const untracked = [...programKeys].filter((key) => {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return !new RegExp(`\\{\\s*key:\\s*"${escaped}"[^\\n]*fixKeys:\\s*\\[[^\\]]*"${escaped}"`).test(
+    between("export const buildoutModules", "export const accountGroups"),
+  );
+});
 
 if (missing.length) {
   throw new Error(`Full Buildout omits canonical program lessons: ${missing.join(", ")}`);
@@ -23,5 +29,8 @@ if (missing.length) {
 if (buildoutKeys.has("cards-funding")) {
   throw new Error("Full Buildout still collapses the distinct cards and funding lessons.");
 }
+if (untracked.length) {
+  throw new Error(`Canonical Buildout lessons do not track their own completion keys: ${untracked.join(", ")}`);
+}
 
-console.log(`PASS: Full Buildout covers all ${programKeys.size} canonical program lessons without collapsing cards and funding.`);
+console.log(`PASS: Full Buildout covers and tracks all ${programKeys.size} canonical program lessons without collapsing cards and funding.`);

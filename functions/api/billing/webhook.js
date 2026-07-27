@@ -175,21 +175,21 @@ async function handleCheckoutCompleted(env, session, verifiedPriceId) {
 async function subscriptionBelongsToVergeFive(env, subscription) {
   const metadata = subscription && subscription.metadata || {};
   const priceId = subscriptionPriceId(subscription);
-  if (metadata.product === VERGE_FIVE_PRODUCT) {
-    return metadata.product_plan === 'self-serve'
-      && ['monthly', 'annual'].includes(String(metadata.plan || ''))
-      && (!metadata.price_id || isConfiguredPlanPrice(env, metadata.plan, metadata.price_id))
-      && isConfiguredPlanPrice(env, metadata.plan, priceId);
-  }
   const id = String(subscription && subscription.id || '');
   if (!id) return false;
   const row = await env.DB.prepare(
     'select user_id, plan, stripe_price_id from memberships where stripe_subscription_id = ? limit 1',
   ).bind(id).first();
-  if (!row) return false;
-  if (!priceId) return true;
-  if (!isConfiguredPlanPrice(env, row.plan, priceId)) return false;
-  return !row.stripe_price_id || String(row.stripe_price_id) === priceId;
+  if (row) {
+    if (!priceId) return true;
+    if (row.stripe_price_id) return String(row.stripe_price_id) === priceId;
+    return isConfiguredPlanPrice(env, row.plan || metadata.plan, priceId);
+  }
+  return metadata.product === VERGE_FIVE_PRODUCT
+    && metadata.product_plan === 'self-serve'
+    && ['monthly', 'annual'].includes(String(metadata.plan || ''))
+    && (!metadata.price_id || isConfiguredPlanPrice(env, metadata.plan, metadata.price_id))
+    && isConfiguredPlanPrice(env, metadata.plan, priceId);
 }
 
 async function handleSubscription(env, subscription) {

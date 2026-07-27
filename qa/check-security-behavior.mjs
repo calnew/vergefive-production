@@ -60,6 +60,34 @@ function affiliateDb(batchError = null) {
   };
 }
 
+function retiredSubscriptionDb() {
+  const state = { runs: [] };
+  return {
+    state,
+    prepare(sql) {
+      return {
+        bind(...bindings) {
+          return {
+            sql,
+            bindings,
+            async first() {
+              if (sql.includes("from stripe_webhook_events")) return null;
+              if (sql.includes("from memberships where stripe_subscription_id")) {
+                return { user_id: "paid-user", plan: "monthly", stripe_price_id: "price_retired" };
+              }
+              return null;
+            },
+            async run() {
+              state.runs.push({ sql, bindings });
+              return { success: true };
+            },
+          };
+        },
+      };
+    },
+  };
+}
+
 const webhookSecret = "whsec_behavior_test";
 let dbTouches = 0;
 const rejectingDb = {
@@ -132,4 +160,43 @@ assert(retryError?.message === "D1 write unavailable", "Non-duplicate affiliate 
 const duplicateDb = affiliateDb(new Error("UNIQUE constraint failed: affiliate_invoice_events.stripe_invoice_id"));
 await recordPaidInvoice({ DB: duplicateDb }, { id: "in_duplicate", subscription: "sub_duplicate" });
 
-console.log("PASS: live dev webhooks fail before D1, paid-report policy is enforced, and affiliate invoice updates remain atomic and retryable.");
+const retiredDb = retiredSubscriptionDb();
+const retiredRequest = await signedStripeRequest({
+  id: "evt_retired_price_cancel",
+  type: "customer.subscription.deleted",
+  livemode: false,
+  data: {
+    object: {
+      id: "sub_retired",
+      status: "canceled",
+      customer: "",
+      current_period_end: 0,
+      metadata: {
+        user_id: "paid-user",
+        product: "verge-five-membership",
+        product_plan: "self-serve",
+        plan: "monthly",
+        price_id: "price_retired",
+      },
+      items: { data: [{ price: { id: "price_retired" } }] },
+    },
+  },
+}, webhookSecret);
+const retiredResponse = await handleWebhook({
+  request: retiredRequest,
+  env: {
+    DB: retiredDb,
+    APP_ENVIRONMENT: "development",
+    STRIPE_MODE_REQUIRED: "test",
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_ID_MONTHLY: "price_current",
+    STRIPE_PRICE_ID_ANNUAL: "price_annual",
+  },
+});
+assert(retiredResponse.status === 200, `Retired-price cancellation returned ${retiredResponse.status}.`);
+const retiredMembershipWrite = retiredDb.state.runs.find((entry) => entry.sql.includes("insert into memberships"));
+assert(retiredMembershipWrite, "Retired-price cancellation did not update membership state.");
+assert(retiredMembershipWrite.bindings.includes("canceled"), "Retired-price cancellation did not persist canceled status.");
+assert(retiredMembershipWrite.bindings.includes("price_retired"), "Retired-price cancellation did not preserve the stored historical price.");
+
+console.log("PASS: live dev webhooks fail before D1, paid-report policy is enforced, affiliate invoice updates stay retryable, and retired-price cancellations remain valid.");
